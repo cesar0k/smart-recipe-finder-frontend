@@ -54,7 +54,7 @@ export function RecipeLightbox({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="!max-w-[100vw] !w-screen !h-screen !rounded-none !border-none !p-0 bg-black/95 block z-[100] focus:outline-none [&>button]:hidden">
+      <DialogContent className="!max-w-[100vw] !w-screen !h-[100dvh] !rounded-none !border-none !p-0 bg-black/95 block z-[100] focus:outline-none [&>button]:hidden">
         <VisuallyHidden>
           <DialogTitle>{t("image_gallery_title")}</DialogTitle>
         </VisuallyHidden>

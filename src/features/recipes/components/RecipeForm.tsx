@@ -128,7 +128,7 @@ export function RecipeForm({
                       ${
                         isCover
                           ? "bg-yellow-400 text-white opacity-100"
-                          : "bg-white text-gray-400 opacity-0 group-hover:opacity-100 hover:text-yellow-400"
+                          : "bg-white text-gray-400 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:text-yellow-400"
                       }`}
                     title={
                       isCover
@@ -144,7 +144,7 @@ export function RecipeForm({
                   <button
                     type="button"
                     onClick={() => removeExistingUrl(url)}
-                    className="absolute top-1 right-1 bg-white text-black rounded-full p-1.5 shadow-md hover:bg-red-50 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 z-20"
+                    className="absolute top-1 right-1 bg-white text-black rounded-full p-1.5 shadow-md hover:bg-red-50 hover:text-red-500 transition-colors z-20 opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
                     aria-label={t("form_remove_existing_image_label")}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -174,7 +174,7 @@ export function RecipeForm({
                         ${
                           isCover
                             ? "bg-yellow-400 text-white opacity-100"
-                            : "bg-white text-gray-400 opacity-0 group-hover:opacity-100 hover:text-yellow-400"
+                            : "bg-white text-gray-400 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:text-yellow-400"
                         }`}
                       title={
                         isCover
@@ -191,7 +191,7 @@ export function RecipeForm({
                   <button
                     type="button"
                     onClick={() => removeNewFile(index)}
-                    className="absolute top-1 right-1 bg-white text-black rounded-full p-1.5 shadow-md hover:bg-red-50 hover:text-red-500 transition-colors z-20"
+                    className="absolute top-1 right-1 bg-white text-black rounded-full p-1.5 shadow-md hover:bg-red-50 hover:text-red-500 transition-colors z-20 opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
                     aria-label={t("form_remove_new_file_label")}
                   >
                     <X className="w-3.5 h-3.5" />
@@ -256,7 +256,7 @@ export function RecipeForm({
                 </FormLabel>
                 <Select
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  value={field.value}
                 >
                   <FormControl>
                     <SelectTrigger className="w-full rounded-full px-4 border-gray-200 bg-gray-50/50 focus:bg-white">
