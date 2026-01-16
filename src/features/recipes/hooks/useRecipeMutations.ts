@@ -9,6 +9,7 @@ import {
   getReadRecipesQueryKey,
 } from "@/api/recipes/recipes";
 import { type RecipeFormValues } from "../types/schema";
+import { useTranslation } from "react-i18next";
 
 interface FastAPIError {
   detail: string | { loc: (string | number)[]; msg: string; type: string }[];
@@ -17,6 +18,7 @@ interface FastAPIError {
 export function useRecipeMutations(onSuccess?: () => void) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   const { mutateAsync: createMutate, isPending: isCreating } =
     useCreateRecipe();
@@ -39,12 +41,12 @@ export function useRecipeMutations(onSuccess?: () => void) {
             const fieldName = firstError.loc[firstError.loc.length - 1];
             toast.error(`${fieldName}: ${firstError.msg}`);
           } else {
-            toast.error("Validation failed");
+            toast.error(t("toast_error_validation_failed"));
           }
         } else if (typeof data.detail === "string") {
           toast.error(data.detail);
         } else {
-          toast.error("Validation failed");
+          toast.error(t("toast_error_validation_failed"));
         }
         return;
       }
@@ -78,13 +80,13 @@ export function useRecipeMutations(onSuccess?: () => void) {
         });
       }
 
-      toast.success("Recipe created!");
+      toast.success(t("toast_created"));
       onSuccess?.();
       queryClient.invalidateQueries({ queryKey: getReadRecipesQueryKey() });
 
       if (newRecipe?.id) navigate(`/recipe/${newRecipe.id}`);
     } catch (error) {
-      handleError(error, "Failed to create recipe");
+      handleError(error, t("toast_error_create"));
     }
   };
 
@@ -110,13 +112,13 @@ export function useRecipeMutations(onSuccess?: () => void) {
         });
       }
 
-      toast.success("Recipe updated!");
+      toast.success(t("toast_updated"));
       onSuccess?.();
 
       queryClient.invalidateQueries({ queryKey: getReadRecipesQueryKey() });
       queryClient.invalidateQueries({ queryKey: ["recipes", id] });
     } catch (error) {
-      handleError(error, "Failed to update recipe");
+      handleError(error, t("toast_error_update"));
     }
   };
 

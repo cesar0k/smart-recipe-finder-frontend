@@ -2,9 +2,11 @@ import { useEffect, useMemo } from "react";
 import { type UseFormReturn } from "react-hook-form";
 import { type RecipeFormValues } from "../types/schema";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 export function useRecipeImageManager(form: UseFormReturn<RecipeFormValues>) {
   const { getValues, setValue, watch } = form;
+  const { t } = useTranslation();
 
   const imageFiles = watch("imageFiles");
   const existingUrls = watch("image_urls") || [];
@@ -30,7 +32,7 @@ export function useRecipeImageManager(form: UseFormReturn<RecipeFormValues>) {
         existingUrls.length + currentFiles.length + files.length;
 
       if (totalCount > 5) {
-        toast("Too much images (maximum 5 allowed)");
+        toast.error(t("toast_error_too_many_images"));
       }
 
       const newFiles = [...currentFiles, ...Array.from(files)].slice(

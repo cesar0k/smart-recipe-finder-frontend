@@ -53,6 +53,8 @@
   "toast_error_create": "Ошибка при создании",
   "toast_error_update": "Ошибка при обновлении",
   "toast_error_delete": "Ошибка при удалении",
+  "toast_error_too_many_images": "Слишком много изображений (максимум 5)",
+  "toast_error_validation_failed": "Ошибка валидации",
   "footer_rights": "© {{year}} Smart Recipe Finder. Все права защищены.",
   "footer_privacy": "Политика приватности",
   "footer_terms": "Условия",

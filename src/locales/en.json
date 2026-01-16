@@ -53,6 +53,8 @@
   "toast_error_create": "Failed to create recipe",
   "toast_error_update": "Failed to update recipe",
   "toast_error_delete": "Failed to delete recipe",
+  "toast_error_too_many_images": "Too many images (maximum 5 allowed)",
+  "toast_error_validation_failed": "Validation failed",
   "footer_rights": "© {{year}} Smart Recipe Finder. All rights reserved.",
   "footer_privacy": "Privacy",
   "footer_terms": "Terms",
