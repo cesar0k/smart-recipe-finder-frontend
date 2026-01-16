@@ -4,7 +4,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 export function RecipeCardSkeleton() {
   return (
     <Card className="flex flex-col gap-0 rounded-[24px] border border-gray-100 bg-white shadow-sm p-0 h-full">
-      
       {/* Image */}
       <div className="relative aspect-[4/3] w-full overflow-hidden rounded-t-[24px] bg-gray-100">
         <Skeleton className="h-full w-full" />

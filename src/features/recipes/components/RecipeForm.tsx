@@ -76,7 +76,6 @@ export function RecipeForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 pt-0">
-        
         <FormField
           control={form.control}
           name="title"
@@ -84,7 +83,11 @@ export function RecipeForm({
             <FormItem>
               <FormLabel className="text-gray-700">Title</FormLabel>
               <FormControl>
-                <Input placeholder="e.g. Pasta Carbonara" {...field} className="rounded-full px-4 border-gray-200 bg-gray-50/50 focus:bg-white transition-all" />
+                <Input
+                  placeholder="e.g. Pasta Carbonara"
+                  {...field}
+                  className="rounded-full px-4 border-gray-200 bg-gray-50/50 focus:bg-white transition-all"
+                />
               </FormControl>
               <FormMessage className="ml-4" />
             </FormItem>
@@ -93,29 +96,38 @@ export function RecipeForm({
 
         <div className="space-y-3">
           <FormLabel className="text-gray-700">Photos</FormLabel>
-          
+
           <div className="grid grid-cols-3 gap-4 mb-2">
-            
             {/* Old photos */}
             {existingUrls.map((url, index) => {
               const isCover = index === 0;
               return (
-                <div key={url} className="relative aspect-square rounded-2xl overflow-hidden border border-gray-100 bg-gray-50 group">
-                  <OptimizedImage src={url} alt={`Existing ${index}`} className="w-full h-full object-cover" />
-                  
+                <div
+                  key={url}
+                  className="relative aspect-square rounded-2xl overflow-hidden border border-gray-100 bg-gray-50 group"
+                >
+                  <OptimizedImage
+                    src={url}
+                    alt={`Existing ${index}`}
+                    className="w-full h-full object-cover"
+                  />
+
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors pointer-events-none" />
 
                   <button
                     type="button"
                     onClick={() => setAsCoverExisting(url)}
                     className={`absolute top-1 left-1 p-1.5 rounded-full shadow-sm transition-all z-20 
-                      ${isCover 
-                        ? "bg-yellow-400 text-white opacity-100" 
-                        : "bg-white text-gray-400 opacity-0 group-hover:opacity-100 hover:text-yellow-400"
+                      ${
+                        isCover
+                          ? "bg-yellow-400 text-white opacity-100"
+                          : "bg-white text-gray-400 opacity-0 group-hover:opacity-100 hover:text-yellow-400"
                       }`}
                     title={isCover ? "Cover Image" : "Set as Cover"}
                   >
-                    <Star className={`w-3.5 h-3.5 ${isCover ? "fill-current" : ""}`} />
+                    <Star
+                      className={`w-3.5 h-3.5 ${isCover ? "fill-current" : ""}`}
+                    />
                   </button>
 
                   <button
@@ -136,22 +148,28 @@ export function RecipeForm({
               const isCover = existingUrls.length === 0 && index === 0;
 
               return (
-                <div key={index} className="relative aspect-square rounded-2xl overflow-hidden border border-gray-100 group">
+                <div
+                  key={index}
+                  className="relative aspect-square rounded-2xl overflow-hidden border border-gray-100 group"
+                >
                   <OptimizedImage src={url} alt="New Preview" />
-                  
+
                   {/* "Make cover" (star) button. Only if there are no old images */}
                   {existingUrls.length === 0 && (
                     <button
                       type="button"
                       onClick={() => setNewFileAsCover(index)}
                       className={`absolute top-1 left-1 p-1.5 rounded-full shadow-sm transition-all z-20 
-                        ${isCover 
-                          ? "bg-yellow-400 text-white opacity-100" 
-                          : "bg-white text-gray-400 opacity-0 group-hover:opacity-100 hover:text-yellow-400"
+                        ${
+                          isCover
+                            ? "bg-yellow-400 text-white opacity-100"
+                            : "bg-white text-gray-400 opacity-0 group-hover:opacity-100 hover:text-yellow-400"
                         }`}
                       title={isCover ? "Cover Image" : "Set as Cover"}
                     >
-                      <Star className={`w-3.5 h-3.5 ${isCover ? "fill-current" : ""}`} />
+                      <Star
+                        className={`w-3.5 h-3.5 ${isCover ? "fill-current" : ""}`}
+                      />
                     </button>
                   )}
 
@@ -168,7 +186,7 @@ export function RecipeForm({
             })}
 
             {/* Upload image button */}
-            {(existingUrls.length + (imageFiles?.length || 0)) < 5 && (
+            {existingUrls.length + (imageFiles?.length || 0) < 5 && (
               <div className="aspect-square">
                 <input
                   type="file"
@@ -198,7 +216,11 @@ export function RecipeForm({
               <FormItem>
                 <FormLabel className="text-gray-700">Time (min)</FormLabel>
                 <FormControl>
-                  <Input type="number" {...field} className="rounded-full px-4 border-gray-200 bg-gray-50/50 focus:bg-white" />
+                  <Input
+                    type="number"
+                    {...field}
+                    className="rounded-full px-4 border-gray-200 bg-gray-50/50 focus:bg-white"
+                  />
                 </FormControl>
                 <FormMessage className="ml-4" />
               </FormItem>
@@ -211,14 +233,21 @@ export function RecipeForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-700">Difficulty</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger className="w-full rounded-full px-4 border-gray-200 bg-gray-50/50 focus:bg-white">
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent className="rounded-2xl">
-                    {DIFFICULTY_OPTIONS.map((l) => (<SelectItem key={l} value={l} className="rounded-xl">{l}</SelectItem>))}
+                    {DIFFICULTY_OPTIONS.map((l) => (
+                      <SelectItem key={l} value={l} className="rounded-xl">
+                        {l}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <FormMessage className="ml-4" />
@@ -231,9 +260,17 @@ export function RecipeForm({
             name="cuisine"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-700">Cuisine <span className="text-gray-400 font-normal">(Opt)</span></FormLabel>
+                <FormLabel className="text-gray-700">
+                  Cuisine{" "}
+                  <span className="text-gray-400 font-normal">(Opt)</span>
+                </FormLabel>
                 <FormControl>
-                  <Input placeholder="Italian" {...field} value={field.value || ''} className="rounded-full px-4 border-gray-200 bg-gray-50/50 focus:bg-white" />
+                  <Input
+                    placeholder="Italian"
+                    {...field}
+                    value={field.value || ""}
+                    className="rounded-full px-4 border-gray-200 bg-gray-50/50 focus:bg-white"
+                  />
                 </FormControl>
                 <FormMessage className="ml-4" />
               </FormItem>
@@ -251,17 +288,21 @@ export function RecipeForm({
                 render={({ field }) => (
                   <FormItem className="flex-1">
                     <FormControl>
-                      <Input placeholder="Ingredient" {...field} className="rounded-full px-4 border-gray-200 bg-gray-50/50 focus:bg-white" />
+                      <Input
+                        placeholder="Ingredient"
+                        {...field}
+                        className="rounded-full px-4 border-gray-200 bg-gray-50/50 focus:bg-white"
+                      />
                     </FormControl>
                     <FormMessage className="ml-4" />
                   </FormItem>
                 )}
               />
-              <Button 
-                type="button" 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => remove(index)} 
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => remove(index)}
                 disabled={fields.length === 1}
                 className="rounded-full hover:bg-red-50 text-gray-400 hover:text-red-500"
               >
@@ -269,14 +310,14 @@ export function RecipeForm({
               </Button>
             </div>
           ))}
-          <Button 
-            type="button" 
-            variant="outline" 
-            size="sm" 
-            className="mt-1 rounded-full border-dashed border-gray-300 text-gray-600 hover:text-black hover:border-gray-400" 
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="mt-1 rounded-full border-dashed border-gray-300 text-gray-600 hover:text-black hover:border-gray-400"
             onClick={() => append({ value: "" })}
           >
-          Add Ingredient
+            Add Ingredient
           </Button>
         </div>
 
@@ -287,10 +328,10 @@ export function RecipeForm({
             <FormItem>
               <FormLabel className="text-gray-700">Instructions</FormLabel>
               <FormControl>
-                <Textarea 
-                  placeholder="Step 1..." 
-                  className="min-h-[150px] rounded-[1.5rem] p-4 px-5 border-gray-200 bg-gray-50/50 focus:bg-white resize-none" 
-                  {...field} 
+                <Textarea
+                  placeholder="Step 1..."
+                  className="min-h-[150px] rounded-[1.5rem] p-4 px-5 border-gray-200 bg-gray-50/50 focus:bg-white resize-none"
+                  {...field}
                 />
               </FormControl>
               <FormMessage className="ml-4" />
@@ -298,7 +339,11 @@ export function RecipeForm({
           )}
         />
 
-        <Button type="submit" className="w-full rounded-full h-12 text-base font-semibold bg-black hover:bg-gray-800 shadow-lg shadow-gray-200 transition-all hover:scale-[1.01]" disabled={isSubmitting}>
+        <Button
+          type="submit"
+          className="w-full rounded-full h-12 text-base font-semibold bg-black hover:bg-gray-800 shadow-lg shadow-gray-200 transition-all hover:scale-[1.01]"
+          disabled={isSubmitting}
+        >
           {isSubmitting ? "Saving..." : "Save Recipe"}
         </Button>
       </form>

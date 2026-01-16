@@ -54,7 +54,7 @@ export function OptimizedImage({
       />
 
       {hasError && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-100 text-gray-400 z-20">
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-100 text-gray-400">
           <ImageIcon className="w-10 h-10 mb-2 opacity-50" />
           <span className="text-[10px] font-medium uppercase tracking-wider opacity-50">No Image</span>
         </div>

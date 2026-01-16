@@ -121,3 +121,7 @@
     @apply bg-background text-foreground;
   }
 }
+
+[data-sonner-toast] {
+  border-radius: var(--radius-3xl) !important;
+}
