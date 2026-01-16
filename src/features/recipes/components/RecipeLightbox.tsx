@@ -12,6 +12,7 @@ import {
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { useCarouselCounter } from "../hooks/useCarouselCounter";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { useTranslation } from "react-i18next";
 
 interface RecipeLightboxProps {
   images: string[];
@@ -28,6 +29,7 @@ export function RecipeLightbox({
 }: RecipeLightboxProps) {
   const [api, setApi] = useState<CarouselApi>();
   const { current, count } = useCarouselCounter(api);
+  const { t } = useTranslation();
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
@@ -54,14 +56,14 @@ export function RecipeLightbox({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="!max-w-[100vw] !w-screen !h-screen !rounded-none !border-none !p-0 bg-black/95 block z-[100] focus:outline-none [&>button]:hidden">
         <VisuallyHidden>
-          <DialogTitle>Image Gallery</DialogTitle>
+          <DialogTitle>{t("image_gallery_title")}</DialogTitle>
         </VisuallyHidden>
 
         <div className="contents">
           <button
             onClick={() => onOpenChange(false)}
             className="absolute top-4 right-4 text-white/70 hover:text-white z-[120] p-2 bg-black/20 rounded-full hover:bg-white/10 transition-colors cursor-pointer"
-            aria-label="Close image"
+            aria-label={t("close_image_label")}
           >
             <X className="w-8 h-8" />
           </button>
@@ -83,7 +85,7 @@ export function RecipeLightbox({
                   >
                     <OptimizedImage
                       src={url}
-                      alt={`Fullscreen image ${index + 1}`}
+                      alt={t("fullscreen_image_alt", { index: index + 1 })}
                       className="flex items-center justify-center w-full h-full bg-transparent pointer-events-none"
                       imgClassName="max-w-full max-h-screen w-auto h-auto object-contain shadow-2xl pointer-events-auto cursor-grab active:cursor-grabbing"
                     />

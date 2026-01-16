@@ -2,6 +2,7 @@ import { Clock } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 import { OptimizedImage } from "@/components/ui/optimized-image";
+import { useTranslation } from "react-i18next";
 
 interface RecipeCardProps {
   title: string;
@@ -16,6 +17,7 @@ export function RecipeCard({
   time,
   difficulty,
 }: RecipeCardProps) {
+  const { t } = useTranslation();
   return (
     <Card className="group flex flex-col gap-0 rounded-[24px] border border-gray-100 bg-white shadow-sm hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-300 p-0">
       <div className="relative aspect-[4/3] w-full overflow-hidden rounded-t-[24px] bg-gray-100">
@@ -35,9 +37,9 @@ export function RecipeCard({
         {/* Badges */}
         <div className="flex items-center gap-2">
           {/* Cooking time */}
-          <div className="flex items-center text-gray-500 bg-gray-100 px-2.5 py-1 rounded-lg text-xs font-semibold capitalize tracking-wide">
+          <div className="flex items-center text-gray-500 bg-gray-100 px-2.5 py-1 rounded-lg text-xs font-semibold tracking-wide">
             <Clock className="w-3.5 h-3.5 mr-1.5 text-gray-400" />
-            {time} min
+            {time} {t("min")}
           </div>
 
           {/* Difficulty */}

@@ -9,6 +9,7 @@ import { useRecipeMutations } from "../hooks/useRecipeMutations";
 import { type RecipeFormValues } from "../types/schema";
 import { type Recipe } from "@/api/model";
 import { getRecipeFormDefaultValues } from "../lib/utils";
+import { useTranslation } from "react-i18next";
 
 interface EditRecipeSheetProps {
   recipe: Recipe;
@@ -23,6 +24,7 @@ export function EditRecipeSheet({
   onOpenChange,
   onSuccess,
 }: EditRecipeSheetProps) {
+  const { t } = useTranslation();
   const { updateRecipe, isSubmitting } = useRecipeMutations(() => {
     onOpenChange(false);
     onSuccess();
@@ -38,7 +40,7 @@ export function EditRecipeSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="overflow-y-auto sm:max-w-md w-full p-4">
         <SheetHeader className="text-left px-0 py-2">
-          <SheetTitle>Edit Recipe</SheetTitle>
+          <SheetTitle>{t("form_edit_title")}</SheetTitle>
         </SheetHeader>
 
         <RecipeForm

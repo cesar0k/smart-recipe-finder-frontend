@@ -9,8 +9,11 @@ import { CreateRecipeSheet } from "@/features/recipes/components/CreateRecipeShe
 import { RecipeFilterSheet } from "@/features/recipes/components/RecipeFilterSheet";
 import { RecipeCardSkeleton } from "@/components/skeletons/RecipeCardSkeleton";
 import { Footer } from "@/components/layout/Footer";
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
+import { useTranslation } from "react-i18next";
 
 export function HomePage() {
+  const { t } = useTranslation();
   const {
     recipes,
     isLoading,
@@ -41,10 +44,11 @@ export function HomePage() {
             onClick={handleClear}
             className="font-bold text-xl tracking-tighter text-gray-900 cursor-pointer"
           >
-            Smart Recipe Finder
+            {t("app_name")}
           </Link>
           <div className="flex items-center gap-3">
             <CreateRecipeSheet />
+            <LanguageSwitcher />
           </div>
         </div>
       </header>
@@ -62,7 +66,7 @@ export function HomePage() {
               <Search className="absolute left-4 text-gray-400 w-5 h-5 pointer-events-none" />
 
               <Input
-                placeholder="Search recipes..."
+                placeholder={t("hero_search_placeholder")}
                 className="pl-12 pr-24 h-14 text-lg rounded-full border-gray-200 shadow-sm focus:border-gray-400 focus:ring-0 transition-all hover:border-gray-300 hover:shadow-md"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -113,7 +117,7 @@ export function HomePage() {
 
         {isError && (
           <div className="text-center text-red-500 py-10">
-            Could not perform search. Please try again.
+            {t("search_error")}
           </div>
         )}
 
@@ -121,15 +125,15 @@ export function HomePage() {
           <div className="flex flex-col items-center justify-center py-10 gap-4">
             <p className="text-lg text-gray-600">
               {isSearchView
-                ? `No recipes found for "${submittedSearch}"`
-                : "No recipes found matching your filters"}
+                ? t("no_recipes_found", { search: submittedSearch })
+                : t("no_recipes_filters")}
             </p>
             <Button
               variant="outline"
               onClick={handleClear}
               className="rounded-full"
             >
-              Show all recipes
+              {t("show_all")}
             </Button>
           </div>
         )}
@@ -144,9 +148,9 @@ export function HomePage() {
                 className="block"
               >
                 <RecipeCard
-                  title={recipe.title || "Untitled"}
+                  title={recipe.title || t("untitled_recipe")}
                   time={recipe.cooking_time_in_minutes || 0}
-                  difficulty={recipe.difficulty || "Unknown"}
+                  difficulty={recipe.difficulty || t("unknown_difficulty")}
                   image={recipe.image_urls?.[0] || ""}
                 />
               </Link>
