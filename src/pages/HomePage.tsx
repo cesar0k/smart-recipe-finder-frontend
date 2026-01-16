@@ -150,7 +150,7 @@ export function HomePage() {
                 <RecipeCard
                   title={recipe.title || t("untitled_recipe")}
                   time={recipe.cooking_time_in_minutes || 0}
-                  difficulty={recipe.difficulty || t("unknown_difficulty")}
+                  difficulty={recipe.difficulty}
                   image={recipe.image_urls?.[0] || ""}
                 />
               </Link>
