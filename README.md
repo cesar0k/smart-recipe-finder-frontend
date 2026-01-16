@@ -36,6 +36,7 @@ src/
 │       ├── lib/        # Recipe-specific utilities
 │       └── types/      # Recipe-specific types
 ├── pages/           # Page layout components (HomePage, RecipePage)
+├── locales/         # Localization files (e.g., en.json, ru.json)
 └── lib/             # Utilities and helpers
 ```
 
