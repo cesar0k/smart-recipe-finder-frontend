@@ -1,11 +1,15 @@
-import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { useReadRecipes, useSearchRecipes } from '@/api/recipes/recipes';
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import { useReadRecipes, useSearchRecipes } from "@/api/recipes/recipes";
 
 export function useHomeRecipes() {
   const [searchParams, setSearchParams] = useSearchParams();
-  
-  const queryFromUrl = searchParams.get('q') || '';
+
+  const queryFromUrl = searchParams.get("q") || "";
+  const includeFromUrl =
+    searchParams.get("include_ingredients")?.split(",").filter(Boolean) || [];
+  const excludeFromUrl =
+    searchParams.get("exclude_ingredients")?.split(",").filter(Boolean) || [];
 
   const [searchTerm, setSearchTerm] = useState(queryFromUrl);
 
@@ -15,43 +19,79 @@ export function useHomeRecipes() {
 
   const isSearching = queryFromUrl.length > 0;
 
-  // API
-  const { 
-    data: allRecipes, 
+  const includeParam =
+    includeFromUrl.length > 0 ? includeFromUrl.join(",") : undefined;
+  const excludeParam =
+    excludeFromUrl.length > 0 ? excludeFromUrl.join(",") : undefined;
+
+  const {
+    data: allRecipes,
     isLoading: isLoadingAll,
-    isError: isErrorAll
+    isError: isErrorAll,
   } = useReadRecipes(
-    { limit: 100, skip: 0 },
+    {
+      limit: 100,
+      skip: 0,
+      include_ingredients: includeParam,
+      exclude_ingredients: excludeParam,
+    },
     { query: { enabled: !isSearching } }
   );
 
-  const { 
-    data: searchResults, 
+  // API: Search Recipes (with filters)
+  const {
+    data: searchResults,
     isLoading: isLoadingSearch,
-    isError: isErrorSearch
+    isError: isErrorSearch,
   } = useSearchRecipes(
-    { q: queryFromUrl },
+    {
+      q: queryFromUrl,
+      include_ingredients: includeParam,
+      exclude_ingredients: excludeParam,
+    },
     { query: { enabled: isSearching } }
   );
 
-  // ACTIONS
+  // --- ACTIONS ---
+  const updateParams = (newParams: Record<string, string | undefined>) => {
+    const nextParams = new URLSearchParams(searchParams);
+    Object.entries(newParams).forEach(([key, value]) => {
+      if (value) nextParams.set(key, value);
+      else nextParams.delete(key);
+    });
+    setSearchParams(nextParams);
+  };
+
   const handleSearch = () => {
-    if (!searchTerm.trim()) {
-      handleClear();
-      return;
-    }
-    setSearchParams({ q: searchTerm });
+    updateParams({ q: searchTerm.trim() || undefined });
   };
 
   const handleClear = () => {
-    setSearchTerm('');
+    setSearchTerm("");
+    // Clear URL
     setSearchParams({});
   };
-  
+
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleSearch();
     }
+  };
+
+  const setIncludeIngredients = (ingredients: string[]) => {
+    updateParams({
+      include_ingredients: ingredients.length
+        ? ingredients.join(",")
+        : undefined,
+    });
+  };
+
+  const setExcludeIngredients = (ingredients: string[]) => {
+    updateParams({
+      exclude_ingredients: ingredients.length
+        ? ingredients.join(",")
+        : undefined,
+    });
   };
 
   // VIEW MODEL
@@ -61,12 +101,13 @@ export function useHomeRecipes() {
 
   const getHeading = () => {
     if (isSearching) {
-      if (isLoading) {
-        return `Searching for "${queryFromUrl}"...`;
-      }
+      if (isLoading) return `Searching for "${queryFromUrl}"...`;
       return `Results for "${queryFromUrl}"`;
     }
-    return 'Find your dream meal';
+    if (includeFromUrl.length > 0 || excludeFromUrl.length > 0) {
+      return "Filtered Recipes";
+    }
+    return "Find your dream meal";
   };
 
   return {
@@ -75,7 +116,12 @@ export function useHomeRecipes() {
     handleSearch,
     handleClear,
     onKeyDown,
-    
+
+    includeIngredients: includeFromUrl,
+    excludeIngredients: excludeFromUrl,
+    setIncludeIngredients,
+    setExcludeIngredients,
+
     recipes,
     isLoading,
     isError,

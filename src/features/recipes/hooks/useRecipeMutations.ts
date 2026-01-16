@@ -2,11 +2,11 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import { 
-  useCreateRecipe, 
+import {
+  useCreateRecipe,
   useUpdateRecipe,
   useUploadRecipeImages,
-  getReadRecipesQueryKey
+  getReadRecipesQueryKey,
 } from "@/api/recipes/recipes";
 import { type RecipeFormValues } from "../types/schema";
 
@@ -18,9 +18,12 @@ export function useRecipeMutations(onSuccess?: () => void) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { mutateAsync: createMutate, isPending: isCreating } = useCreateRecipe();
-  const { mutateAsync: updateMutate, isPending: isUpdating } = useUpdateRecipe();
-  const { mutateAsync: uploadImagesMutate, isPending: isUploading } = useUploadRecipeImages();
+  const { mutateAsync: createMutate, isPending: isCreating } =
+    useCreateRecipe();
+  const { mutateAsync: updateMutate, isPending: isUpdating } =
+    useUpdateRecipe();
+  const { mutateAsync: uploadImagesMutate, isPending: isUploading } =
+    useUploadRecipeImages();
 
   const handleError = (error: unknown, defaultMessage: string) => {
     console.error(error);
@@ -38,15 +41,15 @@ export function useRecipeMutations(onSuccess?: () => void) {
           } else {
             toast.error("Validation failed");
           }
-        } else if (typeof data.detail === 'string') {
+        } else if (typeof data.detail === "string") {
           toast.error(data.detail);
         } else {
           toast.error("Validation failed");
         }
         return;
       }
-      
-      if (data?.detail && typeof data.detail === 'string') {
+
+      if (data?.detail && typeof data.detail === "string") {
         toast.error(data.detail);
         return;
       }
@@ -64,23 +67,22 @@ export function useRecipeMutations(onSuccess?: () => void) {
           difficulty: data.difficulty,
           cuisine: data.cuisine,
           instructions: data.instructions,
-          ingredients: data.ingredients.map(i => i.value),
-        }
+          ingredients: data.ingredients.map((i) => i.value),
+        },
       });
 
       if (data.imageFiles && data.imageFiles.length > 0 && newRecipe.id) {
         await uploadImagesMutate({
           recipeId: newRecipe.id,
-          data: { files: data.imageFiles }
+          data: { files: data.imageFiles },
         });
       }
-      
+
       toast.success("Recipe created!");
       onSuccess?.();
       queryClient.invalidateQueries({ queryKey: getReadRecipesQueryKey() });
 
       if (newRecipe?.id) navigate(`/recipe/${newRecipe.id}`);
-      
     } catch (error) {
       handleError(error, "Failed to create recipe");
     }
@@ -96,24 +98,23 @@ export function useRecipeMutations(onSuccess?: () => void) {
           difficulty: data.difficulty,
           cuisine: data.cuisine,
           instructions: data.instructions,
-          ingredients: data.ingredients.map(i => i.value),
-          image_urls: data.image_urls 
-        }
+          ingredients: data.ingredients.map((i) => i.value),
+          image_urls: data.image_urls,
+        },
       });
 
       if (data.imageFiles && data.imageFiles.length > 0) {
         await uploadImagesMutate({
           recipeId: id,
-          data: { files: data.imageFiles }
+          data: { files: data.imageFiles },
         });
       }
 
       toast.success("Recipe updated!");
       onSuccess?.();
-      
+
       queryClient.invalidateQueries({ queryKey: getReadRecipesQueryKey() });
-      queryClient.invalidateQueries({ queryKey: ['recipes', id] });
-      
+      queryClient.invalidateQueries({ queryKey: ["recipes", id] });
     } catch (error) {
       handleError(error, "Failed to update recipe");
     }
@@ -122,6 +123,6 @@ export function useRecipeMutations(onSuccess?: () => void) {
   return {
     createRecipe,
     updateRecipe,
-    isSubmitting: isCreating || isUpdating || isUploading
+    isSubmitting: isCreating || isUpdating || isUploading,
   };
 }

@@ -1,9 +1,9 @@
-import axios, { type AxiosRequestConfig } from 'axios';
+import axios, { type AxiosRequestConfig } from "axios";
 
 export const AXIOS_INSTANCE = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8001',
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8001",
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -13,7 +13,7 @@ export type PromiseWithCancel<T> = Promise<T> & {
 
 export const customInstance = <T>(
   config: AxiosRequestConfig,
-  options?: AxiosRequestConfig,
+  options?: AxiosRequestConfig
 ): PromiseWithCancel<T> => {
   const source = axios.CancelToken.source();
 
@@ -26,7 +26,7 @@ export const customInstance = <T>(
   const promiseWithCancel = promise as PromiseWithCancel<T>;
 
   promiseWithCancel.cancel = () => {
-    source.cancel('Query was cancelled');
+    source.cancel("Query was cancelled");
   };
 
   return promiseWithCancel;

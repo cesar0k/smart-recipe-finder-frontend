@@ -1,13 +1,14 @@
-import { Link } from 'react-router-dom';
-import { Search, X, ArrowRight } from 'lucide-react';
+import { Link } from "react-router-dom";
+import { Search, X, ArrowRight } from "lucide-react";
 
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { RecipeCard } from '@/features/recipes/components/RecipeCard';
-import { useHomeRecipes } from '../features/recipes/hooks/useHomeRecipes';
-import { CreateRecipeSheet } from '@/features/recipes/components/CreateRecipeSheet';
-import { RecipeCardSkeleton } from '@/components/skeletons/RecipeCardSkeleton';
-import { Footer } from '@/components/layout/Footer';
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { RecipeCard } from "@/features/recipes/components/RecipeCard";
+import { useHomeRecipes } from "../features/recipes/hooks/useHomeRecipes";
+import { CreateRecipeSheet } from "@/features/recipes/components/CreateRecipeSheet";
+import { RecipeFilterSheet } from "@/features/recipes/components/RecipeFilterSheet";
+import { RecipeCardSkeleton } from "@/components/skeletons/RecipeCardSkeleton";
+import { Footer } from "@/components/layout/Footer";
 
 export function HomePage() {
   const {
@@ -23,10 +24,16 @@ export function HomePage() {
     isSearchView,
     heading,
     onKeyDown,
+    // Достаем пропсы для фильтров
+    includeIngredients,
+    excludeIngredients,
+    setIncludeIngredients,
+    setExcludeIngredients,
   } = useHomeRecipes();
 
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans">
+      {/* HEADER */}
       <header className="border-b border-gray-200 sticky top-0 bg-white/80 backdrop-blur-md z-10">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <Link
@@ -50,37 +57,47 @@ export function HomePage() {
             {heading}
           </h1>
 
-          <div className="relative flex items-center w-full max-w-xl mx-auto">
-            <Search className="absolute left-4 text-gray-400 w-5 h-5 pointer-events-none" />
+          <div className="flex items-center gap-3 w-full max-w-xl mx-auto">
+            <div className="relative flex items-center flex-1">
+              <Search className="absolute left-4 text-gray-400 w-5 h-5 pointer-events-none" />
 
-            <Input
-              placeholder="Search recipes..."
-              className="pl-12 pr-24 h-14 text-lg rounded-full border-gray-200 shadow-sm focus:border-gray-400 focus:ring-0 transition-all hover:border-gray-300 hover:shadow-md"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyDown={onKeyDown}
-            />
+              <Input
+                placeholder="Search recipes..."
+                className="pl-12 pr-24 h-14 text-lg rounded-full border-gray-200 shadow-sm focus:border-gray-400 focus:ring-0 transition-all hover:border-gray-300 hover:shadow-md"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={onKeyDown}
+              />
 
-            <div className="absolute right-2 flex items-center gap-1">
-              {searchTerm && (
+              <div className="absolute right-2 flex items-center gap-1">
+                {searchTerm && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleClear}
+                    className="h-10 w-10 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                  >
+                    <X className="w-5 h-5" />
+                  </Button>
+                )}
+
                 <Button
-                  variant="ghost"
                   size="icon"
-                  onClick={handleClear}
-                  className="h-10 w-10 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                  onClick={handleSearch}
+                  className="h-10 w-10 rounded-full bg-black text-white hover:bg-gray-800 shadow-md"
                 >
-                  <X className="w-5 h-5" />
+                  <ArrowRight className="w-5 h-5" />
                 </Button>
-              )}
-
-              <Button
-                size="icon"
-                onClick={handleSearch}
-                className="h-10 w-10 rounded-full bg-black text-white hover:bg-gray-800 shadow-md"
-              >
-                <ArrowRight className="w-5 h-5" />
-              </Button>
+              </div>
             </div>
+
+            {/* Filter button */}
+            <RecipeFilterSheet
+              include={includeIngredients}
+              exclude={excludeIngredients}
+              onIncludeChange={setIncludeIngredients}
+              onExcludeChange={setExcludeIngredients}
+            />
           </div>
         </div>
 
@@ -105,7 +122,11 @@ export function HomePage() {
             <p className="text-lg text-gray-600">
               No recipes found for "{submittedSearch}".
             </p>
-            <Button variant="outline" onClick={handleClear} className='rounded-full'>
+            <Button
+              variant="outline"
+              onClick={handleClear}
+              className="rounded-full"
+            >
               Show all recipes
             </Button>
           </div>
@@ -115,12 +136,16 @@ export function HomePage() {
         {!isLoading && !isError && recipes && recipes.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {recipes.map((recipe) => (
-              <Link key={recipe.id} to={`/recipe/${recipe.id}`} className="block">
+              <Link
+                key={recipe.id}
+                to={`/recipe/${recipe.id}`}
+                className="block"
+              >
                 <RecipeCard
-                  title={recipe.title || 'Untitled'}
+                  title={recipe.title || "Untitled"}
                   time={recipe.cooking_time_in_minutes || 0}
-                  difficulty={recipe.difficulty || 'Unknown'}
-                  image={(recipe.image_urls?.[0]) || ''}
+                  difficulty={recipe.difficulty || "Unknown"}
+                  image={recipe.image_urls?.[0] || ""}
                 />
               </Link>
             ))}
@@ -129,7 +154,6 @@ export function HomePage() {
       </main>
 
       <Footer />
-
     </div>
   );
 }

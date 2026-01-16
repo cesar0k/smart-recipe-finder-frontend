@@ -203,10 +203,10 @@ export function RecipePage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="rounded-full">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => deleteRecipe(recipe.id)}
-              className="bg-red-600 hover:bg-red-700 text-white border-none"
+              className="bg-red-600 hover:bg-red-700 text-white border-none rounded-full"
               disabled={isDeleting}
             >
               {isDeleting ? "Deleting..." : "Delete"}
