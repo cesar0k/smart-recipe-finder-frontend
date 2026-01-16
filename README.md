@@ -11,6 +11,12 @@ Backend – [Smart Recipe Finder Backend](https://github.com/cesar0k/smart-recip
 - **Forms & Validation:** [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/).
 - **API Client:** [Orval](https://orval.dev/) - automatic TypeScript hook generation from OpenAPI spec.
 
+## Features
+
+- **Recipe Management:** Create, read, update, and delete recipes.
+- **Smart Search:** Search for recipes by name, and filter by ingredients to include or exclude.
+- **Internationalization:** Support for multiple languages (English and Russian).
+
 ## Project Structure
 
 ```text

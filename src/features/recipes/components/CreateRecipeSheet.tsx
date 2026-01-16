@@ -10,9 +10,11 @@ import {
 import { RecipeForm } from "./RecipeForm";
 import { useRecipeMutations } from "../hooks/useRecipeMutations";
 import { type RecipeFormValues } from "../types/schema";
+import { useTranslation } from "react-i18next";
 
 export function CreateRecipeSheet() {
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation();
 
   const { createRecipe, isSubmitting } = useRecipeMutations(() =>
     setOpen(false)
@@ -26,12 +28,12 @@ export function CreateRecipeSheet() {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button className="rounded-full font-bold bg-black text-white hover:bg-gray-800 transition-all">
-          Create Recipe
+          {t("create_btn")}
         </Button>
       </SheetTrigger>
       <SheetContent className="overflow-y-auto sm:max-w-md w-full p-4">
         <SheetHeader className="text-left px-0 py-2">
-          <SheetTitle>Create New Recipe</SheetTitle>
+          <SheetTitle>{t("form_create_title")}</SheetTitle>
         </SheetHeader>
 
         <RecipeForm onSubmit={onSubmit} isSubmitting={isSubmitting} />

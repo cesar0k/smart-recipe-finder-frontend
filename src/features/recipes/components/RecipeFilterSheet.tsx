@@ -8,6 +8,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { IngredientTagInput } from "./IngredientTagInput";
+import { useTranslation } from "react-i18next";
 
 interface RecipeFilterSheetProps {
   include: string[];
@@ -22,6 +23,7 @@ export function RecipeFilterSheet({
   onIncludeChange,
   onExcludeChange,
 }: RecipeFilterSheetProps) {
+  const { t } = useTranslation();
   const totalFilters = include.length + exclude.length;
 
   return (
@@ -42,20 +44,22 @@ export function RecipeFilterSheet({
 
       <SheetContent side="right" className="w-full sm:max-w-sm p-4">
         <SheetHeader className="text-left px-0 py-2">
-          <SheetTitle>Filter Recipes</SheetTitle>
+          <SheetTitle>{t("filter_title")}</SheetTitle>
         </SheetHeader>
 
         <div className="space-y-2">
           {/* Include Section */}
           <div className="space-y-3">
             <h3 className="text-sm font-medium text-gray-900">
-              Include Ingredients
+              {t("filter_include_title")}
             </h3>
-            <p className="text-xs text-gray-500">Recipes MUST contain these:</p>
+            <p className="text-xs text-gray-500">
+              {t("filter_include_desc")}
+            </p>
             <IngredientTagInput
               value={include}
               onChange={onIncludeChange}
-              placeholder="e.g. Chicken, Rice"
+              placeholder={t("filter_include_placeholder")}
               variant="default"
             />
           </div>
@@ -65,15 +69,15 @@ export function RecipeFilterSheet({
           {/* Exclude Section */}
           <div className="space-y-3">
             <h3 className="text-sm font-medium text-gray-900">
-              Exclude Ingredients
+              {t("filter_exclude_title")}
             </h3>
             <p className="text-xs text-gray-500">
-              Recipes MUST NOT contain these:
+              {t("filter_exclude_desc")}
             </p>
             <IngredientTagInput
               value={exclude}
               onChange={onExcludeChange}
-              placeholder="e.g. Onions, Garlic"
+              placeholder={t("filter_exclude_placeholder")}
               variant="destructive"
             />
           </div>

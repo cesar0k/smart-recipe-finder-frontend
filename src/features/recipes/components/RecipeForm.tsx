@@ -28,6 +28,7 @@ import {
   DIFFICULTY_OPTIONS,
 } from "../types/schema";
 import { useRecipeImageManager } from "../hooks/useRecipeImageManager";
+import { useTranslation } from "react-i18next";
 
 interface RecipeFormProps {
   defaultValues?: Partial<RecipeFormValues>;
@@ -40,6 +41,8 @@ export function RecipeForm({
   onSubmit,
   isSubmitting,
 }: RecipeFormProps) {
+  const { t } = useTranslation();
+
   const initialValues: DefaultValues<RecipeFormValues> = {
     title: "",
     cooking_time_in_minutes: 30,
@@ -81,10 +84,12 @@ export function RecipeForm({
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-gray-700">Title</FormLabel>
+              <FormLabel className="text-gray-700">
+                {t("form_title_label")}
+              </FormLabel>
               <FormControl>
                 <Input
-                  placeholder="e.g. Pasta Carbonara"
+                  placeholder={t("form_title_placeholder")}
                   {...field}
                   className="rounded-full px-4 border-gray-200 bg-gray-50/50 focus:bg-white transition-all"
                 />
@@ -95,7 +100,9 @@ export function RecipeForm({
         />
 
         <div className="space-y-3">
-          <FormLabel className="text-gray-700">Photos</FormLabel>
+          <FormLabel className="text-gray-700">
+            {t("form_photos_label")}
+          </FormLabel>
 
           <div className="grid grid-cols-3 gap-4 mb-2">
             {/* Old photos */}
@@ -123,7 +130,11 @@ export function RecipeForm({
                           ? "bg-yellow-400 text-white opacity-100"
                           : "bg-white text-gray-400 opacity-0 group-hover:opacity-100 hover:text-yellow-400"
                       }`}
-                    title={isCover ? "Cover Image" : "Set as Cover"}
+                    title={
+                      isCover
+                        ? t("form_cover_image_label")
+                        : t("form_set_as_cover_label")
+                    }
                   >
                     <Star
                       className={`w-3.5 h-3.5 ${isCover ? "fill-current" : ""}`}
@@ -134,7 +145,7 @@ export function RecipeForm({
                     type="button"
                     onClick={() => removeExistingUrl(url)}
                     className="absolute top-1 right-1 bg-white text-black rounded-full p-1.5 shadow-md hover:bg-red-50 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 z-20"
-                    aria-label="Remove existing image"
+                    aria-label={t("form_remove_existing_image_label")}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -165,7 +176,11 @@ export function RecipeForm({
                             ? "bg-yellow-400 text-white opacity-100"
                             : "bg-white text-gray-400 opacity-0 group-hover:opacity-100 hover:text-yellow-400"
                         }`}
-                      title={isCover ? "Cover Image" : "Set as Cover"}
+                      title={
+                        isCover
+                          ? t("form_cover_image_label")
+                          : t("form_set_as_cover_label")
+                      }
                     >
                       <Star
                         className={`w-3.5 h-3.5 ${isCover ? "fill-current" : ""}`}
@@ -177,7 +192,7 @@ export function RecipeForm({
                     type="button"
                     onClick={() => removeNewFile(index)}
                     className="absolute top-1 right-1 bg-white text-black rounded-full p-1.5 shadow-md hover:bg-red-50 hover:text-red-500 transition-colors z-20"
-                    aria-label="Remove new file"
+                    aria-label={t("form_remove_new_file_label")}
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -201,7 +216,9 @@ export function RecipeForm({
                   className="flex flex-col items-center justify-center w-full h-full border-2 border-dashed border-gray-200 rounded-2xl cursor-pointer hover:border-black/20 hover:bg-gray-50 transition-all gap-2 text-gray-400 hover:text-gray-600"
                 >
                   <ImageIcon className="w-6 h-6" />
-                  <span className="text-xs font-medium">Add Photo</span>
+                  <span className="text-xs font-medium">
+                    {t("form_add_photo")}
+                  </span>
                 </label>
               </div>
             )}
@@ -214,7 +231,9 @@ export function RecipeForm({
             name="cooking_time_in_minutes"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-700">Time (min)</FormLabel>
+                <FormLabel className="text-gray-700">
+                  {t("form_time_label")}
+                </FormLabel>
                 <FormControl>
                   <Input
                     type="number"
@@ -232,20 +251,22 @@ export function RecipeForm({
             name="difficulty"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-700">Difficulty</FormLabel>
+                <FormLabel className="text-gray-700">
+                  {t("form_difficulty_label")}
+                </FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
                   <FormControl>
                     <SelectTrigger className="w-full rounded-full px-4 border-gray-200 bg-gray-50/50 focus:bg-white">
-                      <SelectValue placeholder="Select" />
+                      <SelectValue placeholder={t("form_select_placeholder")} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent className="rounded-2xl">
                     {DIFFICULTY_OPTIONS.map((l) => (
                       <SelectItem key={l} value={l} className="rounded-xl">
-                        {l}
+                        {t(`difficulty.${l}`)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -261,12 +282,14 @@ export function RecipeForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-700">
-                  Cuisine{" "}
-                  <span className="text-gray-400 font-normal">(Opt)</span>
+                  {t("form_cuisine_label")}{" "}
+                  <span className="text-gray-400 font-normal">
+                    {t("form_optional_label")}
+                  </span>
                 </FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="Italian"
+                    placeholder={t("form_cuisine_placeholder")}
                     {...field}
                     value={field.value || ""}
                     className="rounded-full px-4 border-gray-200 bg-gray-50/50 focus:bg-white"
@@ -279,7 +302,9 @@ export function RecipeForm({
         </div>
 
         <div className="space-y-2">
-          <FormLabel className="text-gray-700">Ingredients</FormLabel>
+          <FormLabel className="text-gray-700">
+            {t("form_ingredients_label")}
+          </FormLabel>
           {fields.map((field, index) => (
             <div key={field.id} className="flex gap-2">
               <FormField
@@ -289,7 +314,7 @@ export function RecipeForm({
                   <FormItem className="flex-1">
                     <FormControl>
                       <Input
-                        placeholder="Ingredient"
+                        placeholder={t("form_ingredient_placeholder")}
                         {...field}
                         className="rounded-full px-4 border-gray-200 bg-gray-50/50 focus:bg-white"
                       />
@@ -317,7 +342,7 @@ export function RecipeForm({
             className="mt-1 rounded-full border-dashed border-gray-300 text-gray-600 hover:text-black hover:border-gray-400"
             onClick={() => append({ value: "" })}
           >
-            Add Ingredient
+            {t("form_add_ingredient")}
           </Button>
         </div>
 
@@ -326,10 +351,12 @@ export function RecipeForm({
           name="instructions"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-gray-700">Instructions</FormLabel>
+              <FormLabel className="text-gray-700">
+                {t("form_instructions_label")}
+              </FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Step 1..."
+                  placeholder={t("form_instructions_placeholder")}
                   className="min-h-[150px] rounded-[1.5rem] p-4 px-5 border-gray-200 bg-gray-50/50 focus:bg-white resize-none"
                   {...field}
                 />
@@ -344,7 +371,7 @@ export function RecipeForm({
           className="w-full rounded-full h-12 text-base font-semibold bg-black hover:bg-gray-800 shadow-lg shadow-gray-200 transition-all hover:scale-[1.01]"
           disabled={isSubmitting}
         >
-          {isSubmitting ? "Saving..." : "Save Recipe"}
+          {isSubmitting ? t("form_saving_btn") : t("form_save_btn")}
         </Button>
       </form>
     </Form>

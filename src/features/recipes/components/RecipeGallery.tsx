@@ -11,6 +11,7 @@ import {
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { useCarouselCounter } from "../hooks/useCarouselCounter";
 import { RecipeLightbox } from "./RecipeLightbox";
+import { useTranslation } from "react-i18next";
 
 interface RecipeGalleryProps {
   images: string[];
@@ -20,6 +21,7 @@ interface RecipeGalleryProps {
 export function RecipeGallery({ images, title }: RecipeGalleryProps) {
   const [api, setApi] = useState<CarouselApi>();
   const { current, count } = useCarouselCounter(api);
+  const { t } = useTranslation();
 
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
@@ -33,7 +35,9 @@ export function RecipeGallery({ images, title }: RecipeGalleryProps) {
     return (
       <div className="aspect-[4/3] w-full overflow-hidden rounded-[2rem] border border-gray-100 shadow-sm bg-gray-50 flex flex-col items-center justify-center text-gray-400">
         <ImageIcon className="w-12 h-12 mb-2 opacity-20" />
-        <span className="text-sm font-medium opacity-40">No photos yet</span>
+        <span className="text-sm font-medium opacity-40">
+          {t("no_photos_yet")}
+        </span>
       </div>
     );
   }
@@ -77,7 +81,10 @@ export function RecipeGallery({ images, title }: RecipeGalleryProps) {
                 >
                   <OptimizedImage
                     src={url}
-                    alt={`${title} - photo ${index + 1}`}
+                    alt={t("recipe_photo_alt", {
+                      title,
+                      index: index + 1,
+                    })}
                     className="w-full h-full"
                     imgClassName="absolute inset-0 w-full h-full !object-cover !object-center"
                   />

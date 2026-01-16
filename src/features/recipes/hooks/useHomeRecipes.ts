@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useReadRecipes, useSearchRecipes } from "@/api/recipes/recipes";
+import { useTranslation } from "react-i18next";
 
 export function useHomeRecipes() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { t } = useTranslation();
 
   const queryFromUrl = searchParams.get("q") || "";
   const includeFromUrl =
@@ -19,7 +21,8 @@ export function useHomeRecipes() {
 
   const isSearching = queryFromUrl.length > 0;
 
-  const hasActiveFilters = includeFromUrl.length > 0 || excludeFromUrl.length > 0;
+  const hasActiveFilters =
+    includeFromUrl.length > 0 || excludeFromUrl.length > 0;
 
   const includeParam =
     includeFromUrl.length > 0 ? includeFromUrl.join(",") : undefined;
@@ -103,13 +106,18 @@ export function useHomeRecipes() {
 
   const getHeading = () => {
     if (isSearching) {
-      if (isLoading) return `Searching for "${queryFromUrl}"...`;
-      return `Results for "${queryFromUrl}"`;
+      if (isLoading)
+        return t("searching_for", {
+          query: queryFromUrl,
+        });
+      return t("search_results_for", {
+        query: queryFromUrl,
+      });
     }
     if (includeFromUrl.length > 0 || excludeFromUrl.length > 0) {
-      return "Filtered Recipes";
+      return t("filtered_recipes");
     }
-    return "Find your dream meal";
+    return t("hero_title");
   };
 
   return {

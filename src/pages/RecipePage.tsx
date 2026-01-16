@@ -25,11 +25,13 @@ import { useRecipeDetails } from "../features/recipes/hooks/useRecipeDetails";
 import { useDeleteRecipeLogic } from "../features/recipes/hooks/useDeleteRecipeLogic";
 import { RecipeHeaderInfo } from "@/features/recipes/components/RecipeHeaderInfo";
 import { RecipeGallery } from "@/features/recipes/components/RecipeGallery";
+import { useTranslation } from "react-i18next";
 
 export function RecipePage() {
   const navigate = useNavigate();
   const { recipe, isLoading, isError, isValidId, refetch } = useRecipeDetails();
   const { deleteRecipe, isDeleting } = useDeleteRecipeLogic();
+  const { t } = useTranslation();
 
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -39,9 +41,7 @@ export function RecipePage() {
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="animate-pulse flex flex-col items-center gap-4">
           <div className="h-12 w-12 rounded-full bg-gray-200" />
-          <div className="text-gray-400 font-medium">
-            Cooking up the details...
-          </div>
+          <div className="text-gray-400 font-medium">{t("recipe_loading")}</div>
         </div>
       </div>
     );
@@ -50,12 +50,12 @@ export function RecipePage() {
   if (isError || !isValidId || !recipe) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white gap-4">
-        <h2 className="text-2xl font-bold text-gray-900">Recipe not found</h2>
-        <p className="text-gray-500">
-          The recipe you are looking for doesn't exist or has been removed.
-        </p>
+        <h2 className="text-2xl font-bold text-gray-900">
+          {t("recipe_not_found_title")}
+        </h2>
+        <p className="text-gray-500">{t("recipe_not_found_desc")}</p>
         <Link to="/">
-          <Button variant="outline">Back to Home</Button>
+          <Button variant="outline">{t("back_to_home")}</Button>
         </Link>
       </div>
     );
@@ -80,7 +80,7 @@ export function RecipePage() {
               }}
             >
               <ArrowLeft className="w-5 h-5" />
-              <span className="text-base">Back to recipes</span>
+              <span className="text-base">{t("back_btn")}</span>
             </Button>
           </Link>
 
@@ -97,14 +97,14 @@ export function RecipePage() {
                 onClick={() => setIsEditOpen(true)}
               >
                 <Pencil className="w-4 h-4 mr-2" />
-                Edit Recipe
+                {t("edit_recipe")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="text-red-600 focus:text-red-600 focus:bg-red-50 rounded-full"
                 onClick={() => setIsDeleteDialogOpen(true)}
               >
                 <Trash2 className="w-4 h-4 mr-2" />
-                Delete Recipe
+                {t("delete_recipe")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -130,7 +130,7 @@ export function RecipePage() {
             {/* Ingredients */}
             <div className="bg-gray-50 rounded-[2rem] p-8 space-y-5">
               <h3 className="font-bold text-xl text-gray-900 flex items-center gap-3">
-                Ingredients
+                {t("ingredients")}
               </h3>
               <ul className="space-y-3">
                 {recipe.ingredients?.map((ingredient, index) => (
@@ -165,7 +165,9 @@ export function RecipePage() {
 
             {/* Instructions */}
             <div className="space-y-6">
-              <h3 className="font-bold text-2xl text-gray-900">Instructions</h3>
+              <h3 className="font-bold text-2xl text-gray-900">
+                {t("instructions")}
+              </h3>
               <div className="prose prose-gray max-w-none text-gray-600 space-y-6 text-lg leading-relaxed break-words">
                 {(recipe.instructions || "").split("\n").map((step, index) => (
                   <p key={index}>{step}</p>
@@ -191,27 +193,21 @@ export function RecipePage() {
       >
         <AlertDialogContent className="rounded-2xl">
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>{t("delete_dialog_title")}</AlertDialogTitle>
             <AlertDialogDescription className="[word-break:break-word]">
-              This action cannot be undone. This will permanently delete the
-              recipe
-              <span className="font-bold text-gray-900">
-                {" "}
-                "{recipe.title}"{" "}
-              </span>
-              from the database.
+              {t("delete_dialog_desc", { title: recipe.title })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="rounded-full">
-              Cancel
+              {t("cancel_btn")}
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => deleteRecipe(recipe.id)}
               className="bg-red-600 hover:bg-red-700 text-white border-none rounded-full"
               disabled={isDeleting}
             >
-              {isDeleting ? "Deleting..." : "Delete"}
+              {isDeleting ? t("deleting") : t("delete_btn")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
