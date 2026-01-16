@@ -62,11 +62,10 @@ npm install
 
 ### 3. Environment Setup
 
-Create a `.env` file in the root directory:
+Create a local environment file by copying the provided example:
 
-```env
-# URL of your backend API
-VITE_API_URL=http://localhost:8000
+```bash
+cp .env.example .env
 ```
 
 ### 4. Run Development Server
