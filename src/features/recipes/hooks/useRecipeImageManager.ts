@@ -30,12 +30,12 @@ export function useRecipeImageManager(form: UseFormReturn<RecipeFormValues>) {
         existingUrls.length + currentFiles.length + files.length;
 
       if (totalCount > 5) {
-        toast("Too much images (maximum 5 allowed)")
+        toast("Too much images (maximum 5 allowed)");
       }
 
       const newFiles = [...currentFiles, ...Array.from(files)].slice(
         0,
-        5 - existingUrls.length,
+        5 - existingUrls.length
       );
       setValue("imageFiles", newFiles, { shouldValidate: true });
     }

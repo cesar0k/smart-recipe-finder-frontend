@@ -16,10 +16,19 @@ Backend – [Smart Recipe Finder Backend](https://github.com/cesar0k/smart-recip
 ```text
 src/
 ├── api/             # Auto-generated API hooks and models (Orval)
+│   ├── model/       # API model definitions
+│   ├── recipes/     # API hooks for recipes
+│   └── root/        # API hooks for root
 ├── components/      # Shared UI components (Buttons, Inputs, Skeletons)
+│   ├── layout/      # Layout components (e.g., Footer)
+│   ├── skeletons/   # Skeleton components (e.g., RecipeCardSkeleton)
 │   └── ui/          # shadcn/ui components
 ├── features/        # Business logic divided by domain
 │   └── recipes/     # All recipe-related components, hooks, and types
+│       ├── components/ # Recipe-specific components
+│       ├── hooks/      # Recipe-specific hooks
+│       ├── lib/        # Recipe-specific utilities
+│       └── types/      # Recipe-specific types
 ├── pages/           # Page layout components (HomePage, RecipePage)
 └── lib/             # Utilities and helpers
 ```

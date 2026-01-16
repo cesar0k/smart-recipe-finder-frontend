@@ -5,11 +5,20 @@ export function Footer() {
         <div className="text-sm text-gray-500">
           © 2026 Smart Recipe Finder. All rights reserved.
         </div>
-        
+
         <div className="flex items-center gap-6 text-sm font-medium text-gray-600">
-          <a href="#" className="hover:text-black transition-colors">Privacy</a>
-          <a href="#" className="hover:text-black transition-colors">Terms</a>
-          <a href="https://github.com/cesar0k/smart-recipe-finder" target="_blank" rel="noopener noreferrer" className="hover:text-black transition-colors">
+          <a href="#" className="hover:text-black transition-colors">
+            Privacy
+          </a>
+          <a href="#" className="hover:text-black transition-colors">
+            Terms
+          </a>
+          <a
+            href="https://github.com/cesar0k/smart-recipe-finder"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-black transition-colors"
+          >
             GitHub
           </a>
         </div>

@@ -20,7 +20,7 @@ interface RecipeGalleryProps {
 export function RecipeGallery({ images, title }: RecipeGalleryProps) {
   const [api, setApi] = useState<CarouselApi>();
   const { current, count } = useCarouselCounter(api);
-  
+
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
@@ -41,23 +41,23 @@ export function RecipeGallery({ images, title }: RecipeGalleryProps) {
   if (images.length === 1) {
     return (
       <>
-        <div 
+        <div
           className="aspect-[4/3] w-full overflow-hidden rounded-[2rem] border border-gray-100 shadow-sm bg-gray-50 cursor-pointer group relative"
           onClick={() => openLightbox(0)}
         >
-          <OptimizedImage 
-            src={images[0] || ""} 
-            alt={title} 
+          <OptimizedImage
+            src={images[0] || ""}
+            alt={title}
             className="w-full h-full"
             imgClassName="absolute inset-0 w-full h-full !object-cover !object-center transition-transform duration-500 group-hover:scale-105"
           />
         </div>
-        
-        <RecipeLightbox 
-          images={images} 
-          initialIndex={0} 
-          open={lightboxOpen} 
-          onOpenChange={setLightboxOpen} 
+
+        <RecipeLightbox
+          images={images}
+          initialIndex={0}
+          open={lightboxOpen}
+          onOpenChange={setLightboxOpen}
         />
       </>
     );
@@ -71,7 +71,7 @@ export function RecipeGallery({ images, title }: RecipeGalleryProps) {
           <CarouselContent>
             {images.map((url, index) => (
               <CarouselItem key={index}>
-                <div 
+                <div
                   className="aspect-[4/3] w-full bg-gray-50 cursor-zoom-in relative overflow-hidden"
                   onClick={() => openLightbox(index)}
                 >
@@ -85,7 +85,7 @@ export function RecipeGallery({ images, title }: RecipeGalleryProps) {
               </CarouselItem>
             ))}
           </CarouselContent>
-          
+
           <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white border-transparent shadow-md h-10 w-10" />
             <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white border-transparent shadow-md h-10 w-10" />
@@ -93,15 +93,15 @@ export function RecipeGallery({ images, title }: RecipeGalleryProps) {
         </Carousel>
 
         <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full pointer-events-none z-10 transition-opacity duration-300">
-           {current} / {count}
+          {current} / {count}
         </div>
       </div>
 
-      <RecipeLightbox 
-        images={images} 
-        initialIndex={lightboxIndex} 
-        open={lightboxOpen} 
-        onOpenChange={setLightboxOpen} 
+      <RecipeLightbox
+        images={images}
+        initialIndex={lightboxIndex}
+        open={lightboxOpen}
+        onOpenChange={setLightboxOpen}
       />
     </>
   );
