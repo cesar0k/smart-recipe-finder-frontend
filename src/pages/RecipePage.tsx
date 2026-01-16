@@ -116,9 +116,9 @@ export function RecipePage() {
           <div className="space-y-8">
             {/* Image */}
             <div className="aspect-[4/3] w-full overflow-hidden rounded-[2rem] border border-gray-100 shadow-sm bg-gray-50 relative group">
-              <RecipeGallery 
-                images={recipe.image_urls || []} 
-                title={recipe.title || ''} 
+              <RecipeGallery
+                images={recipe.image_urls || []}
+                title={recipe.title || ""}
               />
             </div>
 
@@ -189,10 +189,10 @@ export function RecipePage() {
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="rounded-2xl">
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogDescription className="[word-break:break-word]">
               This action cannot be undone. This will permanently delete the
               recipe
               <span className="font-bold text-gray-900">
@@ -203,10 +203,12 @@ export function RecipePage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="rounded-full">
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => deleteRecipe(recipe.id)}
-              className="bg-red-600 hover:bg-red-700 text-white border-none"
+              className="bg-red-600 hover:bg-red-700 text-white border-none rounded-full"
               disabled={isDeleting}
             >
               {isDeleting ? "Deleting..." : "Delete"}
