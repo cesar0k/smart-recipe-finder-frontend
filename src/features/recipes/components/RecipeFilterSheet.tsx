@@ -1,20 +1,26 @@
+import { useState } from "react";
 import { SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+  Dialog,
+  DialogClose,
+  DialogScrollContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { IngredientTagInput } from "./IngredientTagInput";
 import { useTranslation } from "react-i18next";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { useHistoryBack } from "@/hooks/useHistoryBack";
+import { XIcon } from "lucide-react";
 
 interface RecipeFilterSheetProps {
   include: string[];
   exclude: string[];
   onIncludeChange: (val: string[]) => void;
   onExcludeChange: (val: string[]) => void;
+  onReset: () => void;
 }
 
 export function RecipeFilterSheet({
@@ -22,13 +28,16 @@ export function RecipeFilterSheet({
   exclude,
   onIncludeChange,
   onExcludeChange,
+  onReset,
 }: RecipeFilterSheetProps) {
   const { t } = useTranslation();
   const totalFilters = include.length + exclude.length;
+  const [open, setOpen] = useState(false);
+  const handleOpenChange = useHistoryBack(open, setOpen);
 
   return (
-    <Sheet>
-      <SheetTrigger asChild>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>
         <Button
           variant="outline"
           className="rounded-full relative bg-white border-gray-200 hover:bg-gray-100 h-11 w-11"
@@ -40,14 +49,35 @@ export function RecipeFilterSheet({
             </span>
           )}
         </Button>
-      </SheetTrigger>
+      </DialogTrigger>
 
-      <SheetContent side="right" className="w-full sm:max-w-sm p-4">
-        <SheetHeader className="text-left px-0 py-2">
-          <SheetTitle>{t("filter_title")}</SheetTitle>
-        </SheetHeader>
+      <DialogScrollContent showCloseButton={false}>
+        <DialogHeader className="px-0 py-0">
+          <div className="flex items-center justify-between gap-2">
+            <DialogTitle>{t("filter_title")}</DialogTitle>
+            <div className="flex items-center gap-1">
+              {totalFilters > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onReset}
+                  className="text-xs text-gray-500 hover:text-gray-900 rounded-full h-7 px-3"
+                >
+                  {t("filter_reset")}
+                </Button>
+              )}
+              <DialogClose className="p-1.5 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors">
+                <XIcon className="size-4" />
+                <span className="sr-only">{t("close_btn")}</span>
+              </DialogClose>
+            </div>
+          </div>
+        </DialogHeader>
+        <VisuallyHidden>
+          <p>{t("filter_title")}</p>
+        </VisuallyHidden>
 
-        <div className="space-y-2">
+        <div className="space-y-2 pb-5">
           {/* Include Section */}
           <div className="space-y-3">
             <h3 className="text-sm font-medium text-gray-900">
@@ -82,7 +112,7 @@ export function RecipeFilterSheet({
             />
           </div>
         </div>
-      </SheetContent>
-    </Sheet>
+      </DialogScrollContent>
+    </Dialog>
   );
 }

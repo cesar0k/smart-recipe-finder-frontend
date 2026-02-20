@@ -125,3 +125,32 @@
 [data-sonner-toast] {
   border-radius: var(--radius-3xl) !important;
 }
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.scrollbar-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+[data-slot="skeleton"] {
+  animation: shimmer 2s ease-in-out infinite;
+  background: linear-gradient(
+    90deg,
+    rgb(229 231 235) 0%,
+    rgb(243 244 246) 40%,
+    rgb(243 244 246) 60%,
+    rgb(229 231 235) 100%
+  );
+  background-size: 200% 100%;
+}

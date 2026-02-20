@@ -1,7 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
-import { useReadRecipes, useSearchRecipes } from "@/api/recipes/recipes";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { readRecipes, useSearchRecipes } from "@/api/recipes/recipes";
 import { useTranslation } from "react-i18next";
+import type { Recipe } from "@/api/model";
+
+const PAGE_SIZE = 12;
 
 export function useHomeRecipes() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -29,21 +33,31 @@ export function useHomeRecipes() {
   const excludeParam =
     excludeFromUrl.length > 0 ? excludeFromUrl.join(",") : undefined;
 
+
   const {
-    data: allRecipes,
+    data: infiniteData,
     isLoading: isLoadingAll,
     isError: isErrorAll,
-  } = useReadRecipes(
-    {
-      limit: 100,
-      skip: 0,
-      include_ingredients: includeParam,
-      exclude_ingredients: excludeParam,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["/api/v1/recipes/", { includeParam, excludeParam }] as const,
+    queryFn: ({ pageParam = 0 }) =>
+      readRecipes({
+        skip: pageParam,
+        limit: PAGE_SIZE,
+        include_ingredients: includeParam,
+        exclude_ingredients: excludeParam,
+      }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, _allPages, lastPageParam) => {
+      if (!lastPage || lastPage.length < PAGE_SIZE) return undefined;
+      return lastPageParam + PAGE_SIZE;
     },
-    { query: { enabled: !isSearching } }
-  );
+    enabled: !isSearching,
+  });
 
-  // API: Search Recipes (with filters)
   const {
     data: searchResults,
     isLoading: isLoadingSearch,
@@ -55,6 +69,30 @@ export function useHomeRecipes() {
       exclude_ingredients: excludeParam,
     },
     { query: { enabled: isSearching } }
+  );
+
+  const allRecipes: Recipe[] = infiniteData
+    ? infiniteData.pages.flat()
+    : [];
+
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const sentinelRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (observerRef.current) observerRef.current.disconnect();
+      if (!node) return;
+
+      observerRef.current = new IntersectionObserver(
+        (entries) => {
+          if (entries[0]?.isIntersecting && hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+          }
+        },
+        { rootMargin: "200px" }
+      );
+
+      observerRef.current.observe(node);
+    },
+    [hasNextPage, isFetchingNextPage, fetchNextPage]
   );
 
   // --- ACTIONS ---
@@ -73,7 +111,6 @@ export function useHomeRecipes() {
 
   const handleClear = () => {
     setSearchTerm("");
-    // Clear URL
     setSearchParams({});
   };
 
@@ -96,6 +133,13 @@ export function useHomeRecipes() {
       exclude_ingredients: ingredients.length
         ? ingredients.join(",")
         : undefined,
+    });
+  };
+
+  const resetFilters = () => {
+    updateParams({
+      include_ingredients: undefined,
+      exclude_ingredients: undefined,
     });
   };
 
@@ -131,15 +175,21 @@ export function useHomeRecipes() {
     excludeIngredients: excludeFromUrl,
     setIncludeIngredients,
     setExcludeIngredients,
+    resetFilters,
 
     recipes,
     isLoading,
     isError,
-    isEmpty: !isLoading && !isError && recipes?.length === 0,
+    isEmpty: !isLoading && !isError && (!recipes || recipes.length === 0),
     isSearchView: isSearching,
     hasActiveFilters,
     submittedSearch: queryFromUrl,
     isSearching,
     heading: getHeading(),
+
+    // Infinite scroll
+    sentinelRef,
+    isFetchingNextPage,
+    hasNextPage: !isSearching && (hasNextPage ?? false),
   };
 }

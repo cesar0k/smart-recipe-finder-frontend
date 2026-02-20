@@ -20,6 +20,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { EditRecipeSheet } from "@/features/recipes/components/EditRecipeSheet";
+import { Header } from "@/components/layout/Header";
+import { Spinner } from "@/components/ui/spinner";
 
 import { useRecipeDetails } from "../features/recipes/hooks/useRecipeDetails";
 import { useDeleteRecipeLogic } from "../features/recipes/hooks/useDeleteRecipeLogic";
@@ -38,11 +40,9 @@ export function RecipePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="animate-pulse flex flex-col items-center gap-4">
-          <div className="h-12 w-12 rounded-full bg-gray-200" />
-          <div className="text-gray-400 font-medium">{t("recipe_loading")}</div>
-        </div>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white gap-4">
+        <Spinner size="lg" className="text-gray-300" />
+        <p className="text-sm text-gray-400 font-medium">{t("recipe_loading")}</p>
       </div>
     );
   }
@@ -63,28 +63,24 @@ export function RecipePage() {
 
   return (
     <div className="min-h-screen bg-white font-sans">
-      {/* HEADER */}
-      <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-gray-100">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          {/* Left header side - return button */}
-          <Link to="/">
-            <Button
-              variant="ghost"
-              className="gap-2 text-gray-600 hover:text-black pl-0 hover:bg-transparent"
-              onClick={() => {
-                if (window.history.state && window.history.state.idx > 0) {
-                  navigate(-1);
-                } else {
-                  navigate("/");
-                }
-              }}
-            >
-              <ArrowLeft className="w-5 h-5" />
-              <span className="text-base">{t("back_btn")}</span>
-            </Button>
-          </Link>
-
-          {/* Right header side - action menu */}
+      <Header
+        leftContent={
+          <Button
+            variant="ghost"
+            className="gap-2 text-gray-600 hover:text-black pl-0 hover:bg-transparent"
+            onClick={() => {
+              if (window.history.state && window.history.state.idx > 0) {
+                navigate(-1);
+              } else {
+                navigate("/");
+              }
+            }}
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="text-base">{t("back_btn")}</span>
+          </Button>
+        }
+        rightContent={
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full">
@@ -108,8 +104,9 @@ export function RecipePage() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        </div>
-      </header>
+        }
+      />
+
       <main className="container mx-auto px-4 py-8 md:py-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
           {/* Left side */}
@@ -122,7 +119,7 @@ export function RecipePage() {
               />
             </div>
 
-            {/* Mobile version of f title */}
+            {/* Mobile version of title */}
             <div className="lg:hidden">
               <RecipeHeaderInfo recipe={recipe} />
             </div>
@@ -152,11 +149,6 @@ export function RecipePage() {
 
           {/* Right side */}
           <div className="space-y-8">
-            {/* 
-              Desktop title
-              hidden — hidden by default (on mobiles)
-              lg:block — show only on desktop
-            */}
             <div className="hidden lg:block">
               <RecipeHeaderInfo recipe={recipe} />
             </div>
@@ -177,6 +169,7 @@ export function RecipePage() {
           </div>
         </div>
       </main>
+
       {/* Edit sheet */}
       {recipe && (
         <EditRecipeSheet
@@ -186,6 +179,7 @@ export function RecipePage() {
           onSuccess={refetch}
         />
       )}
+
       {/* Delete confirmation dialog */}
       <AlertDialog
         open={isDeleteDialogOpen}
