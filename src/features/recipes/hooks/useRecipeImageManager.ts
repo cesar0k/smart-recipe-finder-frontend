@@ -10,6 +10,8 @@ export function useRecipeImageManager(form: UseFormReturn<RecipeFormValues>) {
 
   const imageFiles = watch("imageFiles");
   const existingUrls = watch("image_urls") || [];
+  const newCoverIndex = watch("newCoverIndex");
+  const coverExistingUrl = watch("coverExistingUrl");
 
   const newPreviews = useMemo(() => {
     if (!imageFiles) {
@@ -47,6 +49,15 @@ export function useRecipeImageManager(form: UseFormReturn<RecipeFormValues>) {
     const currentFiles = getValues("imageFiles") || [];
     const newFiles = currentFiles.filter((_, i) => i !== index);
     setValue("imageFiles", newFiles, { shouldValidate: true });
+
+    const currentCover = getValues("newCoverIndex");
+    if (currentCover != null) {
+      if (index === currentCover) {
+        setValue("newCoverIndex", null);
+      } else if (index < currentCover) {
+        setValue("newCoverIndex", currentCover - 1);
+      }
+    }
   };
 
   const removeExistingUrl = (urlToRemove: string) => {
@@ -56,40 +67,46 @@ export function useRecipeImageManager(form: UseFormReturn<RecipeFormValues>) {
       shouldValidate: true,
       shouldDirty: true,
     });
+
+    if (coverExistingUrl === urlToRemove) {
+      setValue("coverExistingUrl", null);
+    }
   };
 
-  // Cover logic for an old images
-  const setAsCoverExisting = (urlToPromote: string) => {
-    const currentUrls = getValues("image_urls") || [];
-    const otherUrls = currentUrls.filter((url) => url !== urlToPromote);
-    const newOrder = [urlToPromote, ...otherUrls];
-    setValue("image_urls", newOrder, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
+  const setAsCoverExisting = (url: string) => {
+    setValue("coverExistingUrl", url, { shouldDirty: true });
+    setValue("newCoverIndex", null);
   };
 
-  const setNewFileAsCover = (indexToPromote: number) => {
-    const currentFiles = getValues("imageFiles") || [];
-    const fileToPromote = currentFiles[indexToPromote];
+  const setNewFileAsCover = (index: number) => {
+    setValue("newCoverIndex", index);
+    setValue("coverExistingUrl", null);
+  };
 
-    if (!fileToPromote) return;
+  const isExistingCover = (url: string, index: number) => {
+    if (newCoverIndex != null) return false;
+    if (coverExistingUrl != null) return url === coverExistingUrl;
+    return index === 0;
+  };
 
-    const otherFiles = currentFiles.filter((_, i) => i !== indexToPromote);
-
-    const newOrder = [fileToPromote, ...otherFiles];
-
-    setValue("imageFiles", newOrder, { shouldValidate: true });
+  const isNewFileCover = (index: number) => {
+    if (newCoverIndex != null) return newCoverIndex === index;
+    if (existingUrls.length === 0 && coverExistingUrl == null) return index === 0;
+    return false;
   };
 
   return {
     imageFiles,
     existingUrls,
     newPreviews,
+    newCoverIndex,
+    coverExistingUrl,
     handleFileChange,
     removeNewFile,
     removeExistingUrl,
     setAsCoverExisting,
     setNewFileAsCover,
+    isExistingCover,
+    isNewFileCover,
   };
 }

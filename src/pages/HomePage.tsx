@@ -9,7 +9,8 @@ import { CreateRecipeSheet } from "@/features/recipes/components/CreateRecipeShe
 import { RecipeFilterSheet } from "@/features/recipes/components/RecipeFilterSheet";
 import { RecipeCardSkeleton } from "@/components/skeletons/RecipeCardSkeleton";
 import { Footer } from "@/components/layout/Footer";
-import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
+import { Header } from "@/components/layout/Header";
+import { Spinner } from "@/components/ui/spinner";
 import { useTranslation } from "react-i18next";
 
 export function HomePage() {
@@ -32,13 +33,16 @@ export function HomePage() {
     excludeIngredients,
     setIncludeIngredients,
     setExcludeIngredients,
+    resetFilters,
+    sentinelRef,
+    isFetchingNextPage,
+    hasNextPage,
   } = useHomeRecipes();
 
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans">
-      {/* HEADER */}
-      <header className="border-b border-gray-200 sticky top-0 bg-white/80 backdrop-blur-md z-10">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+      <Header
+        leftContent={
           <Link
             to="/"
             onClick={handleClear}
@@ -46,12 +50,9 @@ export function HomePage() {
           >
             {t("app_name")}
           </Link>
-          <div className="flex items-center gap-3">
-            <CreateRecipeSheet />
-            <LanguageSwitcher />
-          </div>
-        </div>
-      </header>
+        }
+        rightContent={<CreateRecipeSheet />}
+      />
 
       {/* MAIN */}
       <main className="flex-1 container mx-auto px-4 py-8 md:py-12">
@@ -101,6 +102,7 @@ export function HomePage() {
               exclude={excludeIngredients}
               onIncludeChange={setIncludeIngredients}
               onExcludeChange={setExcludeIngredients}
+              onReset={resetFilters}
             />
           </div>
         </div>
@@ -108,7 +110,6 @@ export function HomePage() {
         {/* STATES */}
         {isLoading && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Generate an array of 6 empty recipe cards*/}
             {Array.from({ length: 6 }).map((_, index) => (
               <RecipeCardSkeleton key={index} />
             ))}
@@ -140,22 +141,31 @@ export function HomePage() {
 
         {/* GRID */}
         {!isLoading && !isError && recipes && recipes.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {recipes.map((recipe) => (
-              <Link
-                key={recipe.id}
-                to={`/recipe/${recipe.id}`}
-                className="block"
-              >
-                <RecipeCard
-                  title={recipe.title || t("untitled_recipe")}
-                  time={recipe.cooking_time_in_minutes || 0}
-                  difficulty={recipe.difficulty}
-                  image={recipe.image_urls?.[0] || ""}
-                />
-              </Link>
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {recipes.map((recipe) => (
+                <Link
+                  key={recipe.id}
+                  to={`/recipe/${recipe.id}`}
+                  className="block"
+                >
+                  <RecipeCard
+                    title={recipe.title || t("untitled_recipe")}
+                    time={recipe.cooking_time_in_minutes || 0}
+                    difficulty={recipe.difficulty}
+                    image={recipe.image_urls?.[0] || ""}
+                  />
+                </Link>
+              ))}
+            </div>
+
+            {/* Infinite scroll sentinel */}
+            {hasNextPage && (
+              <div ref={sentinelRef} className="flex justify-center py-8">
+                {isFetchingNextPage && <Spinner size="md" />}
+              </div>
+            )}
+          </>
         )}
       </main>
 

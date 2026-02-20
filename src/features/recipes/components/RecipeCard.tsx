@@ -3,7 +3,7 @@ import { Clock } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { useTranslation } from "react-i18next";
-import { capitalize } from "@/lib/utils";
+import { getDifficultyKey } from "@/lib/utils";
 
 interface RecipeCardProps {
   title: string;
@@ -46,7 +46,7 @@ export function RecipeCard({
           {/* Difficulty */}
           <div className="flex items-center text-gray-500 bg-gray-100 px-2.5 py-1 rounded-lg text-xs font-semibold tracking-wide">
             {difficulty
-              ? t(`difficulty.${capitalize(difficulty)}` as any)
+              ? t(getDifficultyKey(difficulty))
               : t("unknown_difficulty")}
           </div>
         </div>
