@@ -7,6 +7,7 @@ import {
   useUpdateRecipe,
   useUploadRecipeImages,
   getReadRecipesQueryKey,
+  getReadRecipeByIdQueryKey,
 } from "@/api/recipes/recipes";
 import { type RecipeFormValues } from "../types/schema";
 import { useTranslation } from "react-i18next";
@@ -92,6 +93,15 @@ export function useRecipeMutations(onSuccess?: () => void) {
 
   const updateRecipe = async (id: number, data: RecipeFormValues) => {
     try {
+      let orderedExistingUrls = data.image_urls || [];
+      if (data.coverExistingUrl && orderedExistingUrls.length > 0) {
+        const coverUrl = data.coverExistingUrl;
+        orderedExistingUrls = [
+          coverUrl,
+          ...orderedExistingUrls.filter((u) => u !== coverUrl),
+        ];
+      }
+
       await updateMutate({
         recipeId: id,
         data: {
@@ -101,22 +111,45 @@ export function useRecipeMutations(onSuccess?: () => void) {
           cuisine: data.cuisine,
           instructions: data.instructions,
           ingredients: data.ingredients.map((i) => i.value),
-          image_urls: data.image_urls,
+          image_urls: orderedExistingUrls,
         },
       });
 
       if (data.imageFiles && data.imageFiles.length > 0) {
-        await uploadImagesMutate({
+        const uploadedRecipe = await uploadImagesMutate({
           recipeId: id,
           data: { files: data.imageFiles },
         });
+
+        if (
+          data.newCoverIndex != null &&
+          uploadedRecipe.image_urls
+        ) {
+          const existingCount = orderedExistingUrls.length;
+          const newImageIndex = existingCount + data.newCoverIndex;
+          const allUrls = uploadedRecipe.image_urls;
+
+          if (newImageIndex < allUrls.length) {
+            const coverUrl = allUrls[newImageIndex];
+            if (coverUrl) {
+              const reordered = [
+                coverUrl,
+                ...allUrls.filter((_, i) => i !== newImageIndex),
+              ];
+              await updateMutate({
+                recipeId: id,
+                data: { image_urls: reordered },
+              });
+            }
+          }
+        }
       }
 
       toast.success(t("toast_updated"));
       onSuccess?.();
 
       queryClient.invalidateQueries({ queryKey: getReadRecipesQueryKey() });
-      queryClient.invalidateQueries({ queryKey: ["recipes", id] });
+      queryClient.invalidateQueries({ queryKey: getReadRecipeByIdQueryKey(id) });
     } catch (error) {
       handleError(error, t("toast_error_update"));
     }

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { ImageIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from "react-i18next";
 
 interface OptimizedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   src: string;
@@ -19,6 +20,7 @@ export function OptimizedImage({
   useObjectContain = false, 
   ...props 
 }: OptimizedImageProps) {
+  const { t } = useTranslation();
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
 
@@ -56,7 +58,7 @@ export function OptimizedImage({
       {hasError && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-100 text-gray-400">
           <ImageIcon className="w-10 h-10 mb-2 opacity-50" />
-          <span className="text-[10px] font-medium uppercase tracking-wider opacity-50">No Image</span>
+          <span className="text-[10px] font-medium uppercase tracking-wider opacity-50">{t("no_image")}</span>
         </div>
       )}
     </div>

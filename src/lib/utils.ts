@@ -11,3 +11,19 @@ export const capitalize = (s: string) => {
   }
   return s.charAt(0).toUpperCase() + s.slice(1);
 };
+
+const DIFFICULTY_KEYS = {
+  Easy: "difficulty.Easy",
+  Medium: "difficulty.Medium",
+  Hard: "difficulty.Hard",
+} as const;
+
+export const getDifficultyKey = (
+  difficulty: string
+): (typeof DIFFICULTY_KEYS)[keyof typeof DIFFICULTY_KEYS] => {
+  const capitalized = capitalize(difficulty);
+  if (capitalized in DIFFICULTY_KEYS) {
+    return DIFFICULTY_KEYS[capitalized as keyof typeof DIFFICULTY_KEYS];
+  }
+  return "difficulty.Easy";
+};

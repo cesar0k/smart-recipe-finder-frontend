@@ -1,15 +1,17 @@
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+  Dialog,
+  DialogScrollContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { RecipeForm } from "./RecipeForm";
 import { useRecipeMutations } from "../hooks/useRecipeMutations";
 import { type RecipeFormValues } from "../types/schema";
 import { type Recipe } from "@/api/model";
 import { getRecipeFormDefaultValues } from "../lib/utils";
 import { useTranslation } from "react-i18next";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { useHistoryBack } from "@/hooks/useHistoryBack";
 
 interface EditRecipeSheetProps {
   recipe: Recipe;
@@ -25,8 +27,10 @@ export function EditRecipeSheet({
   onSuccess,
 }: EditRecipeSheetProps) {
   const { t } = useTranslation();
+  const handleOpenChange = useHistoryBack(open, onOpenChange);
+
   const { updateRecipe, isSubmitting } = useRecipeMutations(() => {
-    onOpenChange(false);
+    handleOpenChange(false);
     onSuccess();
   });
 
@@ -37,18 +41,21 @@ export function EditRecipeSheet({
   const defaultValues = getRecipeFormDefaultValues(recipe);
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="overflow-y-auto sm:max-w-md w-full p-4">
-        <SheetHeader className="text-left px-0 py-2">
-          <SheetTitle>{t("form_edit_title")}</SheetTitle>
-        </SheetHeader>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogScrollContent>
+        <DialogHeader className="text-left px-0 py-2">
+          <DialogTitle>{t("form_edit_title")}</DialogTitle>
+        </DialogHeader>
+        <VisuallyHidden>
+          <p>{t("form_edit_title")}</p>
+        </VisuallyHidden>
 
         <RecipeForm
           defaultValues={defaultValues}
           onSubmit={onSubmit}
           isSubmitting={isSubmitting}
         />
-      </SheetContent>
-    </Sheet>
+      </DialogScrollContent>
+    </Dialog>
   );
 }

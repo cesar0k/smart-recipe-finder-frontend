@@ -1,4 +1,4 @@
-import { useFieldArray, useForm, type DefaultValues } from "react-hook-form";
+import { useFieldArray, useForm, type DefaultValues, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Trash2, Image as ImageIcon, X, Star } from "lucide-react";
 
@@ -23,7 +23,7 @@ import {
 import { OptimizedImage } from "@/components/ui/optimized-image";
 
 import {
-  recipeFormSchema,
+  createRecipeFormSchema,
   type RecipeFormValues,
   DIFFICULTY_OPTIONS,
 } from "../types/schema";
@@ -52,11 +52,16 @@ export function RecipeForm({
     ingredients: [{ value: "" }],
     imageFiles: [],
     image_urls: [],
+    newCoverIndex: null,
+    coverExistingUrl: null,
     ...defaultValues,
   } as DefaultValues<RecipeFormValues>;
 
+  const recipeFormSchema = createRecipeFormSchema(t);
+
   const form = useForm<RecipeFormValues>({
-    resolver: zodResolver(recipeFormSchema) as any,
+    // zodResolver type mismatch due to z.coerce.number() in Zod v4
+    resolver: zodResolver(recipeFormSchema) as Resolver<RecipeFormValues>,
     defaultValues: initialValues,
   });
 
@@ -74,6 +79,8 @@ export function RecipeForm({
     removeExistingUrl,
     setAsCoverExisting,
     setNewFileAsCover,
+    isExistingCover,
+    isNewFileCover,
   } = useRecipeImageManager(form);
 
   return (
@@ -107,7 +114,7 @@ export function RecipeForm({
           <div className="grid grid-cols-3 gap-4 mb-2">
             {/* Old photos */}
             {existingUrls.map((url, index) => {
-              const isCover = index === 0;
+              const isCover = isExistingCover(url, index);
               return (
                 <div
                   key={url}
@@ -115,7 +122,7 @@ export function RecipeForm({
                 >
                   <OptimizedImage
                     src={url}
-                    alt={`Existing ${index}`}
+                    alt={t("existing_image_alt", { index: index + 1 })}
                     className="w-full h-full object-cover"
                   />
 
@@ -155,38 +162,34 @@ export function RecipeForm({
 
             {/* New photos */}
             {newPreviews.map((url, index) => {
-              // If no old images, first one is the cover
-              const isCover = existingUrls.length === 0 && index === 0;
+              const isCover = isNewFileCover(index);
 
               return (
                 <div
                   key={index}
                   className="relative aspect-square rounded-2xl overflow-hidden border border-gray-100 group"
                 >
-                  <OptimizedImage src={url} alt="New Preview" />
+                  <OptimizedImage src={url} alt={t("new_preview_alt")} />
 
-                  {/* "Make cover" (star) button. Only if there are no old images */}
-                  {existingUrls.length === 0 && (
-                    <button
-                      type="button"
-                      onClick={() => setNewFileAsCover(index)}
-                      className={`absolute top-1 left-1 p-1.5 rounded-full shadow-sm transition-all z-20 
-                        ${
-                          isCover
-                            ? "bg-yellow-400 text-white opacity-100"
-                            : "bg-white text-gray-400 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:text-yellow-400"
-                        }`}
-                      title={
+                  <button
+                    type="button"
+                    onClick={() => setNewFileAsCover(index)}
+                    className={`absolute top-1 left-1 p-1.5 rounded-full shadow-sm transition-all z-20
+                      ${
                         isCover
-                          ? t("form_cover_image_label")
-                          : t("form_set_as_cover_label")
-                      }
-                    >
-                      <Star
-                        className={`w-3.5 h-3.5 ${isCover ? "fill-current" : ""}`}
-                      />
-                    </button>
-                  )}
+                          ? "bg-yellow-400 text-white opacity-100"
+                          : "bg-white text-gray-400 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:text-yellow-400"
+                      }`}
+                    title={
+                      isCover
+                        ? t("form_cover_image_label")
+                        : t("form_set_as_cover_label")
+                    }
+                  >
+                    <Star
+                      className={`w-3.5 h-3.5 ${isCover ? "fill-current" : ""}`}
+                    />
+                  </button>
 
                   <button
                     type="button"
@@ -366,13 +369,15 @@ export function RecipeForm({
           )}
         />
 
-        <Button
-          type="submit"
-          className="w-full rounded-full h-12 text-base font-semibold bg-black hover:bg-gray-800 shadow-lg shadow-gray-200 transition-all hover:scale-[1.01]"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? t("form_saving_btn") : t("form_save_btn")}
-        </Button>
+        <div className="sticky bottom-0 pt-6 pb-5 bg-gradient-to-t from-white from-70% to-transparent">
+          <Button
+            type="submit"
+            className="w-full rounded-full h-12 text-base font-semibold bg-black hover:bg-gray-800 shadow-lg shadow-gray-200 transition-all hover:scale-[1.01]"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? t("form_saving_btn") : t("form_save_btn")}
+          </Button>
+        </div>
       </form>
     </Form>
   );

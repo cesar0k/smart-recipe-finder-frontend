@@ -1,40 +1,46 @@
 import { z } from "zod";
+import type { TFunction } from "i18next";
 
 export const DIFFICULTY_OPTIONS = ["Easy", "Medium", "Hard"] as const;
 
 export type RecipeDifficulty = (typeof DIFFICULTY_OPTIONS)[number];
 
-const imageFileSchema = z.custom<File>((v) => v instanceof File, {
-  message: "Must be a file",
-});
+export const createRecipeFormSchema = (t: TFunction) => {
+  const imageFileSchema = z.custom<File>((v) => v instanceof File, {
+    message: t("validation_must_be_file"),
+  });
 
-export const recipeFormSchema = z.object({
-  title: z
-    .string()
-    .min(2, "Title must be at least 2 characters")
-    .max(255, "Title is too long (max 255 characters)"),
-  description: z.string().optional(),
-  cooking_time_in_minutes: z.coerce
-    .number()
-    .min(1, "Cooking time must be at least 1 minute"),
-  difficulty: z.enum(DIFFICULTY_OPTIONS),
-  cuisine: z.string().optional(),
-  instructions: z
-    .string()
-    .min(10, "Instructions must be at least 10 characters")
-    .max(50000, "Instructions is too long (max 50000 characters)"),
-  ingredients: z
-    .array(
-      z.object({
-        value: z.string().min(1, "Ingredient cannot be empty"),
-      })
-    )
-    .min(1, "Add at least one ingredient")
-    .max(100, "Too many ingredients added (max 100)"),
+  return z.object({
+    title: z
+      .string()
+      .min(2, t("validation_title_min"))
+      .max(255, t("validation_title_max")),
+    description: z.string().optional(),
+    cooking_time_in_minutes: z.coerce
+      .number()
+      .min(1, t("validation_time_min")),
+    difficulty: z.enum(DIFFICULTY_OPTIONS),
+    cuisine: z.string().optional(),
+    instructions: z
+      .string()
+      .min(10, t("validation_instructions_min"))
+      .max(50000, t("validation_instructions_max")),
+    ingredients: z
+      .array(
+        z.object({
+          value: z.string().min(1, t("validation_ingredient_empty")),
+        })
+      )
+      .min(1, t("validation_ingredients_min"))
+      .max(100, t("validation_ingredients_max")),
+    image_urls: z.array(z.string()).optional(),
+    imageFiles: z
+      .array(imageFileSchema)
+      .max(5, t("validation_max_files"))
+      .optional(),
+    newCoverIndex: z.number().nullable().optional(),
+    coverExistingUrl: z.string().nullable().optional(),
+  });
+};
 
-  image_urls: z.array(z.string()).optional(),
-
-  imageFiles: z.array(imageFileSchema).max(5, "Max 5 files allowed").optional(),
-});
-
-export type RecipeFormValues = z.infer<typeof recipeFormSchema>;
+export type RecipeFormValues = z.infer<ReturnType<typeof createRecipeFormSchema>>;
