@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Search, X, ArrowRight } from "lucide-react";
+import axios from "axios";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ export function HomePage() {
     recipes,
     isLoading,
     isError,
+    error,
     isEmpty,
     searchTerm,
     setSearchTerm,
@@ -118,7 +120,9 @@ export function HomePage() {
 
         {isError && (
           <div className="text-center text-red-500 py-10">
-            {t("search_error")}
+            {axios.isAxiosError(error) && !error.response
+              ? t("connection_error")
+              : t("search_error")}
           </div>
         )}
 

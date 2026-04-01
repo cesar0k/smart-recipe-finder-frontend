@@ -60,6 +60,7 @@
   "footer_terms": "Terms",
   "footer_github": "GitHub",
   "search_error": "Could not perform search. Please try again.",
+  "connection_error": "Could not connect to the server. Check your internet connection or try again later.",
   "untitled_recipe": "Untitled",
   "unknown_difficulty": "Unknown",
   "recipe_loading": "Cooking up the details...",
