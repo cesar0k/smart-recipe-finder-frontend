@@ -38,6 +38,7 @@ export function useHomeRecipes() {
     data: infiniteData,
     isLoading: isLoadingAll,
     isError: isErrorAll,
+    error: errorAll,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
@@ -62,6 +63,7 @@ export function useHomeRecipes() {
     data: searchResults,
     isLoading: isLoadingSearch,
     isError: isErrorSearch,
+    error: errorSearch,
   } = useSearchRecipes(
     {
       q: queryFromUrl,
@@ -147,6 +149,7 @@ export function useHomeRecipes() {
   const recipes = isSearching ? searchResults : allRecipes;
   const isLoading = isSearching ? isLoadingSearch : isLoadingAll;
   const isError = isSearching ? isErrorSearch : isErrorAll;
+  const error = isSearching ? errorSearch : errorAll;
 
   const getHeading = () => {
     if (isSearching) {
@@ -180,6 +183,7 @@ export function useHomeRecipes() {
     recipes,
     isLoading,
     isError,
+    error,
     isEmpty: !isLoading && !isError && (!recipes || recipes.length === 0),
     isSearchView: isSearching,
     hasActiveFilters,
