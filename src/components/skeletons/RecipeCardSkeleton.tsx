@@ -13,15 +13,15 @@ export function RecipeCardSkeleton() {
       </div>
 
       <div className="flex flex-col p-4 space-y-2">
-        <Skeleton className="h-[1.375rem] w-3/4 rounded-full" />
+        <Skeleton className="h-[1.405rem] w-3/4 rounded-full" />
 
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 bg-gray-100 px-2.5 py-1 rounded-lg">
-            <Clock className="w-3.5 h-3.5 text-gray-200" />
-            <Skeleton className="h-3 w-8 rounded-full" />
+          <div className="flex items-center text-gray-500 bg-gray-100 px-2.5 py-1 rounded-lg text-xs font-semibold tracking-wide">
+            <Clock className="w-3.5 h-3.5 mr-1.5 text-gray-200" />
+            <Skeleton className="h-3 w-10 rounded-full" />
           </div>
-          <div className="bg-gray-100 px-2.5 py-1 rounded-lg">
-            <Skeleton className="h-3 w-12 rounded-full" />
+          <div className="flex items-center text-gray-500 bg-gray-100 px-2.5 py-1 rounded-lg text-xs font-semibold tracking-wide">
+            <Skeleton className="h-3 w-14 rounded-full" />
           </div>
         </div>
       </div>
