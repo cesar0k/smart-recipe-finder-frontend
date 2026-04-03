@@ -4,7 +4,7 @@
  * Smart Recipes Finder
  * OpenAPI spec version: 1.1.0
  */
-import type { ValidationErrorLocItem } from "./validationErrorLocItem";
+import type { ValidationErrorLocItem } from './validationErrorLocItem';
 
 export interface ValidationError {
   loc: ValidationErrorLocItem[];

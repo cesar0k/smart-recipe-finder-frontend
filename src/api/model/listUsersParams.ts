@@ -5,7 +5,7 @@
  * OpenAPI spec version: 1.1.0
  */
 
-export type ReadRecipesParams = {
+export type ListUsersParams = {
 /**
  * @minimum 0
  */
@@ -15,12 +15,4 @@ skip?: number;
  * @maximum 100
  */
 limit?: number;
-/**
- * Comma-separated ingredient to include
- */
-include_ingredients?: string | null;
-/**
- * Comma-separated ingredient to exclude
- */
-exclude_ingredients?: string | null;
 };

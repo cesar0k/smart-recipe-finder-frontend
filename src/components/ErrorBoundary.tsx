@@ -1,4 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
+import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   children: ReactNode;
@@ -6,6 +8,30 @@ interface Props {
 
 interface State {
   hasError: boolean;
+}
+
+function ErrorFallback() {
+  const { t } = useTranslation();
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-white gap-6 px-4">
+      <div className="text-center space-y-3">
+        <h1 className="text-6xl font-extrabold text-gray-900">500</h1>
+        <h2 className="text-2xl font-bold text-gray-900">
+          {t("error_title")}
+        </h2>
+        <p className="text-gray-500 max-w-md">
+          {t("error_desc")}
+        </p>
+      </div>
+      <Button
+        onClick={() => window.location.reload()}
+        className="rounded-full"
+      >
+        {t("error_reload")}
+      </Button>
+    </div>
+  );
 }
 
 export class ErrorBoundary extends Component<Props, State> {
@@ -24,24 +50,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   render() {
     if (this.state.hasError) {
-      return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-white gap-6 px-4">
-          <div className="text-center space-y-3">
-            <h1 className="text-3xl font-bold text-gray-900">
-              Something went wrong
-            </h1>
-            <p className="text-gray-500 max-w-md">
-              An unexpected error occurred. Please try reloading the page.
-            </p>
-          </div>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-6 py-3 bg-black text-white rounded-full font-medium hover:bg-gray-800 transition-colors"
-          >
-            Reload Page
-          </button>
-        </div>
-      );
+      return <ErrorFallback />;
     }
 
     return this.props.children;

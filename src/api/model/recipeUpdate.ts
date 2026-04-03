@@ -4,13 +4,13 @@
  * Smart Recipes Finder
  * OpenAPI spec version: 1.1.0
  */
-import type { RecipeUpdateTitle } from "./recipeUpdateTitle";
-import type { RecipeUpdateInstructions } from "./recipeUpdateInstructions";
-import type { RecipeUpdateCookingTimeInMinutes } from "./recipeUpdateCookingTimeInMinutes";
-import type { RecipeUpdateDifficulty } from "./recipeUpdateDifficulty";
-import type { RecipeUpdateCuisine } from "./recipeUpdateCuisine";
-import type { RecipeUpdateIngredients } from "./recipeUpdateIngredients";
-import type { RecipeUpdateImageUrls } from "./recipeUpdateImageUrls";
+import type { RecipeUpdateTitle } from './recipeUpdateTitle';
+import type { RecipeUpdateInstructions } from './recipeUpdateInstructions';
+import type { RecipeUpdateCookingTimeInMinutes } from './recipeUpdateCookingTimeInMinutes';
+import type { RecipeUpdateDifficulty } from './recipeUpdateDifficulty';
+import type { RecipeUpdateCuisine } from './recipeUpdateCuisine';
+import type { RecipeUpdateIngredients } from './recipeUpdateIngredients';
+import type { RecipeUpdateImageUrls } from './recipeUpdateImageUrls';
 
 export interface RecipeUpdate {
   title?: RecipeUpdateTitle;

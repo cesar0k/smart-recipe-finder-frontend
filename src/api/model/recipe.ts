@@ -4,12 +4,14 @@
  * Smart Recipes Finder
  * OpenAPI spec version: 1.1.0
  */
-import type { RecipeTitle } from "./recipeTitle";
-import type { RecipeInstructions } from "./recipeInstructions";
-import type { RecipeCookingTimeInMinutes } from "./recipeCookingTimeInMinutes";
-import type { RecipeDifficulty } from "./recipeDifficulty";
-import type { RecipeCuisine } from "./recipeCuisine";
-import type { Ingredient } from "./ingredient";
+import type { RecipeTitle } from './recipeTitle';
+import type { RecipeInstructions } from './recipeInstructions';
+import type { RecipeCookingTimeInMinutes } from './recipeCookingTimeInMinutes';
+import type { RecipeDifficulty } from './recipeDifficulty';
+import type { RecipeCuisine } from './recipeCuisine';
+import type { Ingredient } from './ingredient';
+import type { RecipeOwnerId } from './recipeOwnerId';
+import type { RecipeRejectionReason } from './recipeRejectionReason';
 
 export interface Recipe {
   title?: RecipeTitle;
@@ -22,4 +24,7 @@ export interface Recipe {
   ingredients?: Ingredient[];
   /** @maxItems 10 */
   image_urls?: string[];
+  owner_id?: RecipeOwnerId;
+  status?: string;
+  rejection_reason?: RecipeRejectionReason;
 }
