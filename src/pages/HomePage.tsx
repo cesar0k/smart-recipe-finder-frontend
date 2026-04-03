@@ -13,9 +13,11 @@ import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { Spinner } from "@/components/ui/spinner";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "@/lib/auth/auth-context";
 
 export function HomePage() {
   const { t } = useTranslation();
+  const { isAuthenticated } = useAuth();
   const {
     recipes,
     isLoading,
@@ -53,11 +55,11 @@ export function HomePage() {
             {t("app_name")}
           </Link>
         }
-        rightContent={<CreateRecipeSheet />}
+        rightContent={isAuthenticated ? <CreateRecipeSheet /> : undefined}
       />
 
       {/* MAIN */}
-      <main className="flex-1 container mx-auto px-4 py-8 md:py-12">
+      <main className={`flex-1 container mx-auto px-4 pt-8 md:pt-12 ${hasNextPage ? "pb-0" : "py-8 md:py-12"}`}>
         {/* SEARCH BLOCK */}
         <div className="max-w-4xl mx-auto text-center mb-10 space-y-6">
           <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 tracking-tight w-full truncate">
@@ -165,7 +167,7 @@ export function HomePage() {
 
             {/* Infinite scroll sentinel */}
             {hasNextPage && (
-              <div ref={sentinelRef} className="flex justify-center items-center py-16">
+              <div ref={sentinelRef} className="flex justify-center items-center py-8">
                 {isFetchingNextPage && <Spinner size="md" />}
               </div>
             )}

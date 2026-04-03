@@ -6,17 +6,17 @@
  */
 
 export type SearchRecipesParams = {
-  /**
-   * Search query for recipes using vector search
-   * @maxLength 200
-   */
-  q: string;
-  /**
-   * Comma-separated ingredient to include
-   */
-  include_ingredients?: string | null;
-  /**
-   * Comma-separated ingredient to exclude
-   */
-  exclude_ingredients?: string | null;
+/**
+ * Search query for recipes using vector search
+ * @maxLength 200
+ */
+q: string;
+/**
+ * Comma-separated ingredient to include
+ */
+include_ingredients?: string | null;
+/**
+ * Comma-separated ingredient to exclude
+ */
+exclude_ingredients?: string | null;
 };

@@ -18,8 +18,9 @@ export function useHistoryBack(
       if (nextOpen) {
         window.history.pushState({ dialog: true }, "", window.location.href);
         pushedRef.current = true;
-      } else {
+      } else if (pushedRef.current) {
         pushedRef.current = false;
+        window.history.back();
       }
       onOpenChange(nextOpen);
     },

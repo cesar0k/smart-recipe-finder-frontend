@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { ArrowLeft, MoreVertical, Trash2, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -28,12 +28,20 @@ import { useDeleteRecipeLogic } from "../features/recipes/hooks/useDeleteRecipeL
 import { RecipeHeaderInfo } from "@/features/recipes/components/RecipeHeaderInfo";
 import { RecipeGallery } from "@/features/recipes/components/RecipeGallery";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "@/lib/auth/auth-context";
 
 export function RecipePage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const hasPreviousPage = location.key !== "default";
   const { recipe, isLoading, isError, isValidId, refetch } = useRecipeDetails();
   const { deleteRecipe, isDeleting } = useDeleteRecipeLogic();
   const { t } = useTranslation();
+  const { user, hasRole } = useAuth();
+
+  const canModify =
+    !!user &&
+    (user.id === recipe?.owner_id || hasRole("moderator", "admin"));
 
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -69,7 +77,7 @@ export function RecipePage() {
             variant="ghost"
             className="gap-2 text-gray-600 hover:text-black pl-0 hover:bg-transparent"
             onClick={() => {
-              if (window.history.state && window.history.state.idx > 0) {
+              if (hasPreviousPage) {
                 navigate(-1);
               } else {
                 navigate("/");
@@ -81,29 +89,31 @@ export function RecipePage() {
           </Button>
         }
         rightContent={
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-full">
-                <MoreVertical className="w-5 h-5 text-gray-600" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48 rounded-2xl">
-              <DropdownMenuItem
-                className="rounded-full"
-                onClick={() => setIsEditOpen(true)}
-              >
-                <Pencil className="w-4 h-4 mr-2" />
-                {t("edit_recipe")}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="text-red-600 focus:text-red-600 focus:bg-red-50 rounded-full"
-                onClick={() => setIsDeleteDialogOpen(true)}
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                {t("delete_recipe")}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          canModify ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  <MoreVertical className="w-5 h-5 text-gray-600" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48 rounded-2xl">
+                <DropdownMenuItem
+                  className="rounded-full"
+                  onClick={() => setIsEditOpen(true)}
+                >
+                  <Pencil className="w-4 h-4 mr-2" />
+                  {t("edit_recipe")}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="text-red-600 focus:text-red-600 focus:bg-red-50 rounded-full"
+                  onClick={() => setIsDeleteDialogOpen(true)}
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  {t("delete_recipe")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : undefined
         }
       />
 
