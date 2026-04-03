@@ -4,7 +4,10 @@
  * Smart Recipes Finder
  * OpenAPI spec version: 1.1.0
  */
-import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery
+} from '@tanstack/react-query';
 import type {
   DataTag,
   DefinedInitialDataOptions,
@@ -17,8 +20,8 @@ import type {
   UseMutationOptions,
   UseMutationResult,
   UseQueryOptions,
-  UseQueryResult,
-} from "@tanstack/react-query";
+  UseQueryResult
+} from '@tanstack/react-query';
 
 import type {
   BodyUploadRecipeImages,
@@ -29,893 +32,612 @@ import type {
   RecipeImagesDelete,
   RecipeUpdate,
   SearchRecipesParams,
-} from ".././model";
+  UpdateRecipe200
+} from '.././model';
 
-import { customInstance } from ".././axios";
+import { customInstance } from '.././axios';
+
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
+
 
 /**
  * @summary Create New Recipe
  */
 export const createRecipe = (
-  recipeCreate: RecipeCreate,
-  options?: SecondParameter<typeof customInstance>,
-  signal?: AbortSignal,
+    recipeCreate: RecipeCreate,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
-  return customInstance<Recipe>(
-    {
-      url: `/api/v1/recipes/`,
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      data: recipeCreate,
-      signal,
+      
+      
+      return customInstance<Recipe>(
+      {url: `/api/v1/recipes/`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: recipeCreate, signal
     },
-    options,
-  );
-};
+      options);
+    }
+  
 
-export const getCreateRecipeMutationOptions = <
-  TError = HTTPValidationError,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof createRecipe>>,
-    TError,
-    { data: RecipeCreate },
-    TContext
-  >;
-  request?: SecondParameter<typeof customInstance>;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof createRecipe>>,
-  TError,
-  { data: RecipeCreate },
-  TContext
-> => {
-  const mutationKey = ["createRecipe"];
-  const { mutation: mutationOptions, request: requestOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, request: undefined };
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof createRecipe>>,
-    { data: RecipeCreate }
-  > = (props) => {
-    const { data } = props ?? {};
+export const getCreateRecipeMutationOptions = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createRecipe>>, TError,{data: RecipeCreate}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof createRecipe>>, TError,{data: RecipeCreate}, TContext> => {
 
-    return createRecipe(data, requestOptions);
-  };
+const mutationKey = ['createRecipe'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
 
-  return { mutationFn, ...mutationOptions };
-};
+      
 
-export type CreateRecipeMutationResult = NonNullable<
-  Awaited<ReturnType<typeof createRecipe>>
->;
-export type CreateRecipeMutationBody = RecipeCreate;
-export type CreateRecipeMutationError = HTTPValidationError;
 
-/**
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createRecipe>>, {data: RecipeCreate}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createRecipe(data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateRecipeMutationResult = NonNullable<Awaited<ReturnType<typeof createRecipe>>>
+    export type CreateRecipeMutationBody = RecipeCreate
+    export type CreateRecipeMutationError = HTTPValidationError
+
+    /**
  * @summary Create New Recipe
  */
-export const useCreateRecipe = <
-  TError = HTTPValidationError,
-  TContext = unknown,
->(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof createRecipe>>,
-      TError,
-      { data: RecipeCreate },
-      TContext
-    >;
-    request?: SecondParameter<typeof customInstance>;
-  },
-  queryClient?: QueryClient,
-): UseMutationResult<
-  Awaited<ReturnType<typeof createRecipe>>,
-  TError,
-  { data: RecipeCreate },
-  TContext
-> => {
-  const mutationOptions = getCreateRecipeMutationOptions(options);
+export const useCreateRecipe = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createRecipe>>, TError,{data: RecipeCreate}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createRecipe>>,
+        TError,
+        {data: RecipeCreate},
+        TContext
+      > => {
 
-  return useMutation(mutationOptions, queryClient);
-};
-/**
+      const mutationOptions = getCreateRecipeMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    /**
  * @summary Read Recipes
  */
 export const readRecipes = (
-  params?: ReadRecipesParams,
-  options?: SecondParameter<typeof customInstance>,
-  signal?: AbortSignal,
+    params?: ReadRecipesParams,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
-  return customInstance<Recipe[]>(
-    { url: `/api/v1/recipes/`, method: "GET", params, signal },
-    options,
-  );
-};
+      
+      
+      return customInstance<Recipe[]>(
+      {url: `/api/v1/recipes/`, method: 'GET',
+        params, signal
+    },
+      options);
+    }
+  
 
-export const getReadRecipesQueryKey = (params?: ReadRecipesParams) => {
-  return [`/api/v1/recipes/`, ...(params ? [params] : [])] as const;
-};
 
-export const getReadRecipesQueryOptions = <
-  TData = Awaited<ReturnType<typeof readRecipes>>,
-  TError = HTTPValidationError,
->(
-  params?: ReadRecipesParams,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof readRecipes>>, TError, TData>
-    >;
-    request?: SecondParameter<typeof customInstance>;
-  },
+
+export const getReadRecipesQueryKey = (params?: ReadRecipesParams,) => {
+    return [
+    `/api/v1/recipes/`, ...(params ? [params]: [])
+    ] as const;
+    }
+
+    
+export const getReadRecipesQueryOptions = <TData = Awaited<ReturnType<typeof readRecipes>>, TError = HTTPValidationError>(params?: ReadRecipesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof readRecipes>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getReadRecipesQueryKey(params);
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof readRecipes>>> = ({
-    signal,
-  }) => readRecipes(params, requestOptions, signal);
+  const queryKey =  queryOptions?.queryKey ?? getReadRecipesQueryKey(params);
 
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof readRecipes>>,
-    TError,
-    TData
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
-};
+  
 
-export type ReadRecipesQueryResult = NonNullable<
-  Awaited<ReturnType<typeof readRecipes>>
->;
-export type ReadRecipesQueryError = HTTPValidationError;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof readRecipes>>> = ({ signal }) => readRecipes(params, requestOptions, signal);
 
-export function useReadRecipes<
-  TData = Awaited<ReturnType<typeof readRecipes>>,
-  TError = HTTPValidationError,
->(
-  params: undefined | ReadRecipesParams,
-  options: {
-    query: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof readRecipes>>, TError, TData>
-    > &
-      Pick<
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof readRecipes>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ReadRecipesQueryResult = NonNullable<Awaited<ReturnType<typeof readRecipes>>>
+export type ReadRecipesQueryError = HTTPValidationError
+
+
+export function useReadRecipes<TData = Awaited<ReturnType<typeof readRecipes>>, TError = HTTPValidationError>(
+ params: undefined |  ReadRecipesParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof readRecipes>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof readRecipes>>,
           TError,
           Awaited<ReturnType<typeof readRecipes>>
-        >,
-        "initialData"
-      >;
-    request?: SecondParameter<typeof customInstance>;
-  },
-  queryClient?: QueryClient,
-): DefinedUseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
-export function useReadRecipes<
-  TData = Awaited<ReturnType<typeof readRecipes>>,
-  TError = HTTPValidationError,
->(
-  params?: ReadRecipesParams,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof readRecipes>>, TError, TData>
-    > &
-      Pick<
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useReadRecipes<TData = Awaited<ReturnType<typeof readRecipes>>, TError = HTTPValidationError>(
+ params?: ReadRecipesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof readRecipes>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof readRecipes>>,
           TError,
           Awaited<ReturnType<typeof readRecipes>>
-        >,
-        "initialData"
-      >;
-    request?: SecondParameter<typeof customInstance>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
-export function useReadRecipes<
-  TData = Awaited<ReturnType<typeof readRecipes>>,
-  TError = HTTPValidationError,
->(
-  params?: ReadRecipesParams,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof readRecipes>>, TError, TData>
-    >;
-    request?: SecondParameter<typeof customInstance>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useReadRecipes<TData = Awaited<ReturnType<typeof readRecipes>>, TError = HTTPValidationError>(
+ params?: ReadRecipesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof readRecipes>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Read Recipes
  */
 
-export function useReadRecipes<
-  TData = Awaited<ReturnType<typeof readRecipes>>,
-  TError = HTTPValidationError,
->(
-  params?: ReadRecipesParams,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof readRecipes>>, TError, TData>
-    >;
-    request?: SecondParameter<typeof customInstance>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getReadRecipesQueryOptions(params, options);
+export function useReadRecipes<TData = Awaited<ReturnType<typeof readRecipes>>, TError = HTTPValidationError>(
+ params?: ReadRecipesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof readRecipes>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const queryOptions = getReadRecipesQueryOptions(params,options)
 
-  query.queryKey = queryOptions.queryKey;
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
 
   return query;
 }
+
+
+
+
+/**
+ * @summary Search Recipes
+ */
+export const searchRecipes = (
+    params: SearchRecipesParams,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<Recipe[]>(
+      {url: `/api/v1/recipes/search/`, method: 'GET',
+        params, signal
+    },
+      options);
+    }
+  
+
+
+
+export const getSearchRecipesQueryKey = (params?: SearchRecipesParams,) => {
+    return [
+    `/api/v1/recipes/search/`, ...(params ? [params]: [])
+    ] as const;
+    }
+
+    
+export const getSearchRecipesQueryOptions = <TData = Awaited<ReturnType<typeof searchRecipes>>, TError = HTTPValidationError>(params: SearchRecipesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof searchRecipes>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getSearchRecipesQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof searchRecipes>>> = ({ signal }) => searchRecipes(params, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof searchRecipes>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type SearchRecipesQueryResult = NonNullable<Awaited<ReturnType<typeof searchRecipes>>>
+export type SearchRecipesQueryError = HTTPValidationError
+
+
+export function useSearchRecipes<TData = Awaited<ReturnType<typeof searchRecipes>>, TError = HTTPValidationError>(
+ params: SearchRecipesParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof searchRecipes>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof searchRecipes>>,
+          TError,
+          Awaited<ReturnType<typeof searchRecipes>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useSearchRecipes<TData = Awaited<ReturnType<typeof searchRecipes>>, TError = HTTPValidationError>(
+ params: SearchRecipesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof searchRecipes>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof searchRecipes>>,
+          TError,
+          Awaited<ReturnType<typeof searchRecipes>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useSearchRecipes<TData = Awaited<ReturnType<typeof searchRecipes>>, TError = HTTPValidationError>(
+ params: SearchRecipesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof searchRecipes>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Search Recipes
+ */
+
+export function useSearchRecipes<TData = Awaited<ReturnType<typeof searchRecipes>>, TError = HTTPValidationError>(
+ params: SearchRecipesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof searchRecipes>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getSearchRecipesQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
 
 /**
  * @summary Read Recipe By Id
  */
 export const readRecipeById = (
-  recipeId: number,
-  options?: SecondParameter<typeof customInstance>,
-  signal?: AbortSignal,
+    recipeId: number,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
-  return customInstance<Recipe>(
-    { url: `/api/v1/recipes/${recipeId}`, method: "GET", signal },
-    options,
-  );
-};
+      
+      
+      return customInstance<Recipe>(
+      {url: `/api/v1/recipes/${recipeId}`, method: 'GET', signal
+    },
+      options);
+    }
+  
 
-export const getReadRecipeByIdQueryKey = (recipeId?: number) => {
-  return [`/api/v1/recipes/${recipeId}`] as const;
-};
 
-export const getReadRecipeByIdQueryOptions = <
-  TData = Awaited<ReturnType<typeof readRecipeById>>,
-  TError = HTTPValidationError,
->(
-  recipeId: number,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof readRecipeById>>, TError, TData>
-    >;
-    request?: SecondParameter<typeof customInstance>;
-  },
+
+export const getReadRecipeByIdQueryKey = (recipeId?: number,) => {
+    return [
+    `/api/v1/recipes/${recipeId}`
+    ] as const;
+    }
+
+    
+export const getReadRecipeByIdQueryOptions = <TData = Awaited<ReturnType<typeof readRecipeById>>, TError = HTTPValidationError>(recipeId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof readRecipeById>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey =
-    queryOptions?.queryKey ?? getReadRecipeByIdQueryKey(recipeId);
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof readRecipeById>>> = ({
-    signal,
-  }) => readRecipeById(recipeId, requestOptions, signal);
+  const queryKey =  queryOptions?.queryKey ?? getReadRecipeByIdQueryKey(recipeId);
 
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!recipeId,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof readRecipeById>>,
-    TError,
-    TData
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
-};
+  
 
-export type ReadRecipeByIdQueryResult = NonNullable<
-  Awaited<ReturnType<typeof readRecipeById>>
->;
-export type ReadRecipeByIdQueryError = HTTPValidationError;
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof readRecipeById>>> = ({ signal }) => readRecipeById(recipeId, requestOptions, signal);
 
-export function useReadRecipeById<
-  TData = Awaited<ReturnType<typeof readRecipeById>>,
-  TError = HTTPValidationError,
->(
-  recipeId: number,
-  options: {
-    query: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof readRecipeById>>, TError, TData>
-    > &
-      Pick<
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(recipeId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof readRecipeById>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ReadRecipeByIdQueryResult = NonNullable<Awaited<ReturnType<typeof readRecipeById>>>
+export type ReadRecipeByIdQueryError = HTTPValidationError
+
+
+export function useReadRecipeById<TData = Awaited<ReturnType<typeof readRecipeById>>, TError = HTTPValidationError>(
+ recipeId: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof readRecipeById>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof readRecipeById>>,
           TError,
           Awaited<ReturnType<typeof readRecipeById>>
-        >,
-        "initialData"
-      >;
-    request?: SecondParameter<typeof customInstance>;
-  },
-  queryClient?: QueryClient,
-): DefinedUseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
-export function useReadRecipeById<
-  TData = Awaited<ReturnType<typeof readRecipeById>>,
-  TError = HTTPValidationError,
->(
-  recipeId: number,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof readRecipeById>>, TError, TData>
-    > &
-      Pick<
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useReadRecipeById<TData = Awaited<ReturnType<typeof readRecipeById>>, TError = HTTPValidationError>(
+ recipeId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof readRecipeById>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof readRecipeById>>,
           TError,
           Awaited<ReturnType<typeof readRecipeById>>
-        >,
-        "initialData"
-      >;
-    request?: SecondParameter<typeof customInstance>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
-export function useReadRecipeById<
-  TData = Awaited<ReturnType<typeof readRecipeById>>,
-  TError = HTTPValidationError,
->(
-  recipeId: number,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof readRecipeById>>, TError, TData>
-    >;
-    request?: SecondParameter<typeof customInstance>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useReadRecipeById<TData = Awaited<ReturnType<typeof readRecipeById>>, TError = HTTPValidationError>(
+ recipeId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof readRecipeById>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
  * @summary Read Recipe By Id
  */
 
-export function useReadRecipeById<
-  TData = Awaited<ReturnType<typeof readRecipeById>>,
-  TError = HTTPValidationError,
->(
-  recipeId: number,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof readRecipeById>>, TError, TData>
-    >;
-    request?: SecondParameter<typeof customInstance>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getReadRecipeByIdQueryOptions(recipeId, options);
+export function useReadRecipeById<TData = Awaited<ReturnType<typeof readRecipeById>>, TError = HTTPValidationError>(
+ recipeId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof readRecipeById>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
+  const queryOptions = getReadRecipeByIdQueryOptions(recipeId,options)
 
-  query.queryKey = queryOptions.queryKey;
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
 
   return query;
 }
+
+
+
 
 /**
  * @summary Update Existing Recipe
  */
 export const updateRecipe = (
-  recipeId: number,
-  recipeUpdate: RecipeUpdate,
-  options?: SecondParameter<typeof customInstance>,
-) => {
-  return customInstance<Recipe>(
-    {
-      url: `/api/v1/recipes/${recipeId}`,
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      data: recipeUpdate,
+    recipeId: number,
+    recipeUpdate: RecipeUpdate,
+ options?: SecondParameter<typeof customInstance>,) => {
+      
+      
+      return customInstance<UpdateRecipe200>(
+      {url: `/api/v1/recipes/${recipeId}`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: recipeUpdate
     },
-    options,
-  );
-};
+      options);
+    }
+  
 
-export const getUpdateRecipeMutationOptions = <
-  TError = HTTPValidationError,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof updateRecipe>>,
-    TError,
-    { recipeId: number; data: RecipeUpdate },
-    TContext
-  >;
-  request?: SecondParameter<typeof customInstance>;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof updateRecipe>>,
-  TError,
-  { recipeId: number; data: RecipeUpdate },
-  TContext
-> => {
-  const mutationKey = ["updateRecipe"];
-  const { mutation: mutationOptions, request: requestOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, request: undefined };
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof updateRecipe>>,
-    { recipeId: number; data: RecipeUpdate }
-  > = (props) => {
-    const { recipeId, data } = props ?? {};
+export const getUpdateRecipeMutationOptions = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateRecipe>>, TError,{recipeId: number;data: RecipeUpdate}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateRecipe>>, TError,{recipeId: number;data: RecipeUpdate}, TContext> => {
 
-    return updateRecipe(recipeId, data, requestOptions);
-  };
+const mutationKey = ['updateRecipe'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
 
-  return { mutationFn, ...mutationOptions };
-};
+      
 
-export type UpdateRecipeMutationResult = NonNullable<
-  Awaited<ReturnType<typeof updateRecipe>>
->;
-export type UpdateRecipeMutationBody = RecipeUpdate;
-export type UpdateRecipeMutationError = HTTPValidationError;
 
-/**
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateRecipe>>, {recipeId: number;data: RecipeUpdate}> = (props) => {
+          const {recipeId,data} = props ?? {};
+
+          return  updateRecipe(recipeId,data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateRecipeMutationResult = NonNullable<Awaited<ReturnType<typeof updateRecipe>>>
+    export type UpdateRecipeMutationBody = RecipeUpdate
+    export type UpdateRecipeMutationError = HTTPValidationError
+
+    /**
  * @summary Update Existing Recipe
  */
-export const useUpdateRecipe = <
-  TError = HTTPValidationError,
-  TContext = unknown,
->(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof updateRecipe>>,
-      TError,
-      { recipeId: number; data: RecipeUpdate },
-      TContext
-    >;
-    request?: SecondParameter<typeof customInstance>;
-  },
-  queryClient?: QueryClient,
-): UseMutationResult<
-  Awaited<ReturnType<typeof updateRecipe>>,
-  TError,
-  { recipeId: number; data: RecipeUpdate },
-  TContext
-> => {
-  const mutationOptions = getUpdateRecipeMutationOptions(options);
+export const useUpdateRecipe = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateRecipe>>, TError,{recipeId: number;data: RecipeUpdate}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateRecipe>>,
+        TError,
+        {recipeId: number;data: RecipeUpdate},
+        TContext
+      > => {
 
-  return useMutation(mutationOptions, queryClient);
-};
-/**
+      const mutationOptions = getUpdateRecipeMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    /**
  * @summary Delete Existing Recipe
  */
 export const deleteRecipe = (
-  recipeId: number,
-  options?: SecondParameter<typeof customInstance>,
-) => {
-  return customInstance<Recipe>(
-    { url: `/api/v1/recipes/${recipeId}`, method: "DELETE" },
-    options,
-  );
-};
+    recipeId: number,
+ options?: SecondParameter<typeof customInstance>,) => {
+      
+      
+      return customInstance<Recipe>(
+      {url: `/api/v1/recipes/${recipeId}`, method: 'DELETE'
+    },
+      options);
+    }
+  
 
-export const getDeleteRecipeMutationOptions = <
-  TError = HTTPValidationError,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof deleteRecipe>>,
-    TError,
-    { recipeId: number },
-    TContext
-  >;
-  request?: SecondParameter<typeof customInstance>;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof deleteRecipe>>,
-  TError,
-  { recipeId: number },
-  TContext
-> => {
-  const mutationKey = ["deleteRecipe"];
-  const { mutation: mutationOptions, request: requestOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, request: undefined };
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof deleteRecipe>>,
-    { recipeId: number }
-  > = (props) => {
-    const { recipeId } = props ?? {};
+export const getDeleteRecipeMutationOptions = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteRecipe>>, TError,{recipeId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteRecipe>>, TError,{recipeId: number}, TContext> => {
 
-    return deleteRecipe(recipeId, requestOptions);
-  };
+const mutationKey = ['deleteRecipe'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
 
-  return { mutationFn, ...mutationOptions };
-};
+      
 
-export type DeleteRecipeMutationResult = NonNullable<
-  Awaited<ReturnType<typeof deleteRecipe>>
->;
 
-export type DeleteRecipeMutationError = HTTPValidationError;
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteRecipe>>, {recipeId: number}> = (props) => {
+          const {recipeId} = props ?? {};
 
-/**
+          return  deleteRecipe(recipeId,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteRecipeMutationResult = NonNullable<Awaited<ReturnType<typeof deleteRecipe>>>
+    
+    export type DeleteRecipeMutationError = HTTPValidationError
+
+    /**
  * @summary Delete Existing Recipe
  */
-export const useDeleteRecipe = <
-  TError = HTTPValidationError,
-  TContext = unknown,
->(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof deleteRecipe>>,
-      TError,
-      { recipeId: number },
-      TContext
-    >;
-    request?: SecondParameter<typeof customInstance>;
-  },
-  queryClient?: QueryClient,
-): UseMutationResult<
-  Awaited<ReturnType<typeof deleteRecipe>>,
-  TError,
-  { recipeId: number },
-  TContext
-> => {
-  const mutationOptions = getDeleteRecipeMutationOptions(options);
+export const useDeleteRecipe = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteRecipe>>, TError,{recipeId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteRecipe>>,
+        TError,
+        {recipeId: number},
+        TContext
+      > => {
 
-  return useMutation(mutationOptions, queryClient);
-};
-/**
- * @summary Search Recipes
- */
-export const searchRecipes = (
-  params: SearchRecipesParams,
-  options?: SecondParameter<typeof customInstance>,
-  signal?: AbortSignal,
-) => {
-  return customInstance<Recipe[]>(
-    { url: `/api/v1/recipes/search/`, method: "GET", params, signal },
-    options,
-  );
-};
+      const mutationOptions = getDeleteRecipeMutationOptions(options);
 
-export const getSearchRecipesQueryKey = (params?: SearchRecipesParams) => {
-  return [`/api/v1/recipes/search/`, ...(params ? [params] : [])] as const;
-};
-
-export const getSearchRecipesQueryOptions = <
-  TData = Awaited<ReturnType<typeof searchRecipes>>,
-  TError = HTTPValidationError,
->(
-  params: SearchRecipesParams,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof searchRecipes>>, TError, TData>
-    >;
-    request?: SecondParameter<typeof customInstance>;
-  },
-) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
-
-  const queryKey = queryOptions?.queryKey ?? getSearchRecipesQueryKey(params);
-
-  const queryFn: QueryFunction<Awaited<ReturnType<typeof searchRecipes>>> = ({
-    signal,
-  }) => searchRecipes(params, requestOptions, signal);
-
-  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-    Awaited<ReturnType<typeof searchRecipes>>,
-    TError,
-    TData
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
-};
-
-export type SearchRecipesQueryResult = NonNullable<
-  Awaited<ReturnType<typeof searchRecipes>>
->;
-export type SearchRecipesQueryError = HTTPValidationError;
-
-export function useSearchRecipes<
-  TData = Awaited<ReturnType<typeof searchRecipes>>,
-  TError = HTTPValidationError,
->(
-  params: SearchRecipesParams,
-  options: {
-    query: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof searchRecipes>>, TError, TData>
-    > &
-      Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof searchRecipes>>,
-          TError,
-          Awaited<ReturnType<typeof searchRecipes>>
-        >,
-        "initialData"
-      >;
-    request?: SecondParameter<typeof customInstance>;
-  },
-  queryClient?: QueryClient,
-): DefinedUseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
-export function useSearchRecipes<
-  TData = Awaited<ReturnType<typeof searchRecipes>>,
-  TError = HTTPValidationError,
->(
-  params: SearchRecipesParams,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof searchRecipes>>, TError, TData>
-    > &
-      Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof searchRecipes>>,
-          TError,
-          Awaited<ReturnType<typeof searchRecipes>>
-        >,
-        "initialData"
-      >;
-    request?: SecondParameter<typeof customInstance>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
-export function useSearchRecipes<
-  TData = Awaited<ReturnType<typeof searchRecipes>>,
-  TError = HTTPValidationError,
->(
-  params: SearchRecipesParams,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof searchRecipes>>, TError, TData>
-    >;
-    request?: SecondParameter<typeof customInstance>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-};
-/**
- * @summary Search Recipes
- */
-
-export function useSearchRecipes<
-  TData = Awaited<ReturnType<typeof searchRecipes>>,
-  TError = HTTPValidationError,
->(
-  params: SearchRecipesParams,
-  options?: {
-    query?: Partial<
-      UseQueryOptions<Awaited<ReturnType<typeof searchRecipes>>, TError, TData>
-    >;
-    request?: SecondParameter<typeof customInstance>;
-  },
-  queryClient?: QueryClient,
-): UseQueryResult<TData, TError> & {
-  queryKey: DataTag<QueryKey, TData, TError>;
-} {
-  const queryOptions = getSearchRecipesQueryOptions(params, options);
-
-  const query = useQuery(queryOptions, queryClient) as UseQueryResult<
-    TData,
-    TError
-  > & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  query.queryKey = queryOptions.queryKey;
-
-  return query;
-}
-
-/**
+      return useMutation(mutationOptions, queryClient);
+    }
+    /**
  * @summary Upload Recipe Images
  */
 export const uploadRecipeImages = (
-  recipeId: number,
-  bodyUploadRecipeImages: BodyUploadRecipeImages,
-  options?: SecondParameter<typeof customInstance>,
-  signal?: AbortSignal,
+    recipeId: number,
+    bodyUploadRecipeImages: BodyUploadRecipeImages,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
-  const formData = new FormData();
-  bodyUploadRecipeImages.files.forEach((value) =>
-    formData.append(`files`, value),
-  );
+      
+      const formData = new FormData();
+bodyUploadRecipeImages.files.forEach(value => formData.append(`files`, value));
 
-  return customInstance<Recipe>(
-    {
-      url: `/api/v1/recipes/${recipeId}/image`,
-      method: "POST",
-      headers: { "Content-Type": "multipart/form-data" },
-      data: formData,
-      signal,
+      return customInstance<Recipe>(
+      {url: `/api/v1/recipes/${recipeId}/image`, method: 'POST',
+      headers: {'Content-Type': 'multipart/form-data', },
+       data: formData, signal
     },
-    options,
-  );
-};
+      options);
+    }
+  
 
-export const getUploadRecipeImagesMutationOptions = <
-  TError = HTTPValidationError,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof uploadRecipeImages>>,
-    TError,
-    { recipeId: number; data: BodyUploadRecipeImages },
-    TContext
-  >;
-  request?: SecondParameter<typeof customInstance>;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof uploadRecipeImages>>,
-  TError,
-  { recipeId: number; data: BodyUploadRecipeImages },
-  TContext
-> => {
-  const mutationKey = ["uploadRecipeImages"];
-  const { mutation: mutationOptions, request: requestOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, request: undefined };
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof uploadRecipeImages>>,
-    { recipeId: number; data: BodyUploadRecipeImages }
-  > = (props) => {
-    const { recipeId, data } = props ?? {};
+export const getUploadRecipeImagesMutationOptions = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadRecipeImages>>, TError,{recipeId: number;data: BodyUploadRecipeImages}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof uploadRecipeImages>>, TError,{recipeId: number;data: BodyUploadRecipeImages}, TContext> => {
 
-    return uploadRecipeImages(recipeId, data, requestOptions);
-  };
+const mutationKey = ['uploadRecipeImages'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
 
-  return { mutationFn, ...mutationOptions };
-};
+      
 
-export type UploadRecipeImagesMutationResult = NonNullable<
-  Awaited<ReturnType<typeof uploadRecipeImages>>
->;
-export type UploadRecipeImagesMutationBody = BodyUploadRecipeImages;
-export type UploadRecipeImagesMutationError = HTTPValidationError;
 
-/**
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof uploadRecipeImages>>, {recipeId: number;data: BodyUploadRecipeImages}> = (props) => {
+          const {recipeId,data} = props ?? {};
+
+          return  uploadRecipeImages(recipeId,data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UploadRecipeImagesMutationResult = NonNullable<Awaited<ReturnType<typeof uploadRecipeImages>>>
+    export type UploadRecipeImagesMutationBody = BodyUploadRecipeImages
+    export type UploadRecipeImagesMutationError = HTTPValidationError
+
+    /**
  * @summary Upload Recipe Images
  */
-export const useUploadRecipeImages = <
-  TError = HTTPValidationError,
-  TContext = unknown,
->(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof uploadRecipeImages>>,
-      TError,
-      { recipeId: number; data: BodyUploadRecipeImages },
-      TContext
-    >;
-    request?: SecondParameter<typeof customInstance>;
-  },
-  queryClient?: QueryClient,
-): UseMutationResult<
-  Awaited<ReturnType<typeof uploadRecipeImages>>,
-  TError,
-  { recipeId: number; data: BodyUploadRecipeImages },
-  TContext
-> => {
-  const mutationOptions = getUploadRecipeImagesMutationOptions(options);
+export const useUploadRecipeImages = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadRecipeImages>>, TError,{recipeId: number;data: BodyUploadRecipeImages}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof uploadRecipeImages>>,
+        TError,
+        {recipeId: number;data: BodyUploadRecipeImages},
+        TContext
+      > => {
 
-  return useMutation(mutationOptions, queryClient);
-};
-/**
+      const mutationOptions = getUploadRecipeImagesMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    /**
  * @summary Delete Recipe Images
  */
 export const deleteRecipeImages = (
-  recipeId: number,
-  recipeImagesDelete: RecipeImagesDelete,
-  options?: SecondParameter<typeof customInstance>,
-) => {
-  return customInstance<Recipe>(
-    {
-      url: `/api/v1/recipes/${recipeId}/images`,
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      data: recipeImagesDelete,
+    recipeId: number,
+    recipeImagesDelete: RecipeImagesDelete,
+ options?: SecondParameter<typeof customInstance>,) => {
+      
+      
+      return customInstance<Recipe>(
+      {url: `/api/v1/recipes/${recipeId}/images`, method: 'DELETE',
+      headers: {'Content-Type': 'application/json', },
+      data: recipeImagesDelete
     },
-    options,
-  );
-};
+      options);
+    }
+  
 
-export const getDeleteRecipeImagesMutationOptions = <
-  TError = HTTPValidationError,
-  TContext = unknown,
->(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof deleteRecipeImages>>,
-    TError,
-    { recipeId: number; data: RecipeImagesDelete },
-    TContext
-  >;
-  request?: SecondParameter<typeof customInstance>;
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof deleteRecipeImages>>,
-  TError,
-  { recipeId: number; data: RecipeImagesDelete },
-  TContext
-> => {
-  const mutationKey = ["deleteRecipeImages"];
-  const { mutation: mutationOptions, request: requestOptions } = options
-    ? options.mutation &&
-      "mutationKey" in options.mutation &&
-      options.mutation.mutationKey
-      ? options
-      : { ...options, mutation: { ...options.mutation, mutationKey } }
-    : { mutation: { mutationKey }, request: undefined };
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof deleteRecipeImages>>,
-    { recipeId: number; data: RecipeImagesDelete }
-  > = (props) => {
-    const { recipeId, data } = props ?? {};
+export const getDeleteRecipeImagesMutationOptions = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteRecipeImages>>, TError,{recipeId: number;data: RecipeImagesDelete}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteRecipeImages>>, TError,{recipeId: number;data: RecipeImagesDelete}, TContext> => {
 
-    return deleteRecipeImages(recipeId, data, requestOptions);
-  };
+const mutationKey = ['deleteRecipeImages'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
 
-  return { mutationFn, ...mutationOptions };
-};
+      
 
-export type DeleteRecipeImagesMutationResult = NonNullable<
-  Awaited<ReturnType<typeof deleteRecipeImages>>
->;
-export type DeleteRecipeImagesMutationBody = RecipeImagesDelete;
-export type DeleteRecipeImagesMutationError = HTTPValidationError;
 
-/**
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteRecipeImages>>, {recipeId: number;data: RecipeImagesDelete}> = (props) => {
+          const {recipeId,data} = props ?? {};
+
+          return  deleteRecipeImages(recipeId,data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteRecipeImagesMutationResult = NonNullable<Awaited<ReturnType<typeof deleteRecipeImages>>>
+    export type DeleteRecipeImagesMutationBody = RecipeImagesDelete
+    export type DeleteRecipeImagesMutationError = HTTPValidationError
+
+    /**
  * @summary Delete Recipe Images
  */
-export const useDeleteRecipeImages = <
-  TError = HTTPValidationError,
-  TContext = unknown,
->(
-  options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof deleteRecipeImages>>,
-      TError,
-      { recipeId: number; data: RecipeImagesDelete },
-      TContext
-    >;
-    request?: SecondParameter<typeof customInstance>;
-  },
-  queryClient?: QueryClient,
-): UseMutationResult<
-  Awaited<ReturnType<typeof deleteRecipeImages>>,
-  TError,
-  { recipeId: number; data: RecipeImagesDelete },
-  TContext
-> => {
-  const mutationOptions = getDeleteRecipeImagesMutationOptions(options);
+export const useDeleteRecipeImages = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteRecipeImages>>, TError,{recipeId: number;data: RecipeImagesDelete}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteRecipeImages>>,
+        TError,
+        {recipeId: number;data: RecipeImagesDelete},
+        TContext
+      > => {
 
-  return useMutation(mutationOptions, queryClient);
-};
+      const mutationOptions = getDeleteRecipeImagesMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    

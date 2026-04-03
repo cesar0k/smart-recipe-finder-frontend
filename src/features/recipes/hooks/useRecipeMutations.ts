@@ -81,11 +81,16 @@ export function useRecipeMutations(onSuccess?: () => void) {
         });
       }
 
-      toast.success(t("toast_created"));
-      onSuccess?.();
-      queryClient.invalidateQueries({ queryKey: getReadRecipesQueryKey() });
-
-      if (newRecipe?.id) navigate(`/recipe/${newRecipe.id}`);
+      if (newRecipe.status === "pending") {
+        toast.success(t("toast_created_pending"));
+        onSuccess?.();
+        queryClient.invalidateQueries({ queryKey: getReadRecipesQueryKey() });
+      } else {
+        toast.success(t("toast_created"));
+        onSuccess?.();
+        queryClient.invalidateQueries({ queryKey: getReadRecipesQueryKey() });
+        if (newRecipe?.id) navigate(`/recipe/${newRecipe.id}`);
+      }
     } catch (error) {
       handleError(error, t("toast_error_create"));
     }
@@ -102,7 +107,7 @@ export function useRecipeMutations(onSuccess?: () => void) {
         ];
       }
 
-      await updateMutate({
+      const updateResult = await updateMutate({
         recipeId: id,
         data: {
           title: data.title,
@@ -114,6 +119,14 @@ export function useRecipeMutations(onSuccess?: () => void) {
           image_urls: orderedExistingUrls,
         },
       });
+
+      // If result is a draft (regular user), show moderation toast and exit early
+      // RecipeDraftResponse has `recipe_id`; Recipe does not
+      if ("recipe_id" in updateResult) {
+        toast.success(t("toast_updated_pending"));
+        onSuccess?.();
+        return;
+      }
 
       if (data.imageFiles && data.imageFiles.length > 0) {
         const uploadedRecipe = await uploadImagesMutate({

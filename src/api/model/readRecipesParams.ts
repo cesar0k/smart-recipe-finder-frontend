@@ -6,18 +6,21 @@
  */
 
 export type ReadRecipesParams = {
-  skip?: number;
-  /**
-   * @minimum 1
-   * @maximum 100
-   */
-  limit?: number;
-  /**
-   * Comma-separated ingredient to include
-   */
-  include_ingredients?: string | null;
-  /**
-   * Comma-separated ingredient to exclude
-   */
-  exclude_ingredients?: string | null;
+/**
+ * @minimum 0
+ */
+skip?: number;
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+limit?: number;
+/**
+ * Comma-separated ingredient to include
+ */
+include_ingredients?: string | null;
+/**
+ * Comma-separated ingredient to exclude
+ */
+exclude_ingredients?: string | null;
 };

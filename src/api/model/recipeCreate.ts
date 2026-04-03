@@ -4,7 +4,7 @@
  * Smart Recipes Finder
  * OpenAPI spec version: 1.1.0
  */
-import type { RecipeCreateCuisine } from "./recipeCreateCuisine";
+import type { RecipeCreateCuisine } from './recipeCreateCuisine';
 
 export interface RecipeCreate {
   /**

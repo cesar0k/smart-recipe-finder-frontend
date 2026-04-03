@@ -15,7 +15,7 @@ export function NotFoundPage() {
         <p className="text-gray-500">{t("not_found_desc")}</p>
       </div>
       <Link to="/">
-        <Button variant="outline" className="rounded-full">
+        <Button className="rounded-full">
           {t("back_to_home")}
         </Button>
       </Link>
