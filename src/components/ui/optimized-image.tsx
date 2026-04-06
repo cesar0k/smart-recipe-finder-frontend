@@ -25,7 +25,7 @@ export function OptimizedImage({
   const imgRef = useRef<HTMLImageElement>(null);
   const cached = imageCache.has(src);
 
-  const [isLoaded, setIsLoaded] = useState(cached);
+  const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
 
   // When the real <img> element mounts or src changes, check if the
@@ -93,10 +93,10 @@ export function OptimizedImage({
         onLoad={handleLoad}
         onError={() => setHasError(true)}
         className={cn(
-          "transition-opacity duration-500",
+          "transition-opacity",
+          cached ? "duration-150" : "duration-500",
           !imgClassName && "w-full h-full",
           !imgClassName && (useObjectContain ? "object-contain" : "object-cover"),
-
           isLoaded ? "opacity-100" : "opacity-0",
           hasError && "hidden",
           imgClassName
