@@ -12,12 +12,16 @@ import { getRecipeFormDefaultValues } from "../lib/utils";
 import { useTranslation } from "react-i18next";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useHistoryBack } from "@/hooks/useHistoryBack";
+import { useResubmitRecipe } from "@/api/recipes/recipes";
+import { toast } from "sonner";
 
 interface EditRecipeSheetProps {
   recipe: Recipe;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
+  /** When true, uses the resubmit endpoint instead of regular update */
+  resubmitMode?: boolean;
 }
 
 export function EditRecipeSheet({
@@ -25,17 +29,44 @@ export function EditRecipeSheet({
   open,
   onOpenChange,
   onSuccess,
+  resubmitMode = false,
 }: EditRecipeSheetProps) {
   const { t } = useTranslation();
   const handleOpenChange = useHistoryBack(open, onOpenChange);
 
-  const { updateRecipe, isSubmitting } = useRecipeMutations(() => {
+  const { updateRecipe, isSubmitting: isUpdating } = useRecipeMutations(() => {
     handleOpenChange(false);
     onSuccess();
   });
 
+  const { mutateAsync: resubmit, isPending: isResubmitting } =
+    useResubmitRecipe();
+
+  const isSubmitting = isUpdating || isResubmitting;
+
   const onSubmit = async (data: RecipeFormValues) => {
-    await updateRecipe(recipe.id, data);
+    if (resubmitMode) {
+      try {
+        await resubmit({
+          recipeId: recipe.id,
+          data: {
+            title: data.title,
+            instructions: data.instructions,
+            cooking_time_in_minutes: data.cooking_time_in_minutes,
+            difficulty: data.difficulty,
+            cuisine: data.cuisine || undefined,
+            ingredients: data.ingredients.map((i) => i.value),
+          },
+        });
+        toast.success(t("toast_resubmitted"));
+        handleOpenChange(false);
+        onSuccess();
+      } catch {
+        toast.error(t("moderation_error"));
+      }
+    } else {
+      await updateRecipe(recipe.id, data);
+    }
   };
 
   const defaultValues = getRecipeFormDefaultValues(recipe);
@@ -44,10 +75,12 @@ export function EditRecipeSheet({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogScrollContent>
         <DialogHeader className="text-left px-0 py-2">
-          <DialogTitle>{t("form_edit_title")}</DialogTitle>
+          <DialogTitle>
+            {resubmitMode ? t("my_recipes_fix_and_resubmit") : t("form_edit_title")}
+          </DialogTitle>
         </DialogHeader>
         <VisuallyHidden>
-          <p>{t("form_edit_title")}</p>
+          <p>{resubmitMode ? t("my_recipes_fix_and_resubmit") : t("form_edit_title")}</p>
         </VisuallyHidden>
 
         <RecipeForm

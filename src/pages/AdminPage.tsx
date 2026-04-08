@@ -174,8 +174,8 @@ export function AdminPage() {
                     </p>
                   </div>
 
-                  {/* Actions */}
-                  {!isSelf && (
+                  {/* Actions — hidden for self and admin accounts */}
+                  {!isSelf && u.role !== "admin" && (
                     <div className="flex items-center gap-2 shrink-0">
                       {/* Role selector */}
                       <Select
@@ -192,9 +192,6 @@ export function AdminPage() {
                           </SelectItem>
                           <SelectItem value="moderator" className="rounded-xl">
                             moderator
-                          </SelectItem>
-                          <SelectItem value="admin" className="rounded-xl">
-                            admin
                           </SelectItem>
                         </SelectContent>
                       </Select>

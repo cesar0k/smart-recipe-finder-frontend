@@ -7,15 +7,18 @@ import {
   useMemo,
   type ReactNode,
 } from "react";
+import { toast } from "sonner";
+import i18next from "i18next";
 import type { UserResponse } from "@/api/model";
 import { tokenStorage } from "./token-storage";
-import { loginUser, getCurrentUserInfo, logoutUser, registerUser } from "@/api/auth/auth";
+import { loginUser, getCurrentUserInfo, logoutUser, registerUser, googleAuth } from "@/api/auth/auth";
 
 interface AuthContextValue {
   user: UserResponse | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (username: string, password: string) => Promise<void>;
+  loginWithGoogle: (code: string) => Promise<void>;
   register: (email: string, username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   /** Check if user has one of the given roles */
@@ -46,18 +49,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [fetchUser]);
 
-  // Listen for forced logout (from axios 401 interceptor)
+  // Listen for forced logout (from axios interceptor)
   useEffect(() => {
     const handleLogout = () => {
       setUser(null);
     };
+    const handleSessionExpired = () => {
+      toast.error(i18next.t("session_expired"));
+    };
+    const handleDeactivated = () => {
+      toast.error(i18next.t("account_deactivated"));
+    };
     window.addEventListener("auth:logout", handleLogout);
-    return () => window.removeEventListener("auth:logout", handleLogout);
+    window.addEventListener("auth:session-expired", handleSessionExpired);
+    window.addEventListener("auth:deactivated", handleDeactivated);
+    return () => {
+      window.removeEventListener("auth:logout", handleLogout);
+      window.removeEventListener("auth:session-expired", handleSessionExpired);
+      window.removeEventListener("auth:deactivated", handleDeactivated);
+    };
   }, []);
 
   const login = useCallback(
     async (username: string, password: string) => {
       const tokens = await loginUser({ username, password });
+      tokenStorage.setTokens(tokens.access_token, tokens.refresh_token);
+      await fetchUser();
+    },
+    [fetchUser]
+  );
+
+  const loginWithGoogle = useCallback(
+    async (code: string) => {
+      const redirectUri = `${window.location.origin}`;
+      const tokens = await googleAuth({ code, redirect_uri: redirectUri });
       tokenStorage.setTokens(tokens.access_token, tokens.refresh_token);
       await fetchUser();
     },
@@ -100,11 +125,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAuthenticated: !!user,
       isLoading,
       login,
+      loginWithGoogle,
       register,
       logout,
       hasRole,
     }),
-    [user, isLoading, login, register, logout, hasRole]
+    [user, isLoading, login, loginWithGoogle, register, logout, hasRole]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

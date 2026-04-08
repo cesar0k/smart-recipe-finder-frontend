@@ -1,0 +1,165 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+
+import { Header } from "@/components/layout/Header";
+import { RecipeCard } from "@/features/recipes/components/RecipeCard";
+import { Spinner } from "@/components/ui/spinner";
+import { CreateRecipeSheet } from "@/features/recipes/components/CreateRecipeSheet";
+import { EditRecipeSheet } from "@/features/recipes/components/EditRecipeSheet";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
+import {
+  useReadMyRecipes,
+  getReadMyRecipesQueryKey,
+  useDeleteRecipe,
+} from "@/api/recipes/recipes";
+import type { Recipe } from "@/api/model";
+
+export function MyRecipesPage() {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const { data: recipes, isLoading } = useReadMyRecipes();
+
+  const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
+  const [deletingRecipe, setDeletingRecipe] = useState<Recipe | null>(null);
+  const { mutateAsync: deleteRecipe, isPending: isDeleting } = useDeleteRecipe();
+
+  const handleDelete = async () => {
+    if (!deletingRecipe) return;
+    try {
+      await deleteRecipe({ recipeId: deletingRecipe.id });
+      toast.success(t("toast_deleted"));
+      queryClient.invalidateQueries({ queryKey: getReadMyRecipesQueryKey() });
+    } catch {
+      toast.error(t("toast_error_delete"));
+    } finally {
+      setDeletingRecipe(null);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-white font-sans">
+      <Header
+        leftContent={
+          <Link
+            to="/"
+            className="flex items-center gap-2 text-gray-600 hover:text-black"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="text-base">{t("back_btn")}</span>
+          </Link>
+        }
+        rightContent={<CreateRecipeSheet />}
+      />
+
+      <main className="container mx-auto px-4 py-8 md:py-12">
+        <h1 className="text-2xl font-bold text-gray-900 mb-6">
+          {t("my_recipes_title")}
+        </h1>
+
+        {isLoading && (
+          <div className="flex justify-center py-10">
+            <Spinner size="lg" className="text-gray-300" />
+          </div>
+        )}
+
+        {!isLoading && (!recipes || recipes.length === 0) && (
+          <p className="text-gray-500 text-center py-10">
+            {t("my_recipes_empty")}
+          </p>
+        )}
+
+        {recipes && recipes.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {recipes.map((recipe) => (
+              <Link
+                key={recipe.id}
+                to={`/recipe/${recipe.id}`}
+                className="block"
+              >
+                <RecipeCard
+                  title={recipe.title || t("untitled_recipe")}
+                  time={recipe.cooking_time_in_minutes || 0}
+                  difficulty={recipe.difficulty}
+                  image={recipe.image_urls?.[0] || ""}
+                  status={recipe.status}
+                  hasPendingDraft={recipe.has_pending_draft}
+                  onResubmit={
+                    recipe.status === "rejected"
+                      ? () => setEditingRecipe(recipe)
+                      : undefined
+                  }
+                  onDelete={
+                    recipe.status === "rejected"
+                      ? () => setDeletingRecipe(recipe)
+                      : undefined
+                  }
+                />
+              </Link>
+            ))}
+          </div>
+        )}
+      </main>
+
+      {/* Edit+Resubmit sheet */}
+      {editingRecipe && (
+        <EditRecipeSheet
+          recipe={editingRecipe}
+          open={!!editingRecipe}
+          onOpenChange={(open) => {
+            if (!open) setEditingRecipe(null);
+          }}
+          onSuccess={() => {
+            setEditingRecipe(null);
+            queryClient.invalidateQueries({
+              queryKey: getReadMyRecipesQueryKey(),
+            });
+          }}
+          resubmitMode
+        />
+      )}
+
+      {/* Delete confirmation dialog */}
+      <AlertDialog
+        open={!!deletingRecipe}
+        onOpenChange={(open) => {
+          if (!open) setDeletingRecipe(null);
+        }}
+      >
+        <AlertDialogContent className="rounded-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("delete_dialog_title")}</AlertDialogTitle>
+            <AlertDialogDescription className="[word-break:break-word]">
+              {t("delete_dialog_desc", { title: deletingRecipe?.title })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-full">
+              {t("cancel_btn")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-red-600 hover:bg-red-700 text-white border-none rounded-full"
+              disabled={isDeleting}
+            >
+              {isDeleting ? t("deleting") : t("delete_btn")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}
