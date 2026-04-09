@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { ArrowLeft, Shield, ShieldCheck, Trash2, Ban, CheckCircle } from "lucide-react";
+import { Shield, ShieldCheck, Trash2, Ban, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -24,6 +23,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Header } from "@/components/layout/Header";
+import { BackButton } from "@/components/BackButton";
 import { Spinner } from "@/components/ui/spinner";
 
 import {
@@ -100,17 +100,7 @@ export function AdminPage() {
 
   return (
     <div className="min-h-screen bg-white font-sans">
-      <Header
-        leftContent={
-          <Link
-            to="/"
-            className="flex items-center gap-2 text-gray-600 hover:text-black"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="text-base">{t("back_btn")}</span>
-          </Link>
-        }
-      />
+      <Header leftContent={<BackButton />} />
 
       <main className="container mx-auto px-4 py-8 md:py-12 max-w-4xl">
         <h1 className="text-2xl font-bold text-gray-900 mb-6">
@@ -174,8 +164,8 @@ export function AdminPage() {
                     </p>
                   </div>
 
-                  {/* Actions */}
-                  {!isSelf && (
+                  {/* Actions — hidden for self and admin accounts */}
+                  {!isSelf && u.role !== "admin" && (
                     <div className="flex items-center gap-2 shrink-0">
                       {/* Role selector */}
                       <Select
@@ -192,9 +182,6 @@ export function AdminPage() {
                           </SelectItem>
                           <SelectItem value="moderator" className="rounded-xl">
                             moderator
-                          </SelectItem>
-                          <SelectItem value="admin" className="rounded-xl">
-                            admin
                           </SelectItem>
                         </SelectContent>
                       </Select>

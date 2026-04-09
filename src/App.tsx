@@ -22,6 +22,15 @@ const ModerationPage = lazy(() =>
 const AdminPage = lazy(() =>
   import("./pages/AdminPage").then((m) => ({ default: m.AdminPage }))
 );
+const MyRecipesPage = lazy(() =>
+  import("./pages/MyRecipesPage").then((m) => ({ default: m.MyRecipesPage }))
+);
+const ProfilePage = lazy(() =>
+  import("./pages/ProfilePage").then((m) => ({ default: m.ProfilePage }))
+);
+const UserRecipesPage = lazy(() =>
+  import("./pages/UserRecipesPage").then((m) => ({ default: m.UserRecipesPage }))
+);
 const NotFoundPage = lazy(() =>
   import("./pages/NotFoundPage").then((m) => ({ default: m.NotFoundPage }))
 );
@@ -44,12 +53,32 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route
+            path="/my-recipes"
+            element={
+              <ProtectedRoute>
+                <MyRecipesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/moderation"
             element={
               <ProtectedRoute requiredRoles={["moderator", "admin"]}>
                 <ModerationPage />
               </ProtectedRoute>
             }
+          />
+          <Route
+            path="/user-recipes/:userId"
+            element={<UserRecipesPage />}
           />
           <Route
             path="/admin"

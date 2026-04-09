@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import { ArrowLeft, MoreVertical, Trash2, Pencil } from "lucide-react";
+import { Link } from "react-router-dom";
+import { MoreVertical, Trash2, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { EditRecipeSheet } from "@/features/recipes/components/EditRecipeSheet";
 import { Header } from "@/components/layout/Header";
+import { BackButton } from "@/components/BackButton";
 import { Spinner } from "@/components/ui/spinner";
 
 import { useRecipeDetails } from "../features/recipes/hooks/useRecipeDetails";
@@ -31,9 +32,6 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/lib/auth/auth-context";
 
 export function RecipePage() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const hasPreviousPage = location.key !== "default";
   const { recipe, isLoading, isError, isValidId, refetch } = useRecipeDetails();
   const { deleteRecipe, isDeleting } = useDeleteRecipeLogic();
   const { t } = useTranslation();
@@ -72,22 +70,7 @@ export function RecipePage() {
   return (
     <div className="min-h-screen bg-white font-sans">
       <Header
-        leftContent={
-          <Button
-            variant="ghost"
-            className="gap-2 text-gray-600 hover:text-black pl-0 hover:bg-transparent"
-            onClick={() => {
-              if (hasPreviousPage) {
-                navigate(-1);
-              } else {
-                navigate("/");
-              }
-            }}
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="text-base">{t("back_btn")}</span>
-          </Button>
-        }
+        leftContent={<BackButton />}
         rightContent={
           canModify ? (
             <DropdownMenu>

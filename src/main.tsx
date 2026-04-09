@@ -6,6 +6,7 @@ import "./index.css";
 import App from "./App.tsx";
 import { ErrorBoundary } from "./components/ErrorBoundary.tsx";
 import { AuthProvider } from "./lib/auth/auth-context.tsx";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import "./lib/i18n.ts";
 
 const apiUrl = import.meta.env.VITE_API_URL;
@@ -34,6 +35,7 @@ const queryClient = new QueryClient({
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ErrorBoundary>
+      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ""}>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
           <AuthProvider>
@@ -41,6 +43,7 @@ createRoot(document.getElementById("root")!).render(
           </AuthProvider>
         </BrowserRouter>
       </QueryClientProvider>
+      </GoogleOAuthProvider>
     </ErrorBoundary>
   </StrictMode>
 );

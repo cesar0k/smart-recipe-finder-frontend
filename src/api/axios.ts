@@ -92,6 +92,16 @@ AXIOS_INSTANCE.interceptors.response.use(
         tokenStorage.clearTokens();
         isRefreshing = false;
         processQueue(refreshError, null);
+
+        // Distinguish deactivation (403) from session expiry (401/other)
+        const refreshStatus = axios.isAxiosError(refreshError)
+          ? refreshError.response?.status
+          : undefined;
+        if (refreshStatus === 403) {
+          window.dispatchEvent(new Event("auth:deactivated"));
+        } else {
+          window.dispatchEvent(new Event("auth:session-expired"));
+        }
         window.dispatchEvent(new Event("auth:logout"));
         return Promise.reject(refreshError);
       }

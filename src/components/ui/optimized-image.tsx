@@ -23,10 +23,13 @@ export function OptimizedImage({
 }: OptimizedImageProps) {
   const { t } = useTranslation();
   const imgRef = useRef<HTMLImageElement>(null);
-  const cached = imageCache.has(src);
+
+  // If src is empty/falsy, skip loading entirely and show fallback
+  const isEmpty = !src || !src.trim();
+  const cached = !isEmpty && imageCache.has(src);
 
   const [isLoaded, setIsLoaded] = useState(false);
-  const [hasError, setHasError] = useState(false);
+  const [hasError, setHasError] = useState(isEmpty);
 
   // When the real <img> element mounts or src changes, check if the
   // browser already has the pixels (works in all browsers, including Safari).
@@ -106,8 +109,8 @@ export function OptimizedImage({
 
       {hasError && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-100 text-gray-400">
-          <ImageIcon className="w-10 h-10 mb-2 opacity-50" />
-          <span className="text-[10px] font-medium uppercase tracking-wider opacity-50">{t("no_image")}</span>
+          <ImageIcon className="w-10 h-10 mb-2 text-gray-300" />
+          <span className="text-xs font-medium uppercase tracking-wider text-gray-400">{t("no_image")}</span>
         </div>
       )}
     </div>
