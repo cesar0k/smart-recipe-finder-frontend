@@ -160,6 +160,7 @@ export function HomePage() {
                     time={recipe.cooking_time_in_minutes || 0}
                     difficulty={recipe.difficulty}
                     image={recipe.image_urls?.[0] || ""}
+                    ownerUsername={recipe.owner_username}
                   />
                 </Link>
               ))}

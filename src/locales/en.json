@@ -8,7 +8,7 @@
   "show_all": "Show all recipes",
   "create_btn": "Create Recipe",
   "min": "min",
-  "back_btn": "Back to recipes",
+  "back_btn": "Back",
   "ingredients": "Ingredients",
   "instructions": "Instructions",
   "edit_recipe": "Edit Recipe",
@@ -228,6 +228,8 @@
   "my_recipes_link": "My Recipes",
   "my_recipes_title": "My Recipes",
   "my_recipes_empty": "You haven't created any recipes yet",
+  "recipe_author_you": "(you)",
+
   "recipe_status_pending": "Pending",
   "recipe_status_rejected": "Rejected",
   "recipe_status_approved": "Approved",

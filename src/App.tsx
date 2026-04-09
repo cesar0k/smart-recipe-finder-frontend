@@ -78,11 +78,7 @@ function App() {
           />
           <Route
             path="/user-recipes/:userId"
-            element={
-              <ProtectedRoute requiredRoles={["moderator", "admin"]}>
-                <UserRecipesPage />
-              </ProtectedRoute>
-            }
+            element={<UserRecipesPage />}
           />
           <Route
             path="/admin"

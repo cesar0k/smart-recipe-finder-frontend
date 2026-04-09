@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Check, X, Search, Trash2, ExternalLink } from "lucide-react";
+import { Check, X, Search, Trash2, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -20,6 +20,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Header } from "@/components/layout/Header";
+import { BackButton } from "@/components/BackButton";
 import { Spinner } from "@/components/ui/spinner";
 
 import {
@@ -183,17 +184,7 @@ export function ModerationPage() {
 
   return (
     <div className="min-h-screen bg-white font-sans">
-      <Header
-        leftContent={
-          <Link
-            to="/"
-            className="flex items-center gap-2 text-gray-600 hover:text-black"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="text-base">{t("back_btn")}</span>
-          </Link>
-        }
-      />
+      <Header leftContent={<BackButton />} />
 
       <main className="container mx-auto px-4 py-8 md:py-12 max-w-3xl">
         <h1 className="text-2xl font-bold text-gray-900 mb-6">

@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
@@ -12,6 +10,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Header } from "@/components/layout/Header";
+import { BackButton } from "@/components/BackButton";
 
 import { useUpdateCurrentUser, useChangePassword } from "@/api/auth/auth";
 import { useAuth } from "@/lib/auth/auth-context";
@@ -106,17 +105,7 @@ export function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-white font-sans">
-      <Header
-        leftContent={
-          <Link
-            to="/"
-            className="flex items-center gap-2 text-gray-600 hover:text-black"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="text-base">{t("back_btn")}</span>
-          </Link>
-        }
-      />
+      <Header leftContent={<BackButton />} />
 
       <main className="container mx-auto px-4 py-8 md:py-12 max-w-md flex flex-col items-center">
         <div className="w-full">

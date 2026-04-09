@@ -131,9 +131,7 @@ export function NotificationPanel() {
   const formatRelativeTime = useRelativeTime();
   const [open, setOpen] = useState(false);
 
-  const { data: unreadData } = useGetUnreadCount({
-    query: { refetchInterval: 30_000 },
-  });
+  const { data: unreadData } = useGetUnreadCount();
   const { data: notifications } = useListNotifications({ skip: 0, limit: 20 });
   const { mutateAsync: markRead } = useMarkNotificationRead();
   const { mutateAsync: markAllRead } = useMarkAllNotificationsRead();

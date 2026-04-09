@@ -21,6 +21,7 @@ import {
 import { useAuth } from "@/lib/auth/auth-context";
 import { NotificationPanel } from "@/components/NotificationPanel";
 import { useGetPendingCount } from "@/api/moderation/moderation";
+import { useNotificationWS } from "@/hooks/useNotificationWS";
 import type { ReactNode } from "react";
 
 interface HeaderProps {
@@ -32,6 +33,9 @@ export function Header({ leftContent, rightContent }: HeaderProps) {
   const { t } = useTranslation();
   const { user, isAuthenticated, logout, hasRole } = useAuth();
   const navigate = useNavigate();
+
+  // WebSocket for real-time notifications
+  useNotificationWS();
 
   const { data: pendingCount } = useGetPendingCount({
     query: {

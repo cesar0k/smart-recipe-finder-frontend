@@ -8,7 +8,7 @@
   "show_all": "Показать все",
   "create_btn": "Создать",
   "min": "мин",
-  "back_btn": "Вернуться к рецептам",
+  "back_btn": "Назад",
   "ingredients": "Ингредиенты",
   "instructions": "Инструкция",
   "edit_recipe": "Редактировать",
@@ -228,6 +228,8 @@
   "my_recipes_link": "Мои рецепты",
   "my_recipes_title": "Мои рецепты",
   "my_recipes_empty": "Вы ещё не создали ни одного рецепта",
+  "recipe_author_you": "(вы)",
+
   "recipe_status_pending": "На модерации",
   "recipe_status_rejected": "Отклонён",
   "recipe_status_approved": "Одобрен",

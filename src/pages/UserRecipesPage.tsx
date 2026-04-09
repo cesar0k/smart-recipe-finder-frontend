@@ -1,8 +1,9 @@
-import { Link, useParams } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import { Header } from "@/components/layout/Header";
+import { BackButton } from "@/components/BackButton";
 import { RecipeCard } from "@/features/recipes/components/RecipeCard";
 import { Spinner } from "@/components/ui/spinner";
 
@@ -21,17 +22,7 @@ export function UserRecipesPage() {
 
   return (
     <div className="min-h-screen bg-white font-sans">
-      <Header
-        leftContent={
-          <Link
-            to="/moderation"
-            className="flex items-center gap-2 text-gray-600 hover:text-black"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="text-base">{t("back_btn")}</span>
-          </Link>
-        }
-      />
+      <Header leftContent={<BackButton />} />
 
       <main className="container mx-auto px-4 py-8 md:py-12">
         <h1 className="text-2xl font-bold text-gray-900 mb-6">
@@ -66,6 +57,7 @@ export function UserRecipesPage() {
                   difficulty={recipe.difficulty}
                   image={recipe.image_urls?.[0] || ""}
                   status={recipe.status}
+                  ownerUsername={recipe.owner_username}
                 />
               </Link>
             ))}

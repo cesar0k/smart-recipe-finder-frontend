@@ -13,6 +13,7 @@ interface RecipeCardProps {
   difficulty?: string | null;
   status?: string;
   hasPendingDraft?: boolean;
+  ownerUsername?: string | null;
   /** Called when "Fix" button is pressed on rejected recipes */
   onResubmit?: () => void;
   /** Called when "Delete" button is pressed on rejected recipes */
@@ -31,6 +32,7 @@ export function RecipeCard({
   difficulty,
   status,
   hasPendingDraft,
+  ownerUsername,
   onResubmit,
   onDelete,
 }: RecipeCardProps) {
@@ -75,7 +77,7 @@ export function RecipeCard({
               {title}
             </h3>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <div className="flex items-center text-gray-500 bg-gray-100 px-2.5 py-1 rounded-lg text-xs font-semibold tracking-wide">
                 <Clock className="w-3.5 h-3.5 mr-1.5 text-gray-400" />
                 {time} {t("min")}
@@ -85,6 +87,11 @@ export function RecipeCard({
                   ? t(getDifficultyKey(difficulty))
                   : t("unknown_difficulty")}
               </div>
+              {ownerUsername && (
+                <span className="text-xs text-gray-400 truncate">
+                  {ownerUsername}
+                </span>
+              )}
             </div>
           </div>
 

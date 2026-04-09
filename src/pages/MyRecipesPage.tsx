@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { Header } from "@/components/layout/Header";
+import { BackButton } from "@/components/BackButton";
 import { RecipeCard } from "@/features/recipes/components/RecipeCard";
 import { Spinner } from "@/components/ui/spinner";
 import { CreateRecipeSheet } from "@/features/recipes/components/CreateRecipeSheet";
@@ -53,15 +53,7 @@ export function MyRecipesPage() {
   return (
     <div className="min-h-screen bg-white font-sans">
       <Header
-        leftContent={
-          <Link
-            to="/"
-            className="flex items-center gap-2 text-gray-600 hover:text-black"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="text-base">{t("back_btn")}</span>
-          </Link>
-        }
+        leftContent={<BackButton />}
         rightContent={<CreateRecipeSheet />}
       />
 
