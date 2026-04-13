@@ -66,6 +66,7 @@ export function useRecipeMutations(onSuccess?: () => void) {
       const newRecipe = await createMutate({
         data: {
           title: data.title,
+          description: data.description || undefined,
           cooking_time_in_minutes: data.cooking_time_in_minutes,
           difficulty: data.difficulty,
           cuisine: data.cuisine,
@@ -111,6 +112,7 @@ export function useRecipeMutations(onSuccess?: () => void) {
         recipeId: id,
         data: {
           title: data.title,
+          description: data.description || undefined,
           cooking_time_in_minutes: data.cooking_time_in_minutes,
           difficulty: data.difficulty,
           cuisine: data.cuisine,

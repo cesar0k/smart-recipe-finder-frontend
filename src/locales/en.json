@@ -22,6 +22,8 @@
   "form_edit_title": "Edit Recipe",
   "form_title_label": "Title",
   "form_title_placeholder": "e.g. Pasta Carbonara",
+  "form_description_label": "Description",
+  "form_description_placeholder": "Briefly describe your dish — what makes it special?",
   "form_photos_label": "Photos",
   "form_add_photo": "Add Photo",
   "form_time_label": "Time (min)",

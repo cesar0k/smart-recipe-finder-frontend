@@ -4,6 +4,7 @@
  * Smart Recipes Finder
  * OpenAPI spec version: 2.0.0
  */
+import type { RecipeDraftResponseDescription } from './recipeDraftResponseDescription';
 import type { RecipeDraftResponseCuisine } from './recipeDraftResponseCuisine';
 import type { Ingredient } from './ingredient';
 import type { RecipeDraftResponseRejectionReason } from './recipeDraftResponseRejectionReason';
@@ -13,6 +14,7 @@ export interface RecipeDraftResponse {
   recipe_id: number;
   author_id: number;
   title: string;
+  description?: RecipeDraftResponseDescription;
   instructions: string;
   cooking_time_in_minutes: number;
   difficulty: string;

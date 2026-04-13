@@ -45,6 +45,7 @@ export function RecipeForm({
 
   const initialValues: DefaultValues<RecipeFormValues> = {
     title: "",
+    description: "",
     cooking_time_in_minutes: 30,
     difficulty: "Medium",
     cuisine: "",
@@ -99,6 +100,31 @@ export function RecipeForm({
                   placeholder={t("form_title_placeholder")}
                   {...field}
                   className="rounded-full px-4 border-gray-200 bg-gray-50/50 focus:bg-white transition-all"
+                />
+              </FormControl>
+              <FormMessage className="ml-4" />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-gray-700">
+                {t("form_description_label")}{" "}
+                <span className="text-gray-400 font-normal">
+                  {t("form_optional_label")}
+                </span>
+              </FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder={t("form_description_placeholder")}
+                  className="min-h-[80px] rounded-[1.5rem] p-4 px-5 border-gray-200 bg-gray-50/50 focus:bg-white resize-none"
+                  maxLength={2000}
+                  {...field}
+                  value={field.value || ""}
                 />
               </FormControl>
               <FormMessage className="ml-4" />

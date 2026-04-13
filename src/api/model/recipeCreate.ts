@@ -4,6 +4,7 @@
  * Smart Recipes Finder
  * OpenAPI spec version: 2.0.0
  */
+import type { RecipeCreateDescription } from './recipeCreateDescription';
 import type { RecipeCreateCuisine } from './recipeCreateCuisine';
 
 export interface RecipeCreate {
@@ -12,6 +13,7 @@ export interface RecipeCreate {
    * @maxLength 255
    */
   title: string;
+  description?: RecipeCreateDescription;
   /** @maxLength 50000 */
   instructions: string;
   cooking_time_in_minutes?: number;
