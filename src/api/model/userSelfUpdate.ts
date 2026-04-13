@@ -5,9 +5,11 @@
  * OpenAPI spec version: 2.0.0
  */
 import type { UserSelfUpdateUsername } from './userSelfUpdateUsername';
+import type { UserSelfUpdateDisplayName } from './userSelfUpdateDisplayName';
 import type { UserSelfUpdateEmail } from './userSelfUpdateEmail';
 
 export interface UserSelfUpdate {
   username?: UserSelfUpdateUsername;
+  display_name?: UserSelfUpdateDisplayName;
   email?: UserSelfUpdateEmail;
 }

@@ -295,6 +295,7 @@ export function useReadMyRecipes<TData = Awaited<ReturnType<typeof readMyRecipes
 
 
 /**
+ * View recipes of a specific user.
  * @summary Read User Recipes
  */
 export const readUserRecipes = (

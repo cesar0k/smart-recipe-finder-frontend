@@ -285,7 +285,7 @@ export function ModerationPage() {
                       <p className="text-sm text-gray-500">
                         {t("moderation_author_label")}:{" "}
                         <Link
-                          to={`/user-recipes/${recipe.owner_id}`}
+                          to={`/user/${recipe.owner_id}`}
                           className="text-gray-700 font-medium hover:underline"
                           onClick={(e) => e.stopPropagation()}
                         >

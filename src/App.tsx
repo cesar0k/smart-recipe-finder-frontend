@@ -28,8 +28,8 @@ const MyRecipesPage = lazy(() =>
 const ProfilePage = lazy(() =>
   import("./pages/ProfilePage").then((m) => ({ default: m.ProfilePage }))
 );
-const UserRecipesPage = lazy(() =>
-  import("./pages/UserRecipesPage").then((m) => ({ default: m.UserRecipesPage }))
+const PublicProfilePage = lazy(() =>
+  import("./pages/PublicProfilePage").then((m) => ({ default: m.PublicProfilePage }))
 );
 const NotFoundPage = lazy(() =>
   import("./pages/NotFoundPage").then((m) => ({ default: m.NotFoundPage }))
@@ -76,10 +76,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/user-recipes/:userId"
-            element={<UserRecipesPage />}
-          />
+          <Route path="/user/:userId" element={<PublicProfilePage />} />
           <Route
             path="/admin"
             element={

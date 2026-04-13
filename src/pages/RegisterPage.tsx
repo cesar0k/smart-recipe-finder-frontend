@@ -29,6 +29,7 @@ function createRegisterSchema(t: (key: string) => string) {
         .string()
         .min(3, t("register_username_min"))
         .max(100, t("register_username_max")),
+      displayName: z.string().max(200).optional(),
       password: z
         .string()
         .min(8, t("register_password_min"))
@@ -80,14 +81,14 @@ export function RegisterPage() {
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { email: "", username: "", password: "", confirmPassword: "" },
+    defaultValues: { email: "", username: "", displayName: "", password: "", confirmPassword: "" },
   });
 
   const onSubmit = async (data: RegisterFormValues) => {
     setError(null);
     setIsSubmitting(true);
     try {
-      await registerUser(data.email, data.username, data.password);
+      await registerUser(data.email, data.username, data.password, data.displayName);
       navigate(from, { replace: true });
     } catch (err) {
       if (axios.isAxiosError(err)) {
@@ -195,6 +196,27 @@ export function RegisterPage() {
                       <Input
                         placeholder={t("register_username_placeholder")}
                         autoComplete="username"
+                        {...field}
+                        className="rounded-full px-4 border-gray-200 bg-gray-50/50 focus:bg-white h-12"
+                      />
+                    </FormControl>
+                    <FormMessage className="ml-4" />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="displayName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-700">
+                      {t("register_display_name_label")}
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder={t("register_display_name_placeholder")}
+                        autoComplete="name"
                         {...field}
                         className="rounded-full px-4 border-gray-200 bg-gray-50/50 focus:bg-white h-12"
                       />

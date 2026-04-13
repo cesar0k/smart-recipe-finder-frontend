@@ -102,7 +102,7 @@ function DialogScrollContent({
         )}
         {...props}
       >
-        <div className="flex-1 overflow-y-auto pt-5 px-5 pb-0 space-y-4 scrollbar-hidden">
+        <div className="flex-1 overflow-y-auto pt-4 px-5 pb-0 space-y-4 scrollbar-hidden">
           {children}
         </div>
         {showCloseButton && (
@@ -123,7 +123,7 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="dialog-header"
-      className={cn("flex flex-col gap-2 text-center sm:text-left", className)}
+      className={cn("flex flex-col gap-2 text-center sm:text-left pr-8", className)}
       {...props}
     />
   )

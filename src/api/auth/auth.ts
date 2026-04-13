@@ -5,36 +5,24 @@
  * OpenAPI spec version: 2.0.0
  */
 import {
-  useMutation,
-  useQuery
+  useMutation
 } from '@tanstack/react-query';
 import type {
-  DataTag,
-  DefinedInitialDataOptions,
-  DefinedUseQueryResult,
   MutationFunction,
   QueryClient,
-  QueryFunction,
-  QueryKey,
-  UndefinedInitialDataOptions,
   UseMutationOptions,
-  UseMutationResult,
-  UseQueryOptions,
-  UseQueryResult
+  UseMutationResult
 } from '@tanstack/react-query';
 
 import type {
   BodyLoginUser,
-  ChangePassword200,
   GoogleAuthCode,
   HTTPValidationError,
   LogoutUser200,
-  PasswordChange,
   RefreshRequest,
   TokenPair,
   UserCreate,
-  UserResponse,
-  UserSelfUpdate
+  UserResponse
 } from '.././model';
 
 import { customInstance } from '.././axios';
@@ -376,225 +364,6 @@ export const useGoogleAuth = <TError = HTTPValidationError,
       > => {
 
       const mutationOptions = getGoogleAuthMutationOptions(options);
-
-      return useMutation(mutationOptions, queryClient);
-    }
-    /**
- * @summary Me
- */
-export const getCurrentUserInfo = (
-    
- options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
-) => {
-      
-      
-      return customInstance<UserResponse>(
-      {url: `/api/v1/auth/me`, method: 'GET', signal
-    },
-      options);
-    }
-  
-
-
-
-export const getGetCurrentUserInfoQueryKey = () => {
-    return [
-    `/api/v1/auth/me`
-    ] as const;
-    }
-
-    
-export const getGetCurrentUserInfoQueryOptions = <TData = Awaited<ReturnType<typeof getCurrentUserInfo>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCurrentUserInfo>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
-) => {
-
-const {query: queryOptions, request: requestOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetCurrentUserInfoQueryKey();
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCurrentUserInfo>>> = ({ signal }) => getCurrentUserInfo(requestOptions, signal);
-
-      
-
-      
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCurrentUserInfo>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type GetCurrentUserInfoQueryResult = NonNullable<Awaited<ReturnType<typeof getCurrentUserInfo>>>
-export type GetCurrentUserInfoQueryError = unknown
-
-
-export function useGetCurrentUserInfo<TData = Awaited<ReturnType<typeof getCurrentUserInfo>>, TError = unknown>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCurrentUserInfo>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getCurrentUserInfo>>,
-          TError,
-          Awaited<ReturnType<typeof getCurrentUserInfo>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetCurrentUserInfo<TData = Awaited<ReturnType<typeof getCurrentUserInfo>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCurrentUserInfo>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getCurrentUserInfo>>,
-          TError,
-          Awaited<ReturnType<typeof getCurrentUserInfo>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetCurrentUserInfo<TData = Awaited<ReturnType<typeof getCurrentUserInfo>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCurrentUserInfo>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary Me
- */
-
-export function useGetCurrentUserInfo<TData = Awaited<ReturnType<typeof getCurrentUserInfo>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCurrentUserInfo>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getGetCurrentUserInfoQueryOptions(options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  query.queryKey = queryOptions.queryKey ;
-
-  return query;
-}
-
-
-
-
-/**
- * @summary Update Me
- */
-export const updateCurrentUser = (
-    userSelfUpdate: UserSelfUpdate,
- options?: SecondParameter<typeof customInstance>,) => {
-      
-      
-      return customInstance<UserResponse>(
-      {url: `/api/v1/auth/me`, method: 'PATCH',
-      headers: {'Content-Type': 'application/json', },
-      data: userSelfUpdate
-    },
-      options);
-    }
-  
-
-
-export const getUpdateCurrentUserMutationOptions = <TError = HTTPValidationError,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCurrentUser>>, TError,{data: UserSelfUpdate}, TContext>, request?: SecondParameter<typeof customInstance>}
-): UseMutationOptions<Awaited<ReturnType<typeof updateCurrentUser>>, TError,{data: UserSelfUpdate}, TContext> => {
-
-const mutationKey = ['updateCurrentUser'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateCurrentUser>>, {data: UserSelfUpdate}> = (props) => {
-          const {data} = props ?? {};
-
-          return  updateCurrentUser(data,requestOptions)
-        }
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type UpdateCurrentUserMutationResult = NonNullable<Awaited<ReturnType<typeof updateCurrentUser>>>
-    export type UpdateCurrentUserMutationBody = UserSelfUpdate
-    export type UpdateCurrentUserMutationError = HTTPValidationError
-
-    /**
- * @summary Update Me
- */
-export const useUpdateCurrentUser = <TError = HTTPValidationError,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCurrentUser>>, TError,{data: UserSelfUpdate}, TContext>, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof updateCurrentUser>>,
-        TError,
-        {data: UserSelfUpdate},
-        TContext
-      > => {
-
-      const mutationOptions = getUpdateCurrentUserMutationOptions(options);
-
-      return useMutation(mutationOptions, queryClient);
-    }
-    /**
- * @summary Change Password
- */
-export const changePassword = (
-    passwordChange: PasswordChange,
- options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
-) => {
-      
-      
-      return customInstance<ChangePassword200>(
-      {url: `/api/v1/auth/change-password`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: passwordChange, signal
-    },
-      options);
-    }
-  
-
-
-export const getChangePasswordMutationOptions = <TError = HTTPValidationError,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof changePassword>>, TError,{data: PasswordChange}, TContext>, request?: SecondParameter<typeof customInstance>}
-): UseMutationOptions<Awaited<ReturnType<typeof changePassword>>, TError,{data: PasswordChange}, TContext> => {
-
-const mutationKey = ['changePassword'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof changePassword>>, {data: PasswordChange}> = (props) => {
-          const {data} = props ?? {};
-
-          return  changePassword(data,requestOptions)
-        }
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type ChangePasswordMutationResult = NonNullable<Awaited<ReturnType<typeof changePassword>>>
-    export type ChangePasswordMutationBody = PasswordChange
-    export type ChangePasswordMutationError = HTTPValidationError
-
-    /**
- * @summary Change Password
- */
-export const useChangePassword = <TError = HTTPValidationError,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof changePassword>>, TError,{data: PasswordChange}, TContext>, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof changePassword>>,
-        TError,
-        {data: PasswordChange},
-        TContext
-      > => {
-
-      const mutationOptions = getChangePasswordMutationOptions(options);
 
       return useMutation(mutationOptions, queryClient);
     }

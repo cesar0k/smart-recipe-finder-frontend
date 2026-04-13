@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
+import { User, Camera } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
@@ -11,8 +12,13 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Header } from "@/components/layout/Header";
 import { BackButton } from "@/components/BackButton";
+import { AvatarCropDialog } from "@/components/AvatarCropDialog";
 
-import { useUpdateCurrentUser, useChangePassword } from "@/api/auth/auth";
+import {
+  useUpdateCurrentUser,
+  useChangePassword,
+  useUploadAvatar,
+} from "@/api/users/users";
 import { useAuth } from "@/lib/auth/auth-context";
 
 /** Map backend error keys to i18n keys */
@@ -26,10 +32,14 @@ export function ProfilePage() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [username, setUsername] = useState(user?.username ?? "");
+  const [displayName, setDisplayName] = useState(user?.display_name ?? "");
   const [email, setEmail] = useState(user?.email ?? "");
 
+  const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
+  const [isCropOpen, setIsCropOpen] = useState(false);
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -39,36 +49,68 @@ export function ProfilePage() {
     useUpdateCurrentUser();
   const { mutateAsync: changePassword, isPending: isChanging } =
     useChangePassword();
+  const { mutateAsync: uploadAvatar, isPending: isUploading } =
+    useUploadAvatar();
+
+  const invalidateUser = () => {
+    queryClient.invalidateQueries({ queryKey: ["/api/v1/auth/me"] });
+  };
 
   const handleSaveProfile = async () => {
     try {
       await updateProfile({
         data: {
           username: username !== user?.username ? username : undefined,
+          display_name: displayName !== (user?.display_name ?? "") ? displayName || undefined : undefined,
           email: email !== user?.email ? email : undefined,
         },
       });
       toast.success(t("profile_saved"));
-      queryClient.invalidateQueries({ queryKey: ["/api/v1/auth/me"] });
+      invalidateUser();
     } catch {
       toast.error(t("profile_error"));
     }
   };
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Read file as data URL for the cropper
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCropImageSrc(reader.result as string);
+      setIsCropOpen(true);
+    };
+    reader.readAsDataURL(file);
+
+    // Reset input so same file can be selected again
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleCroppedAvatar = useCallback(
+    async (blob: Blob) => {
+      try {
+        const file = new File([blob], "avatar.jpg", { type: "image/jpeg" });
+        await uploadAvatar({ data: { file } });
+        toast.success(t("profile_avatar_uploaded"));
+        invalidateUser();
+      } catch {
+        toast.error(t("profile_avatar_error"));
+      } finally {
+        setIsCropOpen(false);
+        setCropImageSrc(null);
+      }
+    },
+    [uploadAvatar, t, invalidateUser]
+  );
+
   const validatePassword = (): string[] => {
     const errors: string[] = [];
-    if (!oldPassword) {
-      errors.push(t("profile_error_old_required"));
-    }
-    if (newPassword.length < 8) {
-      errors.push(t("profile_error_new_min"));
-    }
-    if (newPassword.length > 128) {
-      errors.push(t("profile_error_new_max"));
-    }
-    if (confirmPassword !== newPassword) {
-      errors.push(t("profile_error_confirm_mismatch"));
-    }
+    if (!oldPassword) errors.push(t("profile_error_old_required"));
+    if (newPassword.length < 8) errors.push(t("profile_error_new_min"));
+    if (newPassword.length > 128) errors.push(t("profile_error_new_max"));
+    if (confirmPassword !== newPassword) errors.push(t("profile_error_confirm_mismatch"));
     return errors;
   };
 
@@ -113,12 +155,57 @@ export function ProfilePage() {
             {t("profile_title")}
           </h1>
 
+          {/* Avatar */}
+          <div className="flex justify-center mb-6">
+            <button
+              type="button"
+              className="relative group"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+            >
+              {user?.avatar_url ? (
+                <img
+                  src={user.avatar_url}
+                  alt={user.username}
+                  className="w-20 h-20 rounded-full object-cover border-2 border-gray-100"
+                />
+              ) : (
+                <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center">
+                  <User className="w-9 h-9 text-gray-400" />
+                </div>
+              )}
+              <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <Camera className="w-5 h-5 text-white" />
+              </div>
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="hidden"
+              aria-label={t("profile_avatar_upload")}
+              onChange={handleFileSelect}
+            />
+          </div>
+
           {/* Profile info */}
           <h2 className="text-lg font-semibold text-gray-900 mb-3 text-center">
             {t("profile_personal_info")}
           </h2>
 
           <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="display-name" className="text-sm">
+                {t("profile_display_name_label")}
+              </Label>
+              <Input
+                id="display-name"
+                placeholder={t("profile_display_name_placeholder")}
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                className="rounded-full h-9 px-4 text-sm"
+              />
+            </div>
             <div className="space-y-1.5">
               <Label htmlFor="username" className="text-sm">
                 {t("profile_username_label")}
@@ -203,7 +290,6 @@ export function ProfilePage() {
                 />
               </div>
 
-              {/* Validation errors */}
               {passwordErrors.length > 0 && (
                 <div className="space-y-1">
                   {passwordErrors.map((err, i) => (
@@ -219,14 +305,24 @@ export function ProfilePage() {
                 disabled={isChanging}
                 className="w-full rounded-full h-9 bg-black hover:bg-gray-800 text-sm"
               >
-                {isChanging
-                  ? t("profile_changing_btn")
-                  : t("profile_change_btn")}
+                {isChanging ? t("profile_changing_btn") : t("profile_change_btn")}
               </Button>
             </div>
           )}
         </div>
       </main>
+
+      {/* Avatar crop dialog */}
+      <AvatarCropDialog
+        imageSrc={cropImageSrc}
+        open={isCropOpen}
+        onOpenChange={(open) => {
+          setIsCropOpen(open);
+          if (!open) setCropImageSrc(null);
+        }}
+        onCrop={handleCroppedAvatar}
+        isSaving={isUploading}
+      />
     </div>
   );
 }

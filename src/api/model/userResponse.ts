@@ -4,11 +4,15 @@
  * Smart Recipes Finder
  * OpenAPI spec version: 2.0.0
  */
+import type { UserResponseDisplayName } from './userResponseDisplayName';
+import type { UserResponseAvatarUrl } from './userResponseAvatarUrl';
 
 export interface UserResponse {
   id: number;
   email: string;
   username: string;
+  display_name?: UserResponseDisplayName;
+  avatar_url?: UserResponseAvatarUrl;
   role: string;
   auth_provider: string;
   is_active: boolean;
