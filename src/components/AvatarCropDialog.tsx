@@ -1,8 +1,9 @@
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useState } from "react";
 import Cropper from "react-cropper";
 import type { ReactCropperElement } from "react-cropper";
 import "cropperjs/dist/cropper.css";
 import { useTranslation } from "react-i18next";
+import { ZoomIn, ZoomOut } from "lucide-react";
 
 import {
   Dialog,
@@ -12,6 +13,10 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
+
+const MIN_ZOOM = 0;
+const MAX_ZOOM = 100;
 
 interface AvatarCropDialogProps {
   imageSrc: string | null;
@@ -31,6 +36,63 @@ export function AvatarCropDialog({
   const { t } = useTranslation();
   const cropperRef = useRef<ReactCropperElement>(null);
 
+  // Zoom range: minRatio..maxRatio mapped to slider 0..100
+  const zoomRangeRef = useRef({ min: 1, max: 3 });
+  const [sliderValue, setSliderValue] = useState(0);
+
+  // Convert slider 0..100 to actual zoom ratio
+  const sliderToRatio = (val: number) => {
+    const { min, max } = zoomRangeRef.current;
+    return min + (val / 100) * (max - min);
+  };
+
+  // Convert actual zoom ratio to slider 0..100
+  const ratioToSlider = (ratio: number) => {
+    const { min, max } = zoomRangeRef.current;
+    if (max <= min) return 0;
+    return Math.round(((ratio - min) / (max - min)) * 100);
+  };
+
+  // Called once when cropper is ready — capture the initial (fit-to-view) zoom
+  const handleReady = () => {
+    const cropper = cropperRef.current?.cropper;
+    if (!cropper) return;
+
+    const imageData = cropper.getImageData();
+    const canvasData = cropper.getCanvasData();
+    const fitRatio = canvasData.width / imageData.naturalWidth;
+
+    zoomRangeRef.current = { min: fitRatio, max: fitRatio * 3 };
+    setSliderValue(0);
+  };
+
+  // Sync slider when user scrolls the mouse wheel
+  const handleZoom = useCallback(
+    (e: Cropper.ZoomEvent<HTMLImageElement>) => {
+      const newRatio = e.detail.ratio;
+      const { min, max } = zoomRangeRef.current;
+
+      // Clamp zoom within range
+      if (newRatio < min || newRatio > max) {
+        e.preventDefault();
+        return;
+      }
+
+      setSliderValue(ratioToSlider(newRatio));
+    },
+    [],
+  );
+
+  // Slider change → zoom cropper
+  const handleSliderChange = (value: number[]) => {
+    const cropper = cropperRef.current?.cropper;
+    if (!cropper) return;
+
+    const val = value[0] ?? 0;
+    setSliderValue(val);
+    cropper.zoomTo(sliderToRatio(val));
+  };
+
   const handleSave = useCallback(() => {
     const cropper = cropperRef.current?.cropper;
     if (!cropper) return;
@@ -46,7 +108,7 @@ export function AvatarCropDialog({
           if (blob) onCrop(blob);
         },
         "image/jpeg",
-        0.9
+        0.9,
       );
   }, [onCrop]);
 
@@ -75,8 +137,24 @@ export function AvatarCropDialog({
               highlight={false}
               background={false}
               guides={false}
+              ready={handleReady}
+              zoom={handleZoom}
             />
           )}
+        </div>
+
+        {/* Zoom slider */}
+        <div className="flex items-center gap-3 px-5 pt-3">
+          <ZoomOut className="w-4 h-4 text-gray-400 shrink-0" />
+          <Slider
+            value={[sliderValue]}
+            min={MIN_ZOOM}
+            max={MAX_ZOOM}
+            step={1}
+            onValueChange={handleSliderChange}
+            className="flex-1"
+          />
+          <ZoomIn className="w-4 h-4 text-gray-400 shrink-0" />
         </div>
 
         {/* Footer — same padding as header */}

@@ -22,9 +22,6 @@ const ModerationPage = lazy(() =>
 const AdminPage = lazy(() =>
   import("./pages/AdminPage").then((m) => ({ default: m.AdminPage }))
 );
-const MyRecipesPage = lazy(() =>
-  import("./pages/MyRecipesPage").then((m) => ({ default: m.MyRecipesPage }))
-);
 const ProfilePage = lazy(() =>
   import("./pages/ProfilePage").then((m) => ({ default: m.ProfilePage }))
 );
@@ -52,14 +49,6 @@ function App() {
           <Route path="/recipe/:id" element={<RecipePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route
-            path="/my-recipes"
-            element={
-              <ProtectedRoute>
-                <MyRecipesPage />
-              </ProtectedRoute>
-            }
-          />
           <Route
             path="/profile"
             element={

@@ -20,25 +20,31 @@ import {
 } from "@/api/notifications/notifications";
 import type { NotificationResponse } from "@/api/model";
 import { useState } from "react";
+import { useAuth } from "@/lib/auth/auth-context";
 
 /**
  * Map notification `type` to a navigation path.
  */
-function getNotificationLink(n: NotificationResponse): string | null {
-  switch (n.type) {
-    case "new_pending_recipe":
-      return "/moderation";
-    case "recipe_approved":
-    case "draft_approved":
-    case "draft_rejected":
-      return n.recipe_id ? `/recipe/${n.recipe_id}` : null;
-    case "recipe_rejected":
-      return n.recipe_id ? `/recipe/${n.recipe_id}` : "/my-recipes";
-    case "recipe_deleted":
-      return "/my-recipes";
-    default:
-      return null;
-  }
+function useNotificationLink() {
+  const { user } = useAuth();
+  const profilePath = user ? `/user/${user.id}` : "/";
+
+  return (n: NotificationResponse): string | null => {
+    switch (n.type) {
+      case "new_pending_recipe":
+        return "/moderation";
+      case "recipe_approved":
+      case "draft_approved":
+      case "draft_rejected":
+        return n.recipe_id ? `/recipe/${n.recipe_id}` : null;
+      case "recipe_rejected":
+        return n.recipe_id ? `/recipe/${n.recipe_id}` : profilePath;
+      case "recipe_deleted":
+        return profilePath;
+      default:
+        return null;
+    }
+  };
 }
 
 /**
@@ -128,6 +134,7 @@ export function NotificationPanel() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const getNotifText = useNotificationText();
+  const getNotificationLink = useNotificationLink();
   const formatRelativeTime = useRelativeTime();
   const [open, setOpen] = useState(false);
 

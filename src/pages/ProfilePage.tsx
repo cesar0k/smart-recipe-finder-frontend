@@ -2,7 +2,6 @@ import { useState, useRef, useCallback } from "react";
 import { User, Camera } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
-import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 
 import { Button } from "@/components/ui/button";
@@ -30,8 +29,7 @@ const BACKEND_ERROR_MAP: Record<string, string> = {
 
 export function ProfilePage() {
   const { t } = useTranslation();
-  const { user } = useAuth();
-  const queryClient = useQueryClient();
+  const { user, refetchUser } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [username, setUsername] = useState(user?.username ?? "");
@@ -52,10 +50,6 @@ export function ProfilePage() {
   const { mutateAsync: uploadAvatar, isPending: isUploading } =
     useUploadAvatar();
 
-  const invalidateUser = () => {
-    queryClient.invalidateQueries({ queryKey: ["/api/v1/auth/me"] });
-  };
-
   const handleSaveProfile = async () => {
     try {
       await updateProfile({
@@ -66,7 +60,7 @@ export function ProfilePage() {
         },
       });
       toast.success(t("profile_saved"));
-      invalidateUser();
+      await refetchUser();
     } catch {
       toast.error(t("profile_error"));
     }
@@ -94,7 +88,7 @@ export function ProfilePage() {
         const file = new File([blob], "avatar.jpg", { type: "image/jpeg" });
         await uploadAvatar({ data: { file } });
         toast.success(t("profile_avatar_uploaded"));
-        invalidateUser();
+        await refetchUser();
       } catch {
         toast.error(t("profile_avatar_error"));
       } finally {
@@ -102,7 +96,7 @@ export function ProfilePage() {
         setCropImageSrc(null);
       }
     },
-    [uploadAvatar, t, invalidateUser]
+    [uploadAvatar, t, refetchUser]
   );
 
   const validatePassword = (): string[] => {

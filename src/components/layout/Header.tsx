@@ -6,7 +6,6 @@ import {
   Shield,
   ShieldCheck,
   LogIn,
-  ChefHat,
   Settings,
 } from "lucide-react";
 import { LanguageSwitcher } from "./LanguageSwitcher";
@@ -91,17 +90,17 @@ export function Header({ leftContent, rightContent }: HeaderProps) {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     className="rounded-full"
-                    onClick={() => navigate("/my-recipes")}
+                    onClick={() => navigate(`/user/${user?.id}`)}
                   >
-                    <ChefHat className="w-4 h-4 mr-2" />
-                    {t("my_recipes_link")}
+                    <User className="w-4 h-4 mr-2" />
+                    {t("profile_my_link")}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className="rounded-full"
                     onClick={() => navigate("/profile")}
                   >
                     <Settings className="w-4 h-4 mr-2" />
-                    {t("profile_link")}
+                    {t("profile_settings_link")}
                   </DropdownMenuItem>
                   {hasRole("moderator", "admin") && (
                     <DropdownMenuItem
