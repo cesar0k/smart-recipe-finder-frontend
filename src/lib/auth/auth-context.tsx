@@ -22,6 +22,8 @@ interface AuthContextValue {
   loginWithGoogle: (code: string) => Promise<void>;
   register: (email: string, username: string, password: string, displayName?: string) => Promise<void>;
   logout: () => Promise<void>;
+  /** Re-fetch current user data (e.g. after avatar/profile update) */
+  refetchUser: () => Promise<void>;
   /** Check if user has one of the given roles */
   hasRole: (...roles: string[]) => boolean;
 }
@@ -129,9 +131,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loginWithGoogle,
       register,
       logout,
+      refetchUser: fetchUser,
       hasRole,
     }),
-    [user, isLoading, login, loginWithGoogle, register, logout, hasRole]
+    [user, isLoading, login, loginWithGoogle, register, logout, fetchUser, hasRole]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

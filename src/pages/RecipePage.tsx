@@ -105,12 +105,10 @@ export function RecipePage() {
           {/* Left side */}
           <div className="space-y-8">
             {/* Image */}
-            <div className="aspect-[4/3] w-full overflow-hidden rounded-[2rem] border border-gray-100 shadow-sm bg-gray-50 relative group">
-              <RecipeGallery
-                images={recipe.image_urls || []}
-                title={recipe.title || ""}
-              />
-            </div>
+            <RecipeGallery
+              images={recipe.image_urls || []}
+              title={recipe.title || ""}
+            />
 
             {/* Mobile version of title */}
             <div className="lg:hidden">

@@ -11,6 +11,8 @@ interface OptimizedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> 
   className?: string;
   imgClassName?: string;
   useObjectContain?: boolean;
+  /** Called with the HTMLImageElement once the image has loaded successfully */
+  onImageLoad?: (img: HTMLImageElement) => void;
 }
 
 export function OptimizedImage({
@@ -19,6 +21,7 @@ export function OptimizedImage({
   className,
   imgClassName,
   useObjectContain = false,
+  onImageLoad,
   ...props
 }: OptimizedImageProps) {
   const { t } = useTranslation();
@@ -39,9 +42,10 @@ export function OptimizedImage({
       if (node && node.complete && node.naturalWidth > 0) {
         setIsLoaded(true);
         imageCache.add(src);
+        onImageLoad?.(node);
       }
     },
-    [src]
+    [src, onImageLoad]
   );
 
   // Safety net: re-check after paint in case `complete` flipped late
@@ -55,6 +59,7 @@ export function OptimizedImage({
     if (el.complete && el.naturalWidth > 0) {
       setIsLoaded(true);
       imageCache.add(src);
+      onImageLoad?.(el);
       return;
     }
 
@@ -63,14 +68,16 @@ export function OptimizedImage({
       if (el.complete && el.naturalWidth > 0) {
         setIsLoaded(true);
         imageCache.add(src);
+        onImageLoad?.(el);
       }
     });
     return () => cancelAnimationFrame(id);
-  }, [src, isLoaded]);
+  }, [src, isLoaded, onImageLoad]);
 
   const handleLoad = () => {
     setIsLoaded(true);
     imageCache.add(src);
+    if (imgRef.current) onImageLoad?.(imgRef.current);
   };
 
   const wrapperClass = cn(
@@ -97,7 +104,7 @@ export function OptimizedImage({
         onError={() => setHasError(true)}
         className={cn(
           "transition-opacity",
-          cached ? "duration-150" : "duration-500",
+          cached ? "duration-150" : "duration-[400ms]",
           !imgClassName && "w-full h-full",
           !imgClassName && (useObjectContain ? "object-contain" : "object-cover"),
           isLoaded ? "opacity-100" : "opacity-0",

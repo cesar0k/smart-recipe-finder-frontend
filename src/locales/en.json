@@ -233,6 +233,8 @@
   "user_search_loading": "Searching...",
   "user_search_empty": "No users found",
   "my_recipes_link": "My Recipes",
+  "profile_my_link": "My Profile",
+  "profile_settings_link": "Settings",
   "my_recipes_title": "My Recipes",
   "my_recipes_empty": "You haven't created any recipes yet",
   "recipe_author_you": "(you)",

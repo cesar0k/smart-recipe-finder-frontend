@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { ImageIcon } from "lucide-react";
 import {
   Carousel,
@@ -13,6 +13,10 @@ import { useCarouselCounter } from "../hooks/useCarouselCounter";
 import { RecipeLightbox } from "./RecipeLightbox";
 import { useTranslation } from "react-i18next";
 
+const FALLBACK_RATIO = 4 / 3;
+// iOS-like spring curve: gentle start, smooth deceleration
+const TRANSITION = "aspect-ratio 0.4s cubic-bezier(0.2, 0, 0, 1)";
+
 interface RecipeGalleryProps {
   images: string[];
   title: string;
@@ -25,6 +29,52 @@ export function RecipeGallery({ images, title }: RecipeGalleryProps) {
 
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  // Stores the natural aspect ratio for each image by index.
+  // null = not yet loaded.
+  const ratiosRef = useRef<(number | null)[]>([]);
+
+  // The aspect ratio currently applied to the container.
+  const [activeRatio, setActiveRatio] = useState(FALLBACK_RATIO);
+
+  // Ensure the array is always the right length
+  if (ratiosRef.current.length !== (images?.length ?? 0)) {
+    ratiosRef.current = new Array(images?.length ?? 0).fill(null);
+  }
+
+  const handleImageLoad = useCallback(
+    (index: number) => (img: HTMLImageElement) => {
+      if (img.naturalWidth && img.naturalHeight) {
+        const ratio = img.naturalWidth / img.naturalHeight;
+        ratiosRef.current[index] = ratio;
+
+        // If this is the currently visible slide (or the first load),
+        // update the container immediately.
+        if (index === 0 && activeRatio === FALLBACK_RATIO) {
+          setActiveRatio(ratio);
+        }
+      }
+    },
+    [activeRatio],
+  );
+
+  // Listen for carousel slide changes and animate to the new slide's ratio.
+  useEffect(() => {
+    if (!api) return;
+
+    const onSelect = () => {
+      const idx = api.selectedScrollSnap();
+      const ratio = ratiosRef.current[idx];
+      if (ratio) {
+        setActiveRatio(ratio);
+      }
+    };
+
+    api.on("select", onSelect);
+    return () => {
+      api.off("select", onSelect);
+    };
+  }, [api]);
 
   const openLightbox = (index: number) => {
     setLightboxIndex(index);
@@ -42,11 +92,20 @@ export function RecipeGallery({ images, title }: RecipeGalleryProps) {
     );
   }
 
+  const containerStyle: React.CSSProperties = {
+    aspectRatio: `${activeRatio}`,
+    transition: TRANSITION,
+    willChange: "aspect-ratio",
+    contain: "layout style",
+  };
+
+  // Single image
   if (images.length === 1) {
     return (
       <>
         <div
-          className="aspect-[4/3] w-full overflow-hidden rounded-[2rem] border border-gray-100 shadow-sm bg-gray-50 cursor-pointer group relative"
+          className="w-full overflow-hidden rounded-[2rem] border border-gray-100 shadow-sm bg-gray-50 cursor-pointer group relative"
+          style={containerStyle}
           onClick={() => openLightbox(0)}
         >
           <OptimizedImage
@@ -54,6 +113,7 @@ export function RecipeGallery({ images, title }: RecipeGalleryProps) {
             alt={title}
             className="w-full h-full"
             imgClassName="absolute inset-0 w-full h-full !object-cover !object-center transition-transform duration-500 group-hover:scale-105"
+            onImageLoad={handleImageLoad(0)}
           />
         </div>
 
@@ -70,13 +130,16 @@ export function RecipeGallery({ images, title }: RecipeGalleryProps) {
   // Carousel
   return (
     <>
-      <div className="group relative rounded-[2rem] overflow-hidden shadow-sm border border-gray-100">
-        <Carousel setApi={setApi} className="w-full" opts={{ loop: true }}>
-          <CarouselContent>
+      <div
+        className="group relative rounded-[2rem] overflow-hidden shadow-sm border border-gray-100"
+        style={containerStyle}
+      >
+        <Carousel setApi={setApi} className="w-full h-full" opts={{ loop: true }}>
+          <CarouselContent className="h-full">
             {images.map((url, index) => (
-              <CarouselItem key={index}>
+              <CarouselItem key={index} className="h-full">
                 <div
-                  className="aspect-[4/3] w-full bg-gray-50 cursor-zoom-in relative overflow-hidden"
+                  className="w-full h-full bg-gray-50 cursor-zoom-in relative overflow-hidden"
                   onClick={() => openLightbox(index)}
                 >
                   <OptimizedImage
@@ -87,6 +150,7 @@ export function RecipeGallery({ images, title }: RecipeGalleryProps) {
                     })}
                     className="w-full h-full"
                     imgClassName="absolute inset-0 w-full h-full !object-cover !object-center"
+                    onImageLoad={handleImageLoad(index)}
                   />
                 </div>
               </CarouselItem>

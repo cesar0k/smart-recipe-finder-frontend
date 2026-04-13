@@ -233,6 +233,8 @@
   "user_search_loading": "Поиск...",
   "user_search_empty": "Пользователи не найдены",
   "my_recipes_link": "Мои рецепты",
+  "profile_my_link": "Мой профиль",
+  "profile_settings_link": "Настройки",
   "my_recipes_title": "Мои рецепты",
   "my_recipes_empty": "Вы ещё не создали ни одного рецепта",
   "recipe_author_you": "(вы)",
