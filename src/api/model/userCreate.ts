@@ -4,6 +4,7 @@
  * Smart Recipes Finder
  * OpenAPI spec version: 2.0.0
  */
+import type { UserCreateDisplayName } from './userCreateDisplayName';
 
 export interface UserCreate {
   email: string;
@@ -12,6 +13,7 @@ export interface UserCreate {
    * @maxLength 100
    */
   username: string;
+  display_name?: UserCreateDisplayName;
   /**
    * @minLength 8
    * @maxLength 128

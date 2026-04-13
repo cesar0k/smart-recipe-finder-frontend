@@ -22,6 +22,7 @@ import { useAuth } from "@/lib/auth/auth-context";
 import { NotificationPanel } from "@/components/NotificationPanel";
 import { useGetPendingCount } from "@/api/moderation/moderation";
 import { useNotificationWS } from "@/hooks/useNotificationWS";
+import { UserSearchInput } from "@/components/UserSearchInput";
 import type { ReactNode } from "react";
 
 interface HeaderProps {
@@ -65,6 +66,8 @@ export function Header({ leftContent, rightContent }: HeaderProps) {
         )}
         <div className="flex items-center gap-3">
           {rightContent}
+
+          <UserSearchInput />
 
           {isAuthenticated ? (
             <>

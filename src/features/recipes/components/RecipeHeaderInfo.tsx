@@ -33,7 +33,7 @@ export function RecipeHeaderInfo({ recipe }: { recipe: Recipe }) {
           <User className="w-4 h-4 text-gray-400" />
           {recipe.owner_id ? (
             <Link
-              to={`/user-recipes/${recipe.owner_id}`}
+              to={`/user/${recipe.owner_id}`}
               className="text-sm font-medium text-gray-700 hover:underline"
             >
               {recipe.owner_username}

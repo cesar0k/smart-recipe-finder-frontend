@@ -11,7 +11,8 @@ import { toast } from "sonner";
 import i18next from "i18next";
 import type { UserResponse } from "@/api/model";
 import { tokenStorage } from "./token-storage";
-import { loginUser, getCurrentUserInfo, logoutUser, registerUser, googleAuth } from "@/api/auth/auth";
+import { loginUser, logoutUser, registerUser, googleAuth } from "@/api/auth/auth";
+import { getCurrentUserInfo } from "@/api/users/users";
 
 interface AuthContextValue {
   user: UserResponse | null;
@@ -19,7 +20,7 @@ interface AuthContextValue {
   isLoading: boolean;
   login: (username: string, password: string) => Promise<void>;
   loginWithGoogle: (code: string) => Promise<void>;
-  register: (email: string, username: string, password: string) => Promise<void>;
+  register: (email: string, username: string, password: string, displayName?: string) => Promise<void>;
   logout: () => Promise<void>;
   /** Check if user has one of the given roles */
   hasRole: (...roles: string[]) => boolean;
@@ -90,8 +91,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const register = useCallback(
-    async (email: string, username: string, password: string) => {
-      await registerUser({ email, username, password });
+    async (email: string, username: string, password: string, displayName?: string) => {
+      await registerUser({ email, username, display_name: displayName || undefined, password });
       // Auto-login after registration
       await login(username, password);
     },
