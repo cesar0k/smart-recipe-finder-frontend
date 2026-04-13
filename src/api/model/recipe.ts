@@ -5,6 +5,7 @@
  * OpenAPI spec version: 2.0.0
  */
 import type { RecipeTitle } from './recipeTitle';
+import type { RecipeDescription } from './recipeDescription';
 import type { RecipeInstructions } from './recipeInstructions';
 import type { RecipeCookingTimeInMinutes } from './recipeCookingTimeInMinutes';
 import type { RecipeDifficulty } from './recipeDifficulty';
@@ -16,6 +17,7 @@ import type { RecipeRejectionReason } from './recipeRejectionReason';
 
 export interface Recipe {
   title?: RecipeTitle;
+  description?: RecipeDescription;
   instructions?: RecipeInstructions;
   cooking_time_in_minutes?: RecipeCookingTimeInMinutes;
   difficulty?: RecipeDifficulty;

@@ -16,6 +16,7 @@ export function getRecipeFormDefaultValues(
 
   return {
     title: recipe.title || "",
+    description: recipe.description || "",
     cooking_time_in_minutes: recipe.cooking_time_in_minutes || 0,
     
     difficulty: matchedDifficulty || "Medium",

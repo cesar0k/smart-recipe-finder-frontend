@@ -22,6 +22,8 @@
   "form_edit_title": "Редактирование",
   "form_title_label": "Название",
   "form_title_placeholder": "Напр. Паста Карбонара",
+  "form_description_label": "Описание",
+  "form_description_placeholder": "Кратко опишите блюдо — чем оно особенное?",
   "form_photos_label": "Фотографии",
   "form_add_photo": "Добавить",
   "form_time_label": "Время (мин)",
