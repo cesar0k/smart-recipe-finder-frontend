@@ -27,6 +27,7 @@ export interface Recipe {
   ingredients?: Ingredient[];
   /** @maxItems 10 */
   image_urls?: string[];
+  thumbnail_urls?: string[];
   owner_id?: RecipeOwnerId;
   owner_username?: RecipeOwnerUsername;
   status?: string;

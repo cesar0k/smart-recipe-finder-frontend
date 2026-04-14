@@ -19,10 +19,11 @@ const TRANSITION = "aspect-ratio 0.4s cubic-bezier(0.2, 0, 0, 1)";
 
 interface RecipeGalleryProps {
   images: string[];
+  thumbnails?: string[];
   title: string;
 }
 
-export function RecipeGallery({ images, title }: RecipeGalleryProps) {
+export function RecipeGallery({ images, thumbnails, title }: RecipeGalleryProps) {
   const [api, setApi] = useState<CarouselApi>();
   const { current, count } = useCarouselCounter(api);
   const { t } = useTranslation();
@@ -38,9 +39,12 @@ export function RecipeGallery({ images, title }: RecipeGalleryProps) {
   const [activeRatio, setActiveRatio] = useState(FALLBACK_RATIO);
 
   // Ensure the array is always the right length
-  if (ratiosRef.current.length !== (images?.length ?? 0)) {
-    ratiosRef.current = new Array(images?.length ?? 0).fill(null);
-  }
+  useEffect(() => {
+    const len = images?.length ?? 0;
+    if (ratiosRef.current.length !== len) {
+      ratiosRef.current = new Array(len).fill(null);
+    }
+  }, [images?.length]);
 
   const handleImageLoad = useCallback(
     (index: number) => (img: HTMLImageElement) => {
@@ -110,6 +114,7 @@ export function RecipeGallery({ images, title }: RecipeGalleryProps) {
         >
           <OptimizedImage
             src={images[0] || ""}
+            thumbnailSrc={thumbnails?.[0]}
             alt={title}
             className="w-full h-full"
             imgClassName="absolute inset-0 w-full h-full !object-cover !object-center transition-transform duration-500 group-hover:scale-105"
@@ -144,6 +149,7 @@ export function RecipeGallery({ images, title }: RecipeGalleryProps) {
                 >
                   <OptimizedImage
                     src={url}
+                    thumbnailSrc={thumbnails?.[index]}
                     alt={t("recipe_photo_alt", {
                       title,
                       index: index + 1,

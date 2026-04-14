@@ -11,6 +11,8 @@ interface OptimizedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> 
   className?: string;
   imgClassName?: string;
   useObjectContain?: boolean;
+  /** Low-res thumbnail shown instantly while the full image loads in the background */
+  thumbnailSrc?: string;
   /** Called with the HTMLImageElement once the image has loaded successfully */
   onImageLoad?: (img: HTMLImageElement) => void;
 }
@@ -21,6 +23,7 @@ export function OptimizedImage({
   className,
   imgClassName,
   useObjectContain = false,
+  thumbnailSrc,
   onImageLoad,
   ...props
 }: OptimizedImageProps) {
@@ -33,6 +36,35 @@ export function OptimizedImage({
 
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(isEmpty);
+
+  // Progressive loading: thumbnail loaded first, then full replaces it
+  const hasThumb = !!thumbnailSrc && thumbnailSrc !== src;
+  const thumbCached = hasThumb && imageCache.has(thumbnailSrc);
+  const [thumbLoaded, setThumbLoaded] = useState(false);
+  const [fullLoaded, setFullLoaded] = useState(false);
+
+  // Preload full image in background when we have a thumbnail
+  useEffect(() => {
+    if (!hasThumb || isEmpty || cached) return;
+
+    const img = new Image();
+    img.src = src;
+
+    if (img.complete && img.naturalWidth > 0) {
+      setFullLoaded(true);
+      imageCache.add(src);
+      return;
+    }
+
+    img.onload = () => {
+      setFullLoaded(true);
+      imageCache.add(src);
+    };
+
+    return () => {
+      img.onload = null;
+    };
+  }, [src, hasThumb, isEmpty, cached]);
 
   // When the real <img> element mounts or src changes, check if the
   // browser already has the pixels (works in all browsers, including Safari).
@@ -85,6 +117,72 @@ export function OptimizedImage({
     className ? className : "w-full h-full bg-gray-100"
   );
 
+  const baseImgClass = cn(
+    !imgClassName && "w-full h-full",
+    !imgClassName && (useObjectContain ? "object-contain" : "object-cover"),
+    imgClassName
+  );
+
+  // Progressive mode: show thumbnail first, then crossfade to full
+  if (hasThumb && !cached) {
+    const showFull = fullLoaded || isLoaded;
+
+    return (
+      <div className={wrapperClass}>
+        {/* Skeleton while neither thumb nor full is ready */}
+        {!thumbLoaded && !showFull && !hasError && (
+          <Skeleton className="absolute inset-0 w-full h-full rounded-none" />
+        )}
+
+        {/* Thumbnail layer — visible until full loads */}
+        <img
+          src={thumbnailSrc}
+          alt={alt}
+          loading={thumbCached ? "eager" : "lazy"}
+          decoding="async"
+          onLoad={() => {
+            setThumbLoaded(true);
+            imageCache.add(thumbnailSrc);
+          }}
+          onError={() => setHasError(true)}
+          className={cn(
+            "absolute inset-0 transition-opacity duration-300",
+            baseImgClass,
+            thumbLoaded && !showFull ? "opacity-100" : !showFull ? "opacity-0" : "opacity-0",
+            hasError && "hidden",
+          )}
+          {...props}
+        />
+
+        {/* Full image layer — fades in on top of thumbnail */}
+        <img
+          ref={imgCallbackRef}
+          src={src}
+          alt={alt}
+          loading="lazy"
+          decoding="async"
+          onLoad={handleLoad}
+          onError={() => setHasError(true)}
+          className={cn(
+            "absolute inset-0 transition-opacity duration-[400ms]",
+            baseImgClass,
+            showFull ? "opacity-100" : "opacity-0",
+            hasError && "hidden",
+          )}
+          {...props}
+        />
+
+        {hasError && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-100 text-gray-400">
+            <ImageIcon className="w-10 h-10 mb-2 text-gray-300" />
+            <span className="text-xs font-medium uppercase tracking-wider text-gray-400">{t("no_image")}</span>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Standard mode: single image with skeleton
   return (
     <div className={wrapperClass}>
 
@@ -105,11 +203,9 @@ export function OptimizedImage({
         className={cn(
           "transition-opacity",
           cached ? "duration-150" : "duration-[400ms]",
-          !imgClassName && "w-full h-full",
-          !imgClassName && (useObjectContain ? "object-contain" : "object-cover"),
+          baseImgClass,
           isLoaded ? "opacity-100" : "opacity-0",
           hasError && "hidden",
-          imgClassName
         )}
         {...props}
       />
