@@ -87,6 +87,7 @@ export function MyRecipesPage() {
                   time={recipe.cooking_time_in_minutes || 0}
                   difficulty={recipe.difficulty}
                   image={recipe.image_urls?.[0] || ""}
+                  thumbnail={recipe.thumbnail_urls?.[0]}
                   status={recipe.status}
                   hasPendingDraft={recipe.has_pending_draft}
                   onResubmit={

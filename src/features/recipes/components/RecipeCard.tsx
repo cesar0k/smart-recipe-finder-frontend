@@ -9,6 +9,8 @@ import { getDifficultyKey } from "@/lib/utils";
 interface RecipeCardProps {
   title: string;
   image: string;
+  /** Smaller thumbnail for faster loading in card grids */
+  thumbnail?: string;
   time: number;
   difficulty?: string | null;
   status?: string;
@@ -28,6 +30,7 @@ const STATUS_STYLES: Record<string, string> = {
 export function RecipeCard({
   title,
   image,
+  thumbnail,
   time,
   difficulty,
   status,
@@ -51,7 +54,7 @@ export function RecipeCard({
     <Card className="group flex flex-col gap-0 rounded-[24px] border border-gray-100 bg-white shadow-sm hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-300 p-0">
       <div className="relative aspect-[4/3] w-full overflow-hidden rounded-t-[24px] bg-gray-100">
         <OptimizedImage
-          src={image}
+          src={thumbnail || image}
           alt={title}
           className="absolute inset-0 w-full h-full !object-cover !object-center transition-transform duration-500 group-hover:scale-105"
         />

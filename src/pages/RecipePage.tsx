@@ -107,6 +107,7 @@ export function RecipePage() {
             {/* Image */}
             <RecipeGallery
               images={recipe.image_urls || []}
+              thumbnails={recipe.thumbnail_urls || []}
               title={recipe.title || ""}
             />
 
