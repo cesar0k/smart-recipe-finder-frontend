@@ -86,6 +86,11 @@
   "filtered_recipes": "Filtered Recipes",
 
   "filter_reset": "Reset all",
+  "filter_cooking_time": "Cooking time",
+  "filter_difficulty": "Difficulty",
+  "filter_cuisine": "Cuisine",
+  "filter_search_cuisine": "Search cuisines...",
+  "filter_no_cuisines": "No cuisines found",
 
   "not_found_title": "Page not found",
   "not_found_desc": "The page you are looking for doesn't exist or has been moved.",

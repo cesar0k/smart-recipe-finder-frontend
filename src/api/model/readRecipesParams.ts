@@ -16,11 +16,27 @@ skip?: number;
  */
 limit?: number;
 /**
- * Comma-separated ingredient to include
+ * Comma-separated ingredients to include
  */
 include_ingredients?: string | null;
 /**
- * Comma-separated ingredient to exclude
+ * Comma-separated ingredients to exclude
  */
 exclude_ingredients?: string | null;
+/**
+ * Min cooking time in minutes
+ */
+min_time?: number | null;
+/**
+ * Max cooking time in minutes
+ */
+max_time?: number | null;
+/**
+ * Comma-separated: easy,medium,hard
+ */
+difficulty?: string | null;
+/**
+ * Comma-separated cuisine values
+ */
+cuisine?: string | null;
 };

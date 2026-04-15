@@ -16,6 +16,16 @@ export function useHomeRecipes() {
     searchParams.get("include_ingredients")?.split(",").filter(Boolean) || [];
   const excludeFromUrl =
     searchParams.get("exclude_ingredients")?.split(",").filter(Boolean) || [];
+  const minTimeFromUrl = searchParams.get("min_time")
+    ? Number(searchParams.get("min_time"))
+    : undefined;
+  const maxTimeFromUrl = searchParams.get("max_time")
+    ? Number(searchParams.get("max_time"))
+    : undefined;
+  const difficultyFromUrl =
+    searchParams.get("difficulty")?.split(",").filter(Boolean) || [];
+  const cuisineFromUrl =
+    searchParams.get("cuisine")?.split(",").filter(Boolean) || [];
 
   const [searchTerm, setSearchTerm] = useState(queryFromUrl);
 
@@ -26,12 +36,21 @@ export function useHomeRecipes() {
   const isSearching = queryFromUrl.length > 0;
 
   const hasActiveFilters =
-    includeFromUrl.length > 0 || excludeFromUrl.length > 0;
+    includeFromUrl.length > 0 ||
+    excludeFromUrl.length > 0 ||
+    minTimeFromUrl !== undefined ||
+    maxTimeFromUrl !== undefined ||
+    difficultyFromUrl.length > 0 ||
+    cuisineFromUrl.length > 0;
 
   const includeParam =
     includeFromUrl.length > 0 ? includeFromUrl.join(",") : undefined;
   const excludeParam =
     excludeFromUrl.length > 0 ? excludeFromUrl.join(",") : undefined;
+  const difficultyParam =
+    difficultyFromUrl.length > 0 ? difficultyFromUrl.join(",") : undefined;
+  const cuisineParam =
+    cuisineFromUrl.length > 0 ? cuisineFromUrl.join(",") : undefined;
 
 
   const {
@@ -43,13 +62,20 @@ export function useHomeRecipes() {
     hasNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery({
-    queryKey: ["/api/v1/recipes/", { includeParam, excludeParam }] as const,
+    queryKey: [
+      "/api/v1/recipes/",
+      { includeParam, excludeParam, minTimeFromUrl, maxTimeFromUrl, difficultyParam, cuisineParam },
+    ] as const,
     queryFn: ({ pageParam = 0 }) =>
       readRecipes({
         skip: pageParam,
         limit: PAGE_SIZE,
         include_ingredients: includeParam,
         exclude_ingredients: excludeParam,
+        min_time: minTimeFromUrl,
+        max_time: maxTimeFromUrl,
+        difficulty: difficultyParam,
+        cuisine: cuisineParam,
       }),
     initialPageParam: 0,
     getNextPageParam: (lastPage, _allPages, lastPageParam) => {
@@ -69,6 +95,10 @@ export function useHomeRecipes() {
       q: queryFromUrl,
       include_ingredients: includeParam,
       exclude_ingredients: excludeParam,
+      min_time: minTimeFromUrl,
+      max_time: maxTimeFromUrl,
+      difficulty: difficultyParam,
+      cuisine: cuisineParam,
     },
     { query: { enabled: isSearching } }
   );
@@ -138,10 +168,49 @@ export function useHomeRecipes() {
     });
   };
 
+  const setMinTime = (val: number | undefined) => {
+    updateParams({ min_time: val !== undefined ? String(val) : undefined });
+  };
+
+  const setMaxTime = (val: number | undefined) => {
+    updateParams({ max_time: val !== undefined ? String(val) : undefined });
+  };
+
+  const setDifficulty = (vals: string[]) => {
+    updateParams({ difficulty: vals.length ? vals.join(",") : undefined });
+  };
+
+  const setCuisine = (vals: string[]) => {
+    updateParams({ cuisine: vals.length ? vals.join(",") : undefined });
+  };
+
   const resetFilters = () => {
     updateParams({
       include_ingredients: undefined,
       exclude_ingredients: undefined,
+      min_time: undefined,
+      max_time: undefined,
+      difficulty: undefined,
+      cuisine: undefined,
+    });
+  };
+
+  /** Apply all filter values at once (single URL update, no race conditions). */
+  const applyAllFilters = (filters: {
+    include: string[];
+    exclude: string[];
+    minTime: number | undefined;
+    maxTime: number | undefined;
+    difficulty: string[];
+    cuisine: string[];
+  }) => {
+    updateParams({
+      include_ingredients: filters.include.length ? filters.include.join(",") : undefined,
+      exclude_ingredients: filters.exclude.length ? filters.exclude.join(",") : undefined,
+      min_time: filters.minTime !== undefined ? String(filters.minTime) : undefined,
+      max_time: filters.maxTime !== undefined ? String(filters.maxTime) : undefined,
+      difficulty: filters.difficulty.length ? filters.difficulty.join(",") : undefined,
+      cuisine: filters.cuisine.length ? filters.cuisine.join(",") : undefined,
     });
   };
 
@@ -161,7 +230,7 @@ export function useHomeRecipes() {
         query: queryFromUrl,
       });
     }
-    if (includeFromUrl.length > 0 || excludeFromUrl.length > 0) {
+    if (hasActiveFilters) {
       return t("filtered_recipes");
     }
     return t("hero_title");
@@ -178,7 +247,18 @@ export function useHomeRecipes() {
     excludeIngredients: excludeFromUrl,
     setIncludeIngredients,
     setExcludeIngredients,
+
+    minTime: minTimeFromUrl,
+    maxTime: maxTimeFromUrl,
+    setMinTime,
+    setMaxTime,
+    selectedDifficulty: difficultyFromUrl,
+    setDifficulty,
+    selectedCuisine: cuisineFromUrl,
+    setCuisine,
+
     resetFilters,
+    applyAllFilters,
 
     recipes,
     isLoading,
