@@ -202,6 +202,99 @@ export function useReadRecipes<TData = Awaited<ReturnType<typeof readRecipes>>, 
 
 
 /**
+ * Return distinct cuisine values from approved recipes.
+ * @summary Get Cuisines
+ */
+export const getCuisines = (
+    
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<string[]>(
+      {url: `/api/v1/recipes/cuisines`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+
+
+export const getGetCuisinesQueryKey = () => {
+    return [
+    `/api/v1/recipes/cuisines`
+    ] as const;
+    }
+
+    
+export const getGetCuisinesQueryOptions = <TData = Awaited<ReturnType<typeof getCuisines>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCuisines>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCuisinesQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCuisines>>> = ({ signal }) => getCuisines(requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCuisines>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetCuisinesQueryResult = NonNullable<Awaited<ReturnType<typeof getCuisines>>>
+export type GetCuisinesQueryError = unknown
+
+
+export function useGetCuisines<TData = Awaited<ReturnType<typeof getCuisines>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCuisines>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getCuisines>>,
+          TError,
+          Awaited<ReturnType<typeof getCuisines>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetCuisines<TData = Awaited<ReturnType<typeof getCuisines>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCuisines>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getCuisines>>,
+          TError,
+          Awaited<ReturnType<typeof getCuisines>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetCuisines<TData = Awaited<ReturnType<typeof getCuisines>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCuisines>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Cuisines
+ */
+
+export function useGetCuisines<TData = Awaited<ReturnType<typeof getCuisines>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getCuisines>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetCuisinesQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
  * @summary Read My Recipes
  */
 export const readMyRecipes = (

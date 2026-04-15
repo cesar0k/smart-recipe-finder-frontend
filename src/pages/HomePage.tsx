@@ -35,9 +35,11 @@ export function HomePage() {
     onKeyDown,
     includeIngredients,
     excludeIngredients,
-    setIncludeIngredients,
-    setExcludeIngredients,
-    resetFilters,
+    minTime,
+    maxTime,
+    selectedDifficulty,
+    selectedCuisine,
+    applyAllFilters,
     sentinelRef,
     isFetchingNextPage,
     hasNextPage,
@@ -104,9 +106,11 @@ export function HomePage() {
             <RecipeFilterSheet
               include={includeIngredients}
               exclude={excludeIngredients}
-              onIncludeChange={setIncludeIngredients}
-              onExcludeChange={setExcludeIngredients}
-              onReset={resetFilters}
+              minTime={minTime}
+              maxTime={maxTime}
+              selectedDifficulty={selectedDifficulty}
+              selectedCuisine={selectedCuisine}
+              onApply={applyAllFilters}
             />
           </div>
         </div>
