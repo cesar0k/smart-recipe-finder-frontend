@@ -16,6 +16,8 @@ interface RecipeCardProps {
   status?: string;
   hasPendingDraft?: boolean;
   ownerUsername?: string | null;
+  /** Moderator's reason — shown inline on rejected cards */
+  rejectionReason?: string | null;
   /** Called when "Fix" button is pressed on rejected recipes */
   onResubmit?: () => void;
   /** Called when "Delete" button is pressed on rejected recipes */
@@ -36,13 +38,18 @@ export function RecipeCard({
   status,
   hasPendingDraft,
   ownerUsername,
+  rejectionReason,
   onResubmit,
   onDelete,
 }: RecipeCardProps) {
   const { t } = useTranslation();
 
-  const statusKey =
-    status === "pending"
+  const isRejectedWithReason = status === "rejected" && !!rejectionReason;
+
+  // Corner status badge: hidden for rejected-with-reason (the overlay replaces it)
+  const statusKey = isRejectedWithReason
+    ? null
+    : status === "pending"
       ? "recipe_status_pending"
       : status === "rejected"
         ? "recipe_status_rejected"
@@ -60,15 +67,28 @@ export function RecipeCard({
         />
         {statusKey && (
           <span
-            className={`absolute top-3 left-3 px-2.5 py-1 rounded-lg text-xs font-bold ${STATUS_STYLES[status!] ?? ""}`}
+            className={`absolute top-3 left-3 px-2.5 py-1 rounded-lg text-xs font-bold z-10 ${STATUS_STYLES[status!] ?? ""}`}
           >
             {t(statusKey)}
           </span>
         )}
         {hasPendingDraft && (
-          <span className="absolute top-3 right-3 px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-500 text-white">
+          <span className="absolute top-3 right-3 px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-500 text-white z-10">
             {t("recipe_pending_draft")}
           </span>
+        )}
+        {isRejectedWithReason && (
+          <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center p-4 text-center text-white">
+            <span className="text-sm font-bold uppercase tracking-wide mb-1.5">
+              {t("recipe_status_rejected")}
+            </span>
+            <p className="text-xs leading-snug [overflow-wrap:anywhere]">
+              <span className="font-semibold">
+                {t("recipe_rejected_reason_label")}
+              </span>{" "}
+              <span className="line-clamp-3 inline">{rejectionReason}</span>
+            </p>
+          </div>
         )}
       </div>
 
@@ -134,6 +154,7 @@ export function RecipeCard({
             </div>
           )}
         </div>
+
       </div>
     </Card>
   );

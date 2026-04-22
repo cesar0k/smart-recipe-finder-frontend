@@ -90,6 +90,7 @@ export function MyRecipesPage() {
                   thumbnail={recipe.thumbnail_urls?.[0]}
                   status={recipe.status}
                   hasPendingDraft={recipe.has_pending_draft}
+                  rejectionReason={recipe.rejection_reason}
                   onResubmit={
                     recipe.status === "rejected"
                       ? () => setEditingRecipe(recipe)

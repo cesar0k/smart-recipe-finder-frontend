@@ -113,7 +113,7 @@ export function RecipePage() {
 
             {/* Mobile version of title */}
             <div className="lg:hidden">
-              <RecipeHeaderInfo recipe={recipe} />
+              <RecipeHeaderInfo recipe={recipe} canViewStatus={canModify} />
             </div>
 
             {/* Ingredients */}
@@ -142,7 +142,7 @@ export function RecipePage() {
           {/* Right side */}
           <div className="space-y-8">
             <div className="hidden lg:block">
-              <RecipeHeaderInfo recipe={recipe} />
+              <RecipeHeaderInfo recipe={recipe} canViewStatus={canModify} />
             </div>
 
             <Separator className="bg-gray-100 hidden lg:block" />

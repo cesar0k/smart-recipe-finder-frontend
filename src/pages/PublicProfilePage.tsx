@@ -216,6 +216,9 @@ export function PublicProfilePage() {
                       hasPendingDraft={
                         canViewStatus ? recipe.has_pending_draft : undefined
                       }
+                      rejectionReason={
+                        canViewStatus ? recipe.rejection_reason : undefined
+                      }
                       onResubmit={
                         isOwnProfile && recipe.status === "rejected"
                           ? () => setEditingRecipe(recipe)

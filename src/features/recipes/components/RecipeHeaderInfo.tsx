@@ -1,4 +1,4 @@
-import { ChefHat, Clock, User } from "lucide-react";
+import { AlertTriangle, ChefHat, Clock, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { type Recipe } from "@/api/model/recipe";
@@ -6,14 +6,44 @@ import { useTranslation } from "react-i18next";
 import { getDifficultyKey } from "@/lib/utils";
 import { useAuth } from "@/lib/auth/auth-context";
 
-export function RecipeHeaderInfo({ recipe }: { recipe: Recipe }) {
+interface RecipeHeaderInfoProps {
+  recipe: Recipe;
+  /** Whether the viewer is allowed to see moderation metadata (status, reject reason) */
+  canViewStatus?: boolean;
+}
+
+export function RecipeHeaderInfo({
+  recipe,
+  canViewStatus = false,
+}: RecipeHeaderInfoProps) {
   const { t } = useTranslation();
   const { user } = useAuth();
 
   const isOwnRecipe = user && recipe.owner_id === user.id;
+  const showRejectionBanner =
+    canViewStatus &&
+    recipe.status === "rejected" &&
+    !!recipe.rejection_reason;
 
   return (
     <div className="space-y-4">
+      {showRejectionBanner && (
+        <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4">
+          <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+          <div className="space-y-1 min-w-0 flex-1">
+            <p className="text-sm font-semibold text-red-700">
+              {t("recipe_rejected_banner_title")}
+            </p>
+            <p className="text-sm text-red-700 [overflow-wrap:anywhere]">
+              <span className="font-semibold">
+                {t("recipe_rejected_reason_label")}
+              </span>{" "}
+              {recipe.rejection_reason}
+            </p>
+          </div>
+        </div>
+      )}
+
       {recipe.cuisine && (
         <Badge
           variant="secondary"
