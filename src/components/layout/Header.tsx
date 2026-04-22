@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { Button } from "@/components/ui/button";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -74,8 +75,16 @@ export function Header({ leftContent, rightContent }: HeaderProps) {
               <LanguageSwitcher />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-full">
-                    <User className="w-5 h-5 text-gray-600" />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="rounded-full p-0 overflow-hidden"
+                  >
+                    <UserAvatar
+                      src={user?.avatar_url}
+                      username={user?.username}
+                      size="sm"
+                    />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-52 rounded-2xl">
