@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, User, ChefHat } from "lucide-react";
+import { Search, ChefHat } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import { useTranslation } from "react-i18next";
 import { useSearchUsers } from "@/api/users/users";
 import type { PublicUserResponse } from "@/api/model";
@@ -117,9 +118,11 @@ export function UserSearchInput() {
             className="w-full px-4 py-2.5 flex items-center gap-3 hover:bg-gray-50 transition-colors text-left"
             onClick={() => handleSelect(user.id)}
           >
-            <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
-              <User className="w-4 h-4 text-gray-400" />
-            </div>
+            <UserAvatar
+              src={user.avatar_url}
+              username={user.username}
+              size="sm"
+            />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-900 truncate">
                 {user.username}
