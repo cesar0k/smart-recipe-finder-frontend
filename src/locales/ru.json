@@ -250,6 +250,8 @@
   "recipe_status_rejected": "Отклонён",
   "recipe_status_approved": "Одобрен",
   "recipe_pending_draft": "Правки на модерации",
+  "recipe_rejected_reason_label": "Причина:",
+  "recipe_rejected_banner_title": "Этот рецепт был отклонён модератором",
 
   "my_recipes_fix_and_resubmit": "Исправить и отправить",
   "toast_resubmitted": "Рецепт отправлен на повторную модерацию",
