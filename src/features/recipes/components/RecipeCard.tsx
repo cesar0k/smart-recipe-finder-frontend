@@ -18,9 +18,11 @@ interface RecipeCardProps {
   ownerUsername?: string | null;
   /** Moderator's reason — shown inline on rejected cards */
   rejectionReason?: string | null;
-  /** Called when "Fix" button is pressed on rejected recipes */
+  /** Called when "Fix" button is pressed on rejected recipes (owner-only) */
   onResubmit?: () => void;
-  /** Called when "Delete" button is pressed on rejected recipes */
+  /** Called when generic "Edit" button is pressed (e.g. by moderators on any status) */
+  onEdit?: () => void;
+  /** Called when "Delete" button is pressed */
   onDelete?: () => void;
 }
 
@@ -40,6 +42,7 @@ export function RecipeCard({
   ownerUsername,
   rejectionReason,
   onResubmit,
+  onEdit,
   onDelete,
 }: RecipeCardProps) {
   const { t } = useTranslation();
@@ -55,7 +58,7 @@ export function RecipeCard({
         ? "recipe_status_rejected"
         : null;
 
-  const showActions = status === "rejected" && (onResubmit || onDelete);
+  const showActions = !!onResubmit || !!onEdit || !!onDelete;
 
   return (
     <Card className="group flex flex-col gap-0 rounded-[24px] border border-gray-100 bg-white shadow-sm hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-300 p-0">
@@ -118,7 +121,7 @@ export function RecipeCard({
             </div>
           </div>
 
-          {/* Action buttons for rejected recipes */}
+          {/* Action buttons */}
           {showActions && (
             <div className="flex items-center gap-1 shrink-0 pt-0.5">
               {onResubmit && (
@@ -132,6 +135,21 @@ export function RecipeCard({
                     onResubmit();
                   }}
                   title={t("my_recipes_fix_and_resubmit")}
+                >
+                  <Pencil className="w-4 h-4" />
+                </Button>
+              )}
+              {onEdit && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 rounded-full text-gray-400 hover:text-blue-600 hover:bg-blue-50"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onEdit();
+                  }}
+                  title={t("edit_recipe")}
                 >
                   <Pencil className="w-4 h-4" />
                 </Button>

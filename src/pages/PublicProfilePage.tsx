@@ -34,6 +34,7 @@ import {
   useReadUserRecipes,
   useReadMyRecipes,
   getReadMyRecipesQueryKey,
+  getReadUserRecipesQueryKey,
   useDeleteRecipe,
 } from "@/api/recipes/recipes";
 import { useAuth } from "@/lib/auth/auth-context";
@@ -65,6 +66,8 @@ export function PublicProfilePage() {
   const isOwnProfile = !!user && user.id === uid;
   const canModerate = hasRole("moderator", "admin");
   const canViewStatus = isOwnProfile || canModerate;
+  // Moderators/admins can edit & delete recipes they don't own
+  const canManageOthers = !isOwnProfile && canModerate;
 
   const { data: profile, isLoading: profileLoading } = useGetUserProfile(uid, {
     query: { enabled: uid > 0 },
@@ -85,18 +88,28 @@ export function PublicProfilePage() {
   const recipesLoading = isOwnProfile ? myRecipesLoading : userRecipesLoading;
   const isLoading = profileLoading || recipesLoading;
 
-  // Edit/delete state (own profile only)
+  // Edit/delete state
   const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
   const [deletingRecipe, setDeletingRecipe] = useState<Recipe | null>(null);
   const { mutateAsync: deleteRecipe, isPending: isDeleting } =
     useDeleteRecipe();
+
+  const invalidateRecipesCache = () => {
+    if (isOwnProfile) {
+      queryClient.invalidateQueries({ queryKey: getReadMyRecipesQueryKey() });
+    } else {
+      queryClient.invalidateQueries({
+        queryKey: getReadUserRecipesQueryKey(uid),
+      });
+    }
+  };
 
   const handleDelete = async () => {
     if (!deletingRecipe) return;
     try {
       await deleteRecipe({ recipeId: deletingRecipe.id });
       toast.success(t("toast_deleted"));
-      queryClient.invalidateQueries({ queryKey: getReadMyRecipesQueryKey() });
+      invalidateRecipesCache();
     } catch {
       toast.error(t("toast_error_delete"));
     } finally {
@@ -224,8 +237,14 @@ export function PublicProfilePage() {
                           ? () => setEditingRecipe(recipe)
                           : undefined
                       }
+                      onEdit={
+                        canManageOthers
+                          ? () => setEditingRecipe(recipe)
+                          : undefined
+                      }
                       onDelete={
-                        isOwnProfile && recipe.status === "rejected"
+                        (isOwnProfile && recipe.status === "rejected") ||
+                        canManageOthers
                           ? () => setDeletingRecipe(recipe)
                           : undefined
                       }
@@ -244,7 +263,7 @@ export function PublicProfilePage() {
         )}
       </main>
 
-      {/* Edit+Resubmit sheet (own profile only) */}
+      {/* Edit sheet — resubmit for owner, regular edit for moderators */}
       {editingRecipe && (
         <EditRecipeSheet
           recipe={editingRecipe}
@@ -254,15 +273,13 @@ export function PublicProfilePage() {
           }}
           onSuccess={() => {
             setEditingRecipe(null);
-            queryClient.invalidateQueries({
-              queryKey: getReadMyRecipesQueryKey(),
-            });
+            invalidateRecipesCache();
           }}
-          resubmitMode
+          resubmitMode={isOwnProfile}
         />
       )}
 
-      {/* Delete confirmation dialog (own profile only) */}
+      {/* Delete confirmation dialog */}
       <AlertDialog
         open={!!deletingRecipe}
         onOpenChange={(open) => {
