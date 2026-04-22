@@ -58,11 +58,13 @@ const ROLE_BADGE: Record<
 export function PublicProfilePage() {
   const { t, i18n } = useTranslation();
   const { userId } = useParams<{ userId: string }>();
-  const { user } = useAuth();
+  const { user, hasRole } = useAuth();
   const queryClient = useQueryClient();
   const uid = parseInt(userId || "0", 10);
 
   const isOwnProfile = !!user && user.id === uid;
+  const canModerate = hasRole("moderator", "admin");
+  const canViewStatus = isOwnProfile || canModerate;
 
   const { data: profile, isLoading: profileLoading } = useGetUserProfile(uid, {
     query: { enabled: uid > 0 },
@@ -210,9 +212,9 @@ export function PublicProfilePage() {
                       difficulty={recipe.difficulty}
                       image={recipe.image_urls?.[0] || ""}
                       thumbnail={recipe.thumbnail_urls?.[0]}
-                      status={isOwnProfile ? recipe.status : undefined}
+                      status={canViewStatus ? recipe.status : undefined}
                       hasPendingDraft={
-                        isOwnProfile ? recipe.has_pending_draft : undefined
+                        canViewStatus ? recipe.has_pending_draft : undefined
                       }
                       onResubmit={
                         isOwnProfile && recipe.status === "rejected"
