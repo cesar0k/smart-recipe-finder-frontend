@@ -252,6 +252,8 @@
   "recipe_pending_draft": "Правки на модерации",
   "recipe_rejected_reason_label": "Причина:",
   "recipe_rejected_banner_title": "Этот рецепт был отклонён модератором",
+  "similar_recipes_title": "Похожие рецепты",
+  "similar_recipes_desc": "Возможно, вам также понравится",
 
   "my_recipes_fix_and_resubmit": "Исправить и отправить",
   "toast_resubmitted": "Рецепт отправлен на повторную модерацию",

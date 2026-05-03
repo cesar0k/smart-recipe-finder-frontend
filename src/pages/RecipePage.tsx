@@ -28,6 +28,7 @@ import { useRecipeDetails } from "../features/recipes/hooks/useRecipeDetails";
 import { useDeleteRecipeLogic } from "../features/recipes/hooks/useDeleteRecipeLogic";
 import { RecipeHeaderInfo } from "@/features/recipes/components/RecipeHeaderInfo";
 import { RecipeGallery } from "@/features/recipes/components/RecipeGallery";
+import { SimilarRecipesSection } from "@/features/recipes/components/SimilarRecipesSection";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/lib/auth/auth-context";
 
@@ -160,6 +161,8 @@ export function RecipePage() {
             </div>
           </div>
         </div>
+
+        <SimilarRecipesSection recipeId={recipe.id} />
       </main>
 
       {/* Edit sheet */}
