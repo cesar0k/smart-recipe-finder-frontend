@@ -252,6 +252,8 @@
   "recipe_pending_draft": "Edits pending",
   "recipe_rejected_reason_label": "Reason:",
   "recipe_rejected_banner_title": "This recipe was rejected by a moderator",
+  "similar_recipes_title": "Similar recipes",
+  "similar_recipes_desc": "Recipes you might also like",
 
   "my_recipes_fix_and_resubmit": "Fix & resubmit",
   "toast_resubmitted": "Recipe resubmitted for moderation",

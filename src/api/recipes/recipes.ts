@@ -28,6 +28,7 @@ import type {
   HTTPValidationError,
   ReadMyRecipesParams,
   ReadRecipesParams,
+  ReadSimilarRecipesParams,
   ReadUserRecipesParams,
   Recipe,
   RecipeCreate,
@@ -799,6 +800,106 @@ export const useDeleteRecipe = <TError = HTTPValidationError,
       return useMutation(mutationOptions, queryClient);
     }
     /**
+ * @summary Read Similar Recipes
+ */
+export const readSimilarRecipes = (
+    recipeId: number,
+    params?: ReadSimilarRecipesParams,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<Recipe[]>(
+      {url: `/api/v1/recipes/${recipeId}/similar`, method: 'GET',
+        params, signal
+    },
+      options);
+    }
+  
+
+
+
+export const getReadSimilarRecipesQueryKey = (recipeId?: number,
+    params?: ReadSimilarRecipesParams,) => {
+    return [
+    `/api/v1/recipes/${recipeId}/similar`, ...(params ? [params]: [])
+    ] as const;
+    }
+
+    
+export const getReadSimilarRecipesQueryOptions = <TData = Awaited<ReturnType<typeof readSimilarRecipes>>, TError = HTTPValidationError>(recipeId: number,
+    params?: ReadSimilarRecipesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof readSimilarRecipes>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getReadSimilarRecipesQueryKey(recipeId,params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof readSimilarRecipes>>> = ({ signal }) => readSimilarRecipes(recipeId,params, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(recipeId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof readSimilarRecipes>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ReadSimilarRecipesQueryResult = NonNullable<Awaited<ReturnType<typeof readSimilarRecipes>>>
+export type ReadSimilarRecipesQueryError = HTTPValidationError
+
+
+export function useReadSimilarRecipes<TData = Awaited<ReturnType<typeof readSimilarRecipes>>, TError = HTTPValidationError>(
+ recipeId: number,
+    params: undefined |  ReadSimilarRecipesParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof readSimilarRecipes>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof readSimilarRecipes>>,
+          TError,
+          Awaited<ReturnType<typeof readSimilarRecipes>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useReadSimilarRecipes<TData = Awaited<ReturnType<typeof readSimilarRecipes>>, TError = HTTPValidationError>(
+ recipeId: number,
+    params?: ReadSimilarRecipesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof readSimilarRecipes>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof readSimilarRecipes>>,
+          TError,
+          Awaited<ReturnType<typeof readSimilarRecipes>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useReadSimilarRecipes<TData = Awaited<ReturnType<typeof readSimilarRecipes>>, TError = HTTPValidationError>(
+ recipeId: number,
+    params?: ReadSimilarRecipesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof readSimilarRecipes>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Read Similar Recipes
+ */
+
+export function useReadSimilarRecipes<TData = Awaited<ReturnType<typeof readSimilarRecipes>>, TError = HTTPValidationError>(
+ recipeId: number,
+    params?: ReadSimilarRecipesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof readSimilarRecipes>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getReadSimilarRecipesQueryOptions(recipeId,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
  * Re-submit a rejected recipe with corrections. Only the owner can resubmit.
  * @summary Resubmit Recipe
  */
