@@ -26,6 +26,7 @@ export function useHomeRecipes() {
     searchParams.get("difficulty")?.split(",").filter(Boolean) || [];
   const cuisineFromUrl =
     searchParams.get("cuisine")?.split(",").filter(Boolean) || [];
+  const mealTypeFromUrl = searchParams.get("meal_type") || undefined;
 
   const [searchTerm, setSearchTerm] = useState(queryFromUrl);
 
@@ -41,7 +42,8 @@ export function useHomeRecipes() {
     minTimeFromUrl !== undefined ||
     maxTimeFromUrl !== undefined ||
     difficultyFromUrl.length > 0 ||
-    cuisineFromUrl.length > 0;
+    cuisineFromUrl.length > 0 ||
+    !!mealTypeFromUrl;
 
   const includeParam =
     includeFromUrl.length > 0 ? includeFromUrl.join(",") : undefined;
@@ -64,7 +66,7 @@ export function useHomeRecipes() {
   } = useInfiniteQuery({
     queryKey: [
       "/api/v1/recipes/",
-      { includeParam, excludeParam, minTimeFromUrl, maxTimeFromUrl, difficultyParam, cuisineParam },
+      { includeParam, excludeParam, minTimeFromUrl, maxTimeFromUrl, difficultyParam, cuisineParam, mealTypeFromUrl },
     ] as const,
     queryFn: ({ pageParam = 0 }) =>
       readRecipes({
@@ -76,7 +78,9 @@ export function useHomeRecipes() {
         max_time: maxTimeFromUrl,
         difficulty: difficultyParam,
         cuisine: cuisineParam,
-      }),
+        // meal_type is a backend extension not yet in the auto-generated type
+        ...(mealTypeFromUrl ? { meal_type: mealTypeFromUrl } : {}),
+      } as Parameters<typeof readRecipes>[0]),
     initialPageParam: 0,
     getNextPageParam: (lastPage, _allPages, lastPageParam) => {
       if (!lastPage || lastPage.length < PAGE_SIZE) return undefined;
@@ -229,6 +233,10 @@ export function useHomeRecipes() {
       return t("search_results_for", {
         query: queryFromUrl,
       });
+    }
+    if (mealTypeFromUrl) {
+      // Show the human-readable category label passed alongside meal_type
+      return searchParams.get("category_label") || mealTypeFromUrl;
     }
     if (hasActiveFilters) {
       return t("filtered_recipes");

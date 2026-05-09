@@ -133,7 +133,7 @@ export function PublicProfilePage() {
         rightContent={isOwnProfile ? <CreateRecipeSheet /> : undefined}
       />
 
-      <main className="container mx-auto px-4 py-8 md:py-12">
+      <main className="container mx-auto px-4 py-6 md:py-7">
         {isLoading && (
           <div className="flex justify-center py-10">
             <Spinner size="lg" className="text-gray-300" />
@@ -149,7 +149,7 @@ export function PublicProfilePage() {
         {profile && (
           <>
             {/* Profile header */}
-            <div className="flex flex-col items-center text-center mb-10 space-y-3">
+            <div className="flex flex-col items-center text-center mb-6 space-y-2">
               {/* Avatar */}
               {profile.avatar_url ? (
                 <img
@@ -164,7 +164,7 @@ export function PublicProfilePage() {
               )}
 
               {/* Name + role */}
-              <div className="space-y-1">
+              <div className="space-y-2">
                 {profile.display_name && (
                   <h1 className="text-2xl font-bold text-gray-900">
                     {profile.display_name}

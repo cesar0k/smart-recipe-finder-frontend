@@ -9,6 +9,7 @@ import { useHomeRecipes } from "../features/recipes/hooks/useHomeRecipes";
 import { CreateRecipeSheet } from "@/features/recipes/components/CreateRecipeSheet";
 import { RecipeFilterSheet } from "@/features/recipes/components/RecipeFilterSheet";
 import { RecipeCardSkeleton } from "@/components/skeletons/RecipeCardSkeleton";
+import { CategoryShelves } from "@/features/recipes/components/CategoryShelf";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { Spinner } from "@/components/ui/spinner";
@@ -63,7 +64,7 @@ export function HomePage() {
       {/* MAIN */}
       <main className={`flex-1 container mx-auto px-4 pt-8 md:pt-12 ${hasNextPage ? "pb-0" : "py-8 md:py-12"}`}>
         {/* SEARCH BLOCK */}
-        <div className="max-w-4xl mx-auto text-center mb-10 space-y-6">
+        <div className="max-w-4xl mx-auto text-center mb-12 space-y-6">
           <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 tracking-tight w-full truncate">
             {heading}
           </h1>
@@ -115,6 +116,9 @@ export function HomePage() {
           </div>
         </div>
 
+        {/* CATEGORY SHELVES — visible only on the default feed (no search/filters) */}
+        {!isSearchView && !hasActiveFilters && <CategoryShelves />}
+
         {/* STATES */}
         {isLoading && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -146,6 +150,17 @@ export function HomePage() {
             >
               {t("show_all")}
             </Button>
+          </div>
+        )}
+
+        {/* ALL RECIPES heading — only on the default feed, after category shelves */}
+        {!isSearchView && !hasActiveFilters && !isLoading && !isError && recipes && recipes.length > 0 && (
+          <div className="flex items-center gap-4 mb-5 border-gray-100">
+            <div className="flex-1 h-px bg-gray-100" />
+            <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight whitespace-nowrap">
+              {t("all_recipes")}
+            </h2>
+            <div className="flex-1 h-px bg-gray-100" />
           </div>
         )}
 

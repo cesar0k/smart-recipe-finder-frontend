@@ -9,6 +9,7 @@ import { AuthProvider } from "./lib/auth/auth-context.tsx";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import "./lib/i18n.ts";
 
+// ── Preconnect to API origin ──────────────────────────────────────────────────
 const apiUrl = import.meta.env.VITE_API_URL;
 if (apiUrl) {
   try {

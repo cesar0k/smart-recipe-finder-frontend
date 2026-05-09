@@ -6,6 +6,7 @@
   "no_recipes_found": "Рецептов по запросу \"{{search}}\" нет...",
   "no_recipes_filters": "Рецептов по выбранным фильтрам нет",
   "show_all": "Показать все",
+  "all_recipes": "Все рецепты",
   "create_btn": "Создать",
   "min": "мин",
   "back_btn": "Назад",
@@ -253,7 +254,7 @@
   "recipe_rejected_reason_label": "Причина:",
   "recipe_rejected_banner_title": "Этот рецепт был отклонён модератором",
   "similar_recipes_title": "Похожие рецепты",
-  "similar_recipes_desc": "Возможно, вам также понравится",
+  "similar_recipes_desc": "Возможно, Вам также понравится",
 
   "my_recipes_fix_and_resubmit": "Исправить и отправить",
   "toast_resubmitted": "Рецепт отправлен на повторную модерацию",
