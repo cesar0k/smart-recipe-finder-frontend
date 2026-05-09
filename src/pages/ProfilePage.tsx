@@ -143,7 +143,7 @@ export function ProfilePage() {
     <div className="min-h-screen bg-white font-sans">
       <Header leftContent={<BackButton />} />
 
-      <main className="container mx-auto px-4 py-8 md:py-12 max-w-md flex flex-col items-center">
+      <main className="container mx-auto px-4 py-6 md:py-10 max-w-md flex flex-col items-center">
         <div className="w-full">
           <h1 className="text-2xl font-bold text-gray-900 mb-6 text-center">
             {t("profile_title")}
@@ -234,7 +234,7 @@ export function ProfilePage() {
             </Button>
           </div>
 
-          <Separator className="my-6" />
+          <Separator className="mt-6 mb-3" />
 
           {/* Change password */}
           <h2 className="text-lg font-semibold text-gray-900 mb-3 text-center">
