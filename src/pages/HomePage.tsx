@@ -9,6 +9,7 @@ import { useHomeRecipes } from "../features/recipes/hooks/useHomeRecipes";
 import { CreateRecipeSheet } from "@/features/recipes/components/CreateRecipeSheet";
 import { RecipeFilterSheet } from "@/features/recipes/components/RecipeFilterSheet";
 import { RecipeCardSkeleton } from "@/components/skeletons/RecipeCardSkeleton";
+import { CategoryShelves } from "@/features/recipes/components/CategoryShelf";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { Spinner } from "@/components/ui/spinner";
@@ -114,6 +115,9 @@ export function HomePage() {
             />
           </div>
         </div>
+
+        {/* CATEGORY SHELVES — visible only on the default feed (no search/filters) */}
+        {!isSearchView && !hasActiveFilters && <CategoryShelves />}
 
         {/* STATES */}
         {isLoading && (
