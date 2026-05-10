@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { User } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -23,7 +24,12 @@ const ICON_SIZE = {
 
 /**
  * Unified user avatar with fallback to a generic user icon.
- * Reuses the same visual pattern used on ProfilePage / PublicProfilePage.
+ *
+ * If the image fails to load (e.g. a legacy Google CDN URL stored on a
+ * user before the backfill ran, or any third-party source blocked by
+ * client-side filters) we silently fall back to the icon variant.
+ * `referrerPolicy="no-referrer"` reduces the chance Google's CDN refuses
+ * the request because of the origin Referer header.
  */
 export function UserAvatar({
   src,
@@ -32,12 +38,15 @@ export function UserAvatar({
   className,
 }: UserAvatarProps) {
   const base = cn("rounded-full shrink-0", CONTAINER_SIZE[size], className);
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
 
-  if (src) {
+  if (src && failedSrc !== src) {
     return (
       <img
         src={src}
         alt={username ?? ""}
+        referrerPolicy="no-referrer"
+        onError={() => setFailedSrc(src)}
         className={cn(base, "object-cover border border-gray-100")}
       />
     );
