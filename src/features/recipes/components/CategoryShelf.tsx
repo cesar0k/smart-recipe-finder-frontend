@@ -22,9 +22,9 @@ export function CategoryShelves() {
 
   if (isLoading) {
     return (
-      <div className="space-y-10 mb-12">
+      <div className="mb-12">
         {Array.from({ length: 3 }).map((_, i) => (
-          <CategoryShelfSkeleton key={i} />
+          <CategoryShelfSkeleton key={i} isFirst={i === 0} />
         ))}
       </div>
     );
@@ -122,14 +122,30 @@ function ShowAllCard({ mealType, label }: { mealType: string; label: string }) {
 }
 
 // ── Skeleton ──────────────────────────────────────────────────────────────────
-function CategoryShelfSkeleton() {
+// Mirrors the real shelf: no top border, mt-12 only for idx !== 0, h2 + "Show all"
+// header, and a horizontal row of cards with the same basis breakpoints as the
+// Embla carousel (basis-full sm:1/2 lg:1/3 xl:1/4).
+export function CategoryShelfSkeleton({ isFirst = false }: { isFirst?: boolean }) {
   return (
-    <section className="mt-12 pt-10 border-t border-gray-100 first:mt-0 first:pt-0 first:border-none">
-      <div className="h-8 w-36 bg-gray-100 rounded-lg mb-5 animate-pulse" />
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <RecipeCardSkeleton key={i} />
-        ))}
+    <section className={isFirst ? "" : "mt-12 border-gray-100"}>
+      {/* Header: title placeholder + "Show all" placeholder, mb-5 like the real one */}
+      <div className="flex items-center justify-between mb-5">
+        <div className="h-8 w-40 bg-gray-100 rounded-lg animate-pulse" />
+        <div className="h-5 w-20 bg-gray-100 rounded-md animate-pulse" />
+      </div>
+
+      {/* Carousel placeholder: overflow-hidden row with the same basis breakpoints */}
+      <div className="overflow-hidden">
+        <div className="flex -ml-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div
+              key={i}
+              className="pl-4 shrink-0 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
+            >
+              <RecipeCardSkeleton />
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

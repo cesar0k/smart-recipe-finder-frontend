@@ -9,7 +9,7 @@ import { useHomeRecipes } from "../features/recipes/hooks/useHomeRecipes";
 import { CreateRecipeSheet } from "@/features/recipes/components/CreateRecipeSheet";
 import { RecipeFilterSheet } from "@/features/recipes/components/RecipeFilterSheet";
 import { RecipeCardSkeleton } from "@/components/skeletons/RecipeCardSkeleton";
-import { CategoryShelves } from "@/features/recipes/components/CategoryShelf";
+import { CategoryShelves, CategoryShelfSkeleton } from "@/features/recipes/components/CategoryShelf";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { Spinner } from "@/components/ui/spinner";
@@ -121,11 +121,31 @@ export function HomePage() {
 
         {/* STATES */}
         {isLoading && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array.from({ length: 6 }).map((_, index) => (
-              <RecipeCardSkeleton key={index} />
-            ))}
-          </div>
+          <>
+            {/* On the default feed mirror the real layout: shelves → divider → grid */}
+            {!isSearchView && !hasActiveFilters && (
+              <>
+                <div className="mb-12">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <CategoryShelfSkeleton key={i} isFirst={i === 0} />
+                  ))}
+                </div>
+
+                {/* "All recipes" divider placeholder — matches the real one */}
+                <div className="flex items-center gap-4 mb-5 border-gray-100">
+                  <div className="flex-1 h-px bg-gray-100" />
+                  <div className="h-8 w-32 bg-gray-100 rounded-lg animate-pulse" />
+                  <div className="flex-1 h-px bg-gray-100" />
+                </div>
+              </>
+            )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <RecipeCardSkeleton key={index} />
+              ))}
+            </div>
+          </>
         )}
 
         {isError && (
