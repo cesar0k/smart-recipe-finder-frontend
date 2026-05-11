@@ -36,6 +36,9 @@ export default defineConfig({
           'vendor-i18n': ['i18next', 'react-i18next', 'i18next-browser-languagedetector'],
           // Forms — zod + react-hook-form
           'vendor-forms': ['zod', 'react-hook-form', '@hookform/resolvers'],
+          // Motion / animation library — only used in a handful of components,
+          // keep separate so initial page bundle stays lean.
+          'vendor-motion': ['framer-motion'],
         },
       },
     },

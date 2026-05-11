@@ -2,12 +2,15 @@ import { Link } from "react-router-dom";
 import { Search, X, ArrowRight } from "lucide-react";
 import axios from "axios";
 
+import { AnimatedWidth } from "@/components/ui/animated-width";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { RecipeCard } from "@/features/recipes/components/RecipeCard";
+import { FavoriteButton } from "@/features/recipes/components/FavoriteButton";
 import { useHomeRecipes } from "../features/recipes/hooks/useHomeRecipes";
 import { CreateRecipeSheet } from "@/features/recipes/components/CreateRecipeSheet";
 import { RecipeFilterSheet } from "@/features/recipes/components/RecipeFilterSheet";
+import { RecipeSortMenu } from "@/features/recipes/components/RecipeSortMenu";
 import { RecipeCardSkeleton } from "@/components/skeletons/RecipeCardSkeleton";
 import { CategoryShelves, CategoryShelfSkeleton } from "@/features/recipes/components/CategoryShelf";
 import { Footer } from "@/components/layout/Footer";
@@ -41,6 +44,8 @@ export function HomePage() {
     selectedDifficulty,
     selectedCuisine,
     applyAllFilters,
+    sort,
+    setSort,
     sentinelRef,
     isFetchingNextPage,
     hasNextPage,
@@ -70,7 +75,7 @@ export function HomePage() {
           </h1>
 
           <div className="flex items-center gap-3 w-full max-w-xl mx-auto">
-            <div className="relative flex items-center flex-1">
+            <div className="relative flex items-center flex-1 min-w-0">
               <Search className="absolute left-4 text-gray-400 w-5 h-5 pointer-events-none" />
 
               <Input
@@ -103,7 +108,6 @@ export function HomePage() {
               </div>
             </div>
 
-            {/* Filter button */}
             <RecipeFilterSheet
               include={includeIngredients}
               exclude={excludeIngredients}
@@ -113,6 +117,11 @@ export function HomePage() {
               selectedCuisine={selectedCuisine}
               onApply={applyAllFilters}
             />
+
+            {/* Sort is only meaningful in search view (category shelves are unsortable). */}
+            <AnimatedWidth open={isSearchView}>
+              <RecipeSortMenu value={sort} onChange={setSort} />
+            </AnimatedWidth>
           </div>
         </div>
 
@@ -201,6 +210,13 @@ export function HomePage() {
                     image={recipe.image_urls?.[0] || ""}
                     thumbnail={recipe.thumbnail_urls?.[0]}
                     ownerUsername={recipe.owner_username}
+                    imageOverlay={
+                      <FavoriteButton
+                        recipeId={recipe.id}
+                        isFavorited={recipe.is_favorited ?? false}
+                        compact
+                      />
+                    }
                   />
                 </Link>
               ))}
