@@ -82,14 +82,20 @@ export function useRecipeMutations(onSuccess?: () => void) {
         });
       }
 
+      // Defer query invalidation until after the sheet's exit animation
+      // so the close transition doesn't get interrupted on slow devices
+      // (caused a brief re-flash of the modal).
+      const invalidate = () =>
+        queryClient.invalidateQueries({ queryKey: getReadRecipesQueryKey() });
+
       if (newRecipe.status === "pending") {
         toast.success(t("toast_created_pending"));
         onSuccess?.();
-        queryClient.invalidateQueries({ queryKey: getReadRecipesQueryKey() });
+        setTimeout(invalidate, 200);
       } else {
         toast.success(t("toast_created"));
         onSuccess?.();
-        queryClient.invalidateQueries({ queryKey: getReadRecipesQueryKey() });
+        setTimeout(invalidate, 200);
         if (newRecipe?.id) navigate(`/recipe/${newRecipe.id}`);
       }
     } catch (error) {
@@ -162,9 +168,11 @@ export function useRecipeMutations(onSuccess?: () => void) {
 
       toast.success(t("toast_updated"));
       onSuccess?.();
-
-      queryClient.invalidateQueries({ queryKey: getReadRecipesQueryKey() });
-      queryClient.invalidateQueries({ queryKey: getReadRecipeByIdQueryKey(id) });
+      // Deferred — see note in createRecipe.
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: getReadRecipesQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getReadRecipeByIdQueryKey(id) });
+      }, 200);
     } catch (error) {
       handleError(error, t("toast_error_update"));
     }

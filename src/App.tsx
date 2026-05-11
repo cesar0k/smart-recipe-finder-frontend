@@ -1,8 +1,12 @@
 import { lazy, Suspense, useEffect, useRef } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { Toaster } from "sonner";
-import { Spinner } from "./components/ui/spinner";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import {
+  IndicatorSuspenseFallback,
+  RouteTransitionIndicator,
+} from "./components/RouteTransitionIndicator";
+import { dismissSplash } from "./lib/splash";
 
 const HomePage = lazy(() =>
   import("./pages/HomePage").then((m) => ({ default: m.HomePage }))
@@ -113,19 +117,27 @@ function ScrollManager() {
   return null;
 }
 
-function PageLoader() {
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-white gap-4">
-      <Spinner size="lg" className="text-gray-300" />
-    </div>
-  );
+/**
+ * Cold-start splash dismiss for non-home entry points. The home route
+ * defers dismiss until the first batch of recipes renders (handled
+ * inside HomePage.tsx); direct entries to /recipe/N, /login etc. just
+ * drop the splash on mount.
+ */
+function NonHomeSplashDismiss() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    if (pathname !== "/") dismissSplash();
+  }, [pathname]);
+  return null;
 }
 
 function App() {
   return (
     <>
       <ScrollManager />
-      <Suspense fallback={<PageLoader />}>
+      <NonHomeSplashDismiss />
+      <RouteTransitionIndicator />
+      <Suspense fallback={<IndicatorSuspenseFallback />}>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/recipe/:id" element={<RecipePage />} />

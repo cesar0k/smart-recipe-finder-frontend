@@ -52,6 +52,20 @@ function countFilters(f: FilterState): number {
   );
 }
 
+const sameArr = (a: string[], b: string[]) =>
+  a.length === b.length && a.every((v, i) => v === b[i]);
+
+function filtersDiffer(a: FilterState, b: FilterState): boolean {
+  return (
+    !sameArr(a.include, b.include) ||
+    !sameArr(a.exclude, b.exclude) ||
+    a.minTime !== b.minTime ||
+    a.maxTime !== b.maxTime ||
+    !sameArr(a.difficulty, b.difficulty) ||
+    !sameArr(a.cuisine, b.cuisine)
+  );
+}
+
 export function RecipeFilterSheet({
   include,
   exclude,
@@ -89,12 +103,21 @@ export function RecipeFilterSheet({
     }
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Apply draft to parent when dialog closes
+  // Apply draft to parent AFTER Radix's exit animation finishes, and
+  // skip the call entirely when nothing changed — otherwise
+  // `setSearchParams` triggers a parent re-render mid-animation and the
+  // dialog briefly re-flashes even though the URL stayed the same.
+  // 300 ms covers Radix's 200 ms baseline plus headroom for throttled
+  // CPUs.
   const handleOpenChange = (nextOpen: boolean) => {
-    if (!nextOpen && open) {
-      onApply(draft);
-    }
     setOpen(nextOpen);
+    if (!nextOpen && open && filtersDiffer(draft, {
+      include, exclude, minTime, maxTime,
+      difficulty: selectedDifficulty, cuisine: selectedCuisine,
+    })) {
+      const snapshot = draft;
+      setTimeout(() => onApply(snapshot), 300);
+    }
   };
 
   const handleReset = () => {
@@ -234,13 +257,27 @@ export function RecipeFilterSheet({
                           : [...prev.difficulty, d],
                       }))
                     }
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                    // transition-[width] (auto ↔ auto) is animated because
+                    // `interpolate-size: allow-keywords` is set globally in
+                    // index.css. The chip grows / shrinks smoothly when the
+                    // Check icon is added or removed.
+                    className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium transition-[width,background-color,color] duration-200 ease-out ${
                       isSelected
                         ? "bg-black text-white"
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                     }`}
                   >
-                    {isSelected && <Check className="w-3.5 h-3.5" />}
+                    {/* Checkmark gets a fixed width with overflow-hidden so
+                        its appearance + the trailing gap fold smoothly into
+                        the chip width animation. */}
+                    <span
+                      className={`inline-flex items-center overflow-hidden transition-[width,margin] duration-200 ease-out ${
+                        isSelected ? "w-3.5 mr-1.5" : "w-0 mr-0"
+                      }`}
+                      aria-hidden="true"
+                    >
+                      <Check className="w-3.5 h-3.5 shrink-0" />
+                    </span>
                     {t(getDifficultyKey(d))}
                   </button>
                 );

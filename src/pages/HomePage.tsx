@@ -1,8 +1,10 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Search, X, ArrowRight } from "lucide-react";
 import axios from "axios";
 
 import { AnimatedWidth } from "@/components/ui/animated-width";
+import { dismissSplash } from "@/lib/splash";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { RecipeCard } from "@/features/recipes/components/RecipeCard";
@@ -50,6 +52,12 @@ export function HomePage() {
     isFetchingNextPage,
     hasNextPage,
   } = useHomeRecipes();
+
+  // Tear down the splash once the first batch of recipes is rendered.
+  // Also fires for error / empty so an empty backend doesn't strand it.
+  useEffect(() => {
+    if (!isLoading) dismissSplash();
+  }, [isLoading]);
 
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans">

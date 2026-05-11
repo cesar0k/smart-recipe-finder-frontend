@@ -51,7 +51,13 @@ export function CategoryShelves() {
     [checkResp]
   );
 
-  if (isError) return null;
+  if (isError) {
+    return (
+      <p className="text-sm text-gray-400 py-6 text-center mb-12">
+        {t("category_shelves_error")}
+      </p>
+    );
+  }
 
   if (isLoading) {
     return (

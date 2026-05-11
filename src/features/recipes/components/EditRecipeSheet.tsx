@@ -36,7 +36,9 @@ export function EditRecipeSheet({
 
   const { updateRecipe, isSubmitting: isUpdating } = useRecipeMutations(() => {
     handleOpenChange(false);
-    onSuccess();
+    // Defer invalidations / refetches until after Radix's exit animation
+    // so the sheet doesn't briefly re-flash on slow devices.
+    setTimeout(onSuccess, 200);
   });
 
   const { mutateAsync: resubmit, isPending: isResubmitting } =
@@ -60,7 +62,8 @@ export function EditRecipeSheet({
         });
         toast.success(t("toast_resubmitted"));
         handleOpenChange(false);
-        onSuccess();
+        // See note in updateRecipe's onSuccess above.
+        setTimeout(onSuccess, 200);
       } catch {
         toast.error(t("moderation_error"));
       }
