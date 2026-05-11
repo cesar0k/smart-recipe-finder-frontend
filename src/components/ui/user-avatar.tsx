@@ -22,15 +22,7 @@ const ICON_SIZE = {
   lg: "w-9 h-9",
 } as const;
 
-/**
- * Unified user avatar with fallback to a generic user icon.
- *
- * If the image fails to load (e.g. a legacy Google CDN URL stored on a
- * user before the backfill ran, or any third-party source blocked by
- * client-side filters) we silently fall back to the icon variant.
- * `referrerPolicy="no-referrer"` reduces the chance Google's CDN refuses
- * the request because of the origin Referer header.
- */
+/** Unified user avatar with fallback to a generic user icon on load failure. */
 export function UserAvatar({
   src,
   username,

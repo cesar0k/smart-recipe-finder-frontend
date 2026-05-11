@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, ChefHat } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { useTranslation } from "react-i18next";
@@ -13,6 +14,7 @@ export function UserSearchInput() {
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Debounce
@@ -83,58 +85,71 @@ export function UserSearchInput() {
 
   return (
     <div ref={containerRef} className="relative">
-      <div className="relative">
+      {/* Width animates on focus/blur; initial={false} avoids a stuttery mount-time anim. */}
+      <motion.div
+        initial={false}
+        animate={{ width: isFocused ? 224 : 160 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        className="relative"
+      >
         <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
         <Input
           placeholder={t("user_search_placeholder")}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => {
+            setIsFocused(true);
             if (hasContent) setIsOpen(true);
           }}
+          onBlur={() => setIsFocused(false)}
           onKeyDown={handleKeyDown}
-          className="w-40 focus:w-56 transition-all duration-200 h-8 pl-8 pr-3 text-xs rounded-full border-gray-200 bg-gray-50/50 focus:bg-white"
+          className="w-full h-8 pl-8 pr-3 text-xs rounded-full border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
         />
-      </div>
+      </motion.div>
 
-      {/* Dropdown with animation */}
-      <div
-        className={`absolute top-full mt-2 right-0 w-64 bg-white rounded-2xl border border-gray-200 shadow-lg z-30 overflow-hidden transition-all duration-150 origin-top-right ${
-          isOpen
-            ? "opacity-100 scale-100"
-            : "opacity-0 scale-95 pointer-events-none"
-        }`}
-      >
-        {!isFetching && (!results || results.length === 0) && (
-          <div className="px-4 py-3 text-xs text-gray-400 text-center">
-            {t("user_search_empty")}
-          </div>
-        )}
-
-        {results?.map((user) => (
-          <button
-            key={user.id}
-            type="button"
-            className="w-full px-4 py-2.5 flex items-center gap-3 hover:bg-gray-50 transition-colors text-left"
-            onClick={() => handleSelect(user.id)}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            key="user-search-dropdown"
+            initial={{ opacity: 0, scale: 0.95, y: -4 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: -4 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
+            className="absolute top-full mt-2 right-0 w-64 bg-white rounded-2xl border border-gray-200 shadow-lg z-30 overflow-hidden origin-top-right"
           >
-            <UserAvatar
-              src={user.avatar_url}
-              username={user.username}
-              size="sm"
-            />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">
-                {user.username}
-              </p>
-              <p className="text-xs text-gray-400 flex items-center gap-1">
-                <ChefHat className="w-3 h-3" />
-                {t("user_recipe_count", { count: user.recipe_count })}
-              </p>
-            </div>
-          </button>
-        ))}
-      </div>
+            {!isFetching && (!results || results.length === 0) && (
+              <div className="px-4 py-3 text-xs text-gray-400 text-center">
+                {t("user_search_empty")}
+              </div>
+            )}
+
+            {results?.map((user) => (
+              <motion.button
+                key={user.id}
+                layout
+                type="button"
+                className="w-full px-4 py-2.5 flex items-center gap-3 hover:bg-gray-50 transition-colors text-left"
+                onClick={() => handleSelect(user.id)}
+              >
+                <UserAvatar
+                  src={user.avatar_url}
+                  username={user.username}
+                  size="sm"
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900 truncate">
+                    {user.username}
+                  </p>
+                  <p className="text-xs text-gray-400 flex items-center gap-1">
+                    <ChefHat className="w-3 h-3" />
+                    {t("user_recipe_count", { count: user.recipe_count })}
+                  </p>
+                </div>
+              </motion.button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
