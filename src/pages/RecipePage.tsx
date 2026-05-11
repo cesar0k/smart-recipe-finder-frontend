@@ -22,7 +22,7 @@ import {
 import { EditRecipeSheet } from "@/features/recipes/components/EditRecipeSheet";
 import { Header } from "@/components/layout/Header";
 import { BackButton } from "@/components/BackButton";
-import { Spinner } from "@/components/ui/spinner";
+import { RecipePageSkeleton } from "@/components/skeletons/RecipePageSkeleton";
 
 import { useRecipeDetails } from "../features/recipes/hooks/useRecipeDetails";
 import { useDeleteRecipeLogic } from "../features/recipes/hooks/useDeleteRecipeLogic";
@@ -47,9 +47,11 @@ export function RecipePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-white gap-4">
-        <Spinner size="lg" className="text-gray-300" />
-        <p className="text-sm text-gray-400 font-medium">{t("recipe_loading")}</p>
+      <div className="min-h-screen bg-white font-sans">
+        <Header leftContent={<BackButton />} />
+        <main className="container mx-auto px-4 py-8 md:py-12">
+          <RecipePageSkeleton />
+        </main>
       </div>
     );
   }

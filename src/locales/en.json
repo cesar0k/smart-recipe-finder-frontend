@@ -329,5 +329,8 @@
 
   "sort_label": "Sort",
   "sort_newest": "Newest",
-  "sort_popular": "Popular"
+  "sort_popular": "Popular",
+
+  "similar_recipes_error": "Couldn't load similar recipes.",
+  "category_shelves_error": "Couldn't load recipe categories."
 }

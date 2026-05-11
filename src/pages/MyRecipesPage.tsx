@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Header } from "@/components/layout/Header";
 import { BackButton } from "@/components/BackButton";
 import { RecipeCard } from "@/features/recipes/components/RecipeCard";
+import { RecipeCardSkeleton } from "@/components/skeletons/RecipeCardSkeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { CreateRecipeSheet } from "@/features/recipes/components/CreateRecipeSheet";
 import { EditRecipeSheet } from "@/features/recipes/components/EditRecipeSheet";
@@ -101,8 +102,10 @@ export function MyRecipesPage() {
         </h1>
 
         {isLoading && (
-          <div className="flex justify-center py-10">
-            <Spinner size="lg" className="text-gray-300" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <RecipeCardSkeleton key={i} />
+            ))}
           </div>
         )}
 
