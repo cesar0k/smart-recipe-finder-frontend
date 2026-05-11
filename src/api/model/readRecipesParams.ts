@@ -43,4 +43,9 @@ cuisine?: string | null;
  * Filter by meal_type tag (e.g. soup, dessert)
  */
 meal_type?: string | null;
+/**
+ * Sort order: newest (default) or popular (by favorites_count)
+ * @pattern ^(newest|popular)$
+ */
+sort?: string;
 };

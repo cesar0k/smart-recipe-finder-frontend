@@ -1,12 +1,13 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
-  User,
+  Heart,
+  LogIn,
   LogOut,
+  Settings,
   Shield,
   ShieldCheck,
-  LogIn,
-  Settings,
+  User,
 } from "lucide-react";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { Button } from "@/components/ui/button";
@@ -103,6 +104,13 @@ export function Header({ leftContent, rightContent }: HeaderProps) {
                   >
                     <User className="w-4 h-4 mr-2" />
                     {t("profile_my_link")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="rounded-full"
+                    onClick={() => navigate("/favorites")}
+                  >
+                    <Heart className="w-4 h-4 mr-2" />
+                    {t("my_favorites_link")}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className="rounded-full"

@@ -35,4 +35,9 @@ difficulty?: string | null;
  * Comma-separated cuisine values
  */
 cuisine?: string | null;
+/**
+ * Sort order applied AFTER relevance filtering: 'newest' (default) keeps vector-distance order, 'popular' re-orders the result set by favorites_count.
+ * @pattern ^(newest|popular)$
+ */
+sort?: string;
 };

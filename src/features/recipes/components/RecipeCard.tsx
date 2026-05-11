@@ -24,6 +24,11 @@ interface RecipeCardProps {
   onEdit?: () => void;
   /** Called when "Delete" button is pressed */
   onDelete?: () => void;
+  /**
+   * Optional overlay slot in the image's top-right corner. Used by HomePage
+   * to render a heart-toggle without coupling RecipeCard to favorites logic.
+   */
+  imageOverlay?: React.ReactNode;
 }
 
 const STATUS_STYLES: Record<string, string> = {
@@ -44,6 +49,7 @@ export function RecipeCard({
   onResubmit,
   onEdit,
   onDelete,
+  imageOverlay,
 }: RecipeCardProps) {
   const { t } = useTranslation();
 
@@ -62,7 +68,9 @@ export function RecipeCard({
 
   return (
     <Card className="group flex flex-col gap-0 rounded-[24px] border border-gray-100 bg-white shadow-sm hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-300 p-0">
-      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-t-[24px] bg-gray-100">
+      {/* clip-path keeps the rounded corners during the inner img's
+          group-hover scale transform — overflow-hidden alone leaks them in Chrome. */}
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-100 [clip-path:inset(0_round_24px_24px_0_0)]">
         <OptimizedImage
           src={thumbnail || image}
           alt={title}
@@ -79,6 +87,11 @@ export function RecipeCard({
           <span className="absolute top-3 right-3 px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-500 text-white z-10">
             {t("recipe_pending_draft")}
           </span>
+        )}
+        {imageOverlay && (
+          <div className="absolute top-3 right-3 z-20 flex items-center gap-1.5">
+            {imageOverlay}
+          </div>
         )}
         {isRejectedWithReason && (
           <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center p-4 text-center text-white">

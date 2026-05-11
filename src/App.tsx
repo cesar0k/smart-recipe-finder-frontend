@@ -28,6 +28,9 @@ const ProfilePage = lazy(() =>
 const PublicProfilePage = lazy(() =>
   import("./pages/PublicProfilePage").then((m) => ({ default: m.PublicProfilePage }))
 );
+const MyFavoritesPage = lazy(() =>
+  import("./pages/MyFavoritesPage").then((m) => ({ default: m.MyFavoritesPage }))
+);
 const NotFoundPage = lazy(() =>
   import("./pages/NotFoundPage").then((m) => ({ default: m.NotFoundPage }))
 );
@@ -145,6 +148,14 @@ function App() {
             }
           />
           <Route path="/user/:userId" element={<PublicProfilePage />} />
+          <Route
+            path="/favorites"
+            element={
+              <ProtectedRoute>
+                <MyFavoritesPage />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/admin"
             element={

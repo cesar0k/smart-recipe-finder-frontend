@@ -1,10 +1,12 @@
-import { AlertTriangle, ChefHat, Clock, User } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { AlertTriangle, ChefHat, Clock, Heart, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { type Recipe } from "@/api/model/recipe";
 import { useTranslation } from "react-i18next";
 import { getDifficultyKey } from "@/lib/utils";
 import { useAuth } from "@/lib/auth/auth-context";
+import { FavoriteButton } from "@/features/recipes/components/FavoriteButton";
 
 interface RecipeHeaderInfoProps {
   recipe: Recipe;
@@ -104,6 +106,38 @@ export function RecipeHeaderInfo({
           </span>
         </div>
       </div>
+
+      {recipe.status === "approved" && (
+        <motion.div
+          layout
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          className="flex flex-wrap items-center gap-3 pt-2"
+        >
+          <FavoriteButton
+            recipeId={recipe.id}
+            isFavorited={recipe.is_favorited ?? false}
+          />
+          {/* Counter slides in/out as favorites_count crosses 0. */}
+          <AnimatePresence initial={false}>
+            {(recipe.favorites_count ?? 0) > 0 && (
+              <motion.span
+                key="fav-counter"
+                layout
+                initial={{ width: 0, opacity: 0 }}
+                animate={{ width: "auto", opacity: 1 }}
+                exit={{ width: 0, opacity: 0 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                className="inline-flex items-center gap-1.5 text-sm text-gray-500 overflow-hidden"
+              >
+                <Heart className="w-4 h-4 text-rose-400 fill-current shrink-0" />
+                <span className="whitespace-nowrap">
+                  {t("favorites_count", { count: recipe.favorites_count ?? 0 })}
+                </span>
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      )}
     </div>
   );
 }

@@ -35,4 +35,6 @@ export interface Recipe {
   rejection_reason?: RecipeRejectionReason;
   has_pending_draft?: boolean;
   tags?: RecipeTags;
+  favorites_count?: number;
+  is_favorited?: boolean;
 }
