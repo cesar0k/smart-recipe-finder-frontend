@@ -81,10 +81,15 @@ export function MyRecipesPage() {
     try {
       await deleteRecipe({ recipeId: deletingRecipe.id });
       toast.success(t("toast_deleted"));
-      queryClient.invalidateQueries({ queryKey: getReadMyRecipesQueryKey() });
+      setDeletingRecipe(null);
+      // Defer the refetch until after the AlertDialog's exit animation
+      // so it doesn't briefly re-flash on slow devices.
+      setTimeout(
+        () => queryClient.invalidateQueries({ queryKey: getReadMyRecipesQueryKey() }),
+        200,
+      );
     } catch {
       toast.error(t("toast_error_delete"));
-    } finally {
       setDeletingRecipe(null);
     }
   };

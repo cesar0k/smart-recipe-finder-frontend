@@ -142,10 +142,11 @@ export function PublicProfilePage() {
     try {
       await deleteRecipe({ recipeId: deletingRecipe.id });
       toast.success(t("toast_deleted"));
-      invalidateRecipesCache();
+      setDeletingRecipe(null);
+      // Deferred so the AlertDialog can finish its exit animation.
+      setTimeout(invalidateRecipesCache, 200);
     } catch {
       toast.error(t("toast_error_delete"));
-    } finally {
       setDeletingRecipe(null);
     }
   };
