@@ -1,8 +1,11 @@
 import { lazy, Suspense, useEffect, useRef } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { Toaster } from "sonner";
-import { Spinner } from "./components/ui/spinner";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import {
+  IndicatorSuspenseFallback,
+  RouteTransitionIndicator,
+} from "./components/RouteTransitionIndicator";
 
 const HomePage = lazy(() =>
   import("./pages/HomePage").then((m) => ({ default: m.HomePage }))
@@ -113,19 +116,12 @@ function ScrollManager() {
   return null;
 }
 
-function PageLoader() {
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-white gap-4">
-      <Spinner size="lg" className="text-gray-300" />
-    </div>
-  );
-}
-
 function App() {
   return (
     <>
       <ScrollManager />
-      <Suspense fallback={<PageLoader />}>
+      <RouteTransitionIndicator />
+      <Suspense fallback={<IndicatorSuspenseFallback />}>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/recipe/:id" element={<RecipePage />} />

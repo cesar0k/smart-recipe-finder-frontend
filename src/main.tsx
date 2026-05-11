@@ -1,3 +1,7 @@
+// Side-effect import: patches history.pushState before BrowserRouter
+// captures its reference, so route navigations are caught as intents.
+import "./lib/routeProgress.ts";
+
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
