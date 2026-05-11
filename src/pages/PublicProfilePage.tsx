@@ -14,6 +14,8 @@ import { toast } from "sonner";
 import { Header } from "@/components/layout/Header";
 import { BackButton } from "@/components/BackButton";
 import { RecipeCard } from "@/features/recipes/components/RecipeCard";
+import { RecipeCardSkeleton } from "@/components/skeletons/RecipeCardSkeleton";
+import { ProfileHeaderSkeleton } from "@/components/skeletons/ProfileHeaderSkeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Badge } from "@/components/ui/badge";
 import { CreateRecipeSheet } from "@/features/recipes/components/CreateRecipeSheet";
@@ -166,9 +168,14 @@ export function PublicProfilePage() {
 
       <main className="container mx-auto px-4 py-6 md:py-7">
         {isLoading && (
-          <div className="flex justify-center py-10">
-            <Spinner size="lg" className="text-gray-300" />
-          </div>
+          <>
+            <ProfileHeaderSkeleton />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <RecipeCardSkeleton key={i} />
+              ))}
+            </div>
+          </>
         )}
 
         {!isLoading && !profile && (

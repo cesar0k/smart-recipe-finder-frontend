@@ -329,5 +329,8 @@
 
   "sort_label": "Сортировка",
   "sort_newest": "Свежие",
-  "sort_popular": "Популярные"
+  "sort_popular": "Популярные",
+
+  "similar_recipes_error": "Не удалось загрузить похожие рецепты.",
+  "category_shelves_error": "Не удалось загрузить категории рецептов."
 }
