@@ -88,10 +88,13 @@ export function AdminPage() {
     try {
       await deleteUser({ userId: deleteTarget.id });
       toast.success(t("admin_user_deleted"));
-      queryClient.invalidateQueries({ queryKey: getListUsersQueryKey() });
+      setDeleteTarget(null);
+      setTimeout(
+        () => queryClient.invalidateQueries({ queryKey: getListUsersQueryKey() }),
+        200,
+      );
     } catch {
       toast.error(t("admin_error"));
-    } finally {
       setDeleteTarget(null);
     }
   };

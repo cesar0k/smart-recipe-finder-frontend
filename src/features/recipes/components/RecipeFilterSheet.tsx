@@ -52,6 +52,20 @@ function countFilters(f: FilterState): number {
   );
 }
 
+const sameArr = (a: string[], b: string[]) =>
+  a.length === b.length && a.every((v, i) => v === b[i]);
+
+function filtersDiffer(a: FilterState, b: FilterState): boolean {
+  return (
+    !sameArr(a.include, b.include) ||
+    !sameArr(a.exclude, b.exclude) ||
+    a.minTime !== b.minTime ||
+    a.maxTime !== b.maxTime ||
+    !sameArr(a.difficulty, b.difficulty) ||
+    !sameArr(a.cuisine, b.cuisine)
+  );
+}
+
 export function RecipeFilterSheet({
   include,
   exclude,
@@ -89,12 +103,21 @@ export function RecipeFilterSheet({
     }
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Apply draft to parent when dialog closes
+  // Apply draft to parent AFTER Radix's exit animation finishes, and
+  // skip the call entirely when nothing changed — otherwise
+  // `setSearchParams` triggers a parent re-render mid-animation and the
+  // dialog briefly re-flashes even though the URL stayed the same.
+  // 300 ms covers Radix's 200 ms baseline plus headroom for throttled
+  // CPUs.
   const handleOpenChange = (nextOpen: boolean) => {
-    if (!nextOpen && open) {
-      onApply(draft);
-    }
     setOpen(nextOpen);
+    if (!nextOpen && open && filtersDiffer(draft, {
+      include, exclude, minTime, maxTime,
+      difficulty: selectedDifficulty, cuisine: selectedCuisine,
+    })) {
+      const snapshot = draft;
+      setTimeout(() => onApply(snapshot), 300);
+    }
   };
 
   const handleReset = () => {

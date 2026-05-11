@@ -107,28 +107,30 @@ export function ModerationPage() {
   const handleRejectConfirm = async () => {
     if (!rejectTarget || !rejectionReason.trim()) return;
 
+    const queryKey =
+      rejectTarget.type === "recipe"
+        ? getListPendingRecipesQueryKey()
+        : getListPendingDraftsQueryKey();
+
     try {
       if (rejectTarget.type === "recipe") {
         await moderateRecipe({
           recipeId: rejectTarget.id,
           data: { action: "reject", rejection_reason: rejectionReason },
         });
-        queryClient.invalidateQueries({
-          queryKey: getListPendingRecipesQueryKey(),
-        });
       } else {
         await moderateDraft({
           draftId: rejectTarget.id,
           data: { action: "reject", rejection_reason: rejectionReason },
         });
-        queryClient.invalidateQueries({
-          queryKey: getListPendingDraftsQueryKey(),
-        });
       }
       toast.success(t("moderation_rejected"));
+      setRejectTarget(null);
+      setRejectionReason("");
+      // Deferred so the AlertDialog can finish its exit animation.
+      setTimeout(() => queryClient.invalidateQueries({ queryKey }), 200);
     } catch {
       toast.error(t("moderation_error"));
-    } finally {
       setRejectTarget(null);
       setRejectionReason("");
     }
