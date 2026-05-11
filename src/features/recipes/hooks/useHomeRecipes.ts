@@ -27,6 +27,8 @@ export function useHomeRecipes() {
   const cuisineFromUrl =
     searchParams.get("cuisine")?.split(",").filter(Boolean) || [];
   const mealTypeFromUrl = searchParams.get("meal_type") || undefined;
+  const sortFromUrl: "newest" | "popular" =
+    searchParams.get("sort") === "popular" ? "popular" : "newest";
 
   const [searchTerm, setSearchTerm] = useState(queryFromUrl);
 
@@ -66,7 +68,16 @@ export function useHomeRecipes() {
   } = useInfiniteQuery({
     queryKey: [
       "/api/v1/recipes/",
-      { includeParam, excludeParam, minTimeFromUrl, maxTimeFromUrl, difficultyParam, cuisineParam, mealTypeFromUrl },
+      {
+        includeParam,
+        excludeParam,
+        minTimeFromUrl,
+        maxTimeFromUrl,
+        difficultyParam,
+        cuisineParam,
+        mealTypeFromUrl,
+        sort: sortFromUrl,
+      },
     ] as const,
     queryFn: ({ pageParam = 0 }) =>
       readRecipes({
@@ -78,6 +89,7 @@ export function useHomeRecipes() {
         max_time: maxTimeFromUrl,
         difficulty: difficultyParam,
         cuisine: cuisineParam,
+        sort: sortFromUrl,
         // meal_type is a backend extension not yet in the auto-generated type
         ...(mealTypeFromUrl ? { meal_type: mealTypeFromUrl } : {}),
       } as Parameters<typeof readRecipes>[0]),
@@ -103,6 +115,7 @@ export function useHomeRecipes() {
       max_time: maxTimeFromUrl,
       difficulty: difficultyParam,
       cuisine: cuisineParam,
+      sort: sortFromUrl,
     },
     { query: { enabled: isSearching } }
   );
@@ -188,6 +201,11 @@ export function useHomeRecipes() {
     updateParams({ cuisine: vals.length ? vals.join(",") : undefined });
   };
 
+  const setSort = (next: "newest" | "popular") => {
+    // "newest" is the default — keep the URL clean by omitting it.
+    updateParams({ sort: next === "newest" ? undefined : next });
+  };
+
   const resetFilters = () => {
     updateParams({
       include_ingredients: undefined,
@@ -264,6 +282,9 @@ export function useHomeRecipes() {
     setDifficulty,
     selectedCuisine: cuisineFromUrl,
     setCuisine,
+
+    sort: sortFromUrl,
+    setSort,
 
     resetFilters,
     applyAllFilters,

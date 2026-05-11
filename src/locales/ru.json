@@ -313,5 +313,21 @@
   "moderation_history_clear_btn": "Сбросить",
   "moderation_history_clear_all": "Очистить всю историю",
   "moderation_history_filter_placeholder": "Фильтр по ID рецепта...",
-  "moderation_history_filter_btn": "Применить"
+  "moderation_history_filter_btn": "Применить",
+
+  "my_favorites_link": "Избранное",
+  "favorites_title": "Моё избранное",
+  "favorite_btn": "В избранное",
+  "favorite_btn_remove": "Убрать из избранного",
+  "favorites_count": "В избранном у {{count}} человек",
+  "favorites_count_one": "В избранном у 1 человека",
+  "favorites_empty": "Пока ничего нет. Откройте любой рецепт и нажмите на сердечко, чтобы сохранить.",
+  "login_to_favorite": "Войдите, чтобы добавить в избранное",
+  "favorite_toast_added": "Добавлено в избранное",
+  "favorite_toast_removed": "Убрано из избранного",
+  "favorite_toast_error": "Не удалось обновить избранное",
+
+  "sort_label": "Сортировка",
+  "sort_newest": "Свежие",
+  "sort_popular": "Популярные"
 }

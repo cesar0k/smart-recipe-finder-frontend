@@ -313,5 +313,21 @@
   "moderation_history_clear_btn": "Clear",
   "moderation_history_clear_all": "Clear all history",
   "moderation_history_filter_placeholder": "Filter by recipe ID...",
-  "moderation_history_filter_btn": "Filter"
+  "moderation_history_filter_btn": "Filter",
+
+  "my_favorites_link": "My Favorites",
+  "favorites_title": "My Favorites",
+  "favorite_btn": "Add to favorites",
+  "favorite_btn_remove": "Remove from favorites",
+  "favorites_count": "{{count}} people favorited this",
+  "favorites_count_one": "1 person favorited this",
+  "favorites_empty": "No favorites yet. Browse recipes and tap the heart to save them here.",
+  "login_to_favorite": "Sign in to save favorites",
+  "favorite_toast_added": "Added to favorites",
+  "favorite_toast_removed": "Removed from favorites",
+  "favorite_toast_error": "Couldn't update favorites",
+
+  "sort_label": "Sort",
+  "sort_newest": "Newest",
+  "sort_popular": "Popular"
 }

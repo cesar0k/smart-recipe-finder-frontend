@@ -1,6 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
+import { useMemo } from "react";
 import { RecipeCard } from "./RecipeCard";
+import { FavoriteButton } from "./FavoriteButton";
 import { RecipeCardSkeleton } from "@/components/skeletons/RecipeCardSkeleton";
 import {
   Carousel,
@@ -10,13 +12,44 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { useRecipeCategories } from "@/api/recipes/useRecipeCategories";
+import { useCheckFavorites } from "@/api/favorites/favorites";
+import { useAuth } from "@/lib/auth/auth-context";
 import { useTranslation } from "react-i18next";
 
 const LIMIT_PER = 8; // fetch more so the carousel feels full
 
 export function CategoryShelves() {
   const { t } = useTranslation();
+  const { isAuthenticated } = useAuth();
   const { data: categories, isLoading, isError } = useRecipeCategories(LIMIT_PER);
+
+  // Shelves are cached user-agnostically; favorited state comes from a
+  // separate /favorites/check overlay call.
+  const visibleRecipeIds = useMemo(() => {
+    if (!categories) return [] as number[];
+    const seen = new Set<number>();
+    for (const cat of categories) {
+      for (const r of cat.recipes) {
+        seen.add(r.id);
+      }
+    }
+    return Array.from(seen);
+  }, [categories]);
+
+  const idsParam = visibleRecipeIds.join(",");
+  const { data: checkResp } = useCheckFavorites(
+    { ids: idsParam },
+    {
+      query: {
+        enabled: isAuthenticated && visibleRecipeIds.length > 0,
+        staleTime: 30_000,
+      },
+    }
+  );
+  const favoritedSet = useMemo(
+    () => new Set(checkResp?.favorited_ids ?? []),
+    [checkResp]
+  );
 
   if (isError) return null;
 
@@ -66,6 +99,13 @@ export function CategoryShelves() {
                       image={recipe.image_urls?.[0] ?? ""}
                       thumbnail={recipe.thumbnail_urls?.[0]}
                       ownerUsername={recipe.owner_username}
+                      imageOverlay={
+                        <FavoriteButton
+                          recipeId={recipe.id}
+                          isFavorited={favoritedSet.has(recipe.id)}
+                          compact
+                        />
+                      }
                     />
                   </Link>
                 </CarouselItem>
