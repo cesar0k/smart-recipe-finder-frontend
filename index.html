@@ -1,13 +1,150 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-splash-active>
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Smart Recipe Finder</title>
+    <!--
+      Cold-start splash. Paints on the first browser frame so the user
+      doesn't stare at a blank white page on a slow network; removed
+      by dismissSplash() (src/lib/splash.ts) once HomePage renders.
+      Splash markup is scoped under #splash with explicit box-sizing
+      and an SVG spinner so Tailwind's preflight can't reshape it.
+    -->
+    <style>
+      /*
+        Reserve scrollbar space only while the splash is on screen, so
+        the centered logo doesn't jump sideways when overflow appears.
+        Removed after dismiss so Radix UI's `react-remove-scroll` (used
+        by Dialog / DropdownMenu / Sheet) doesn't double-pad the body.
+      */
+      html[data-splash-active] {
+        scrollbar-gutter: stable;
+      }
+
+      #splash,
+      #splash * {
+        box-sizing: border-box;
+      }
+
+      #splash {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1.25rem;
+        background: #ffffff;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        opacity: 1;
+        transform: scale(1);
+        transition: opacity 450ms ease-out, transform 450ms ease-out;
+        will-change: opacity, transform;
+      }
+
+      #splash.splash--leaving {
+        opacity: 0;
+        transform: scale(0.96);
+        pointer-events: none;
+      }
+
+      #splash > .splash-logo {
+        /* Matches Header.tsx logo, sized up for the centered presentation. */
+        font-weight: 700;
+        letter-spacing: -0.04em;
+        color: #111827; /* tailwind gray-900 */
+        font-size: 2.5rem; /* ~text-4xl */
+        line-height: 1.1;
+        /* When the spinner appears (after 2s) the logo nudges up so
+           logo + spinner sit centered together. */
+        transform: translateY(0);
+        transition: transform 350ms ease-out;
+      }
+
+      #splash.splash--with-spinner > .splash-logo {
+        transform: translateY(-0.6rem);
+      }
+
+      /* Spinner slot — handles the fade + slide-in. The actual ring
+         is an inline SVG (lucide `loader-circle`), same as <Spinner />. */
+      #splash > .splash-spinner {
+        /* w-8 h-8 (matches Spinner size="md") */
+        width: 32px;
+        height: 32px;
+        color: #9ca3af; /* tailwind gray-400 */
+        opacity: 0;
+        transform: translateY(0.5rem);
+        transition: opacity 350ms ease-out, transform 350ms ease-out;
+      }
+
+      #splash.splash--with-spinner > .splash-spinner {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      #splash > .splash-spinner > svg {
+        display: block;
+        width: 32px;
+        height: 32px;
+        animation: splash-spinner-rotate 1s linear infinite;
+      }
+
+      @keyframes splash-spinner-rotate {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Reduced-motion: skip animations, just hide instantly. */
+      @media (prefers-reduced-motion: reduce) {
+        #splash {
+          transition: opacity 150ms linear;
+        }
+        #splash.splash--leaving {
+          transform: none;
+        }
+        #splash > .splash-spinner > svg {
+          animation: none;
+        }
+        #splash > .splash-logo {
+          transition: none;
+        }
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
+    <div id="splash" aria-hidden="true">
+      <div class="splash-logo">Smart Recipe Finder</div>
+      <div class="splash-spinner" role="presentation">
+        <!-- lucide `loader-circle`, inlined so we don't need any JS bundle. -->
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+        </svg>
+      </div>
+    </div>
+    <script>
+      // Reveal the spinner after 2s. No-ops if dismissSplash() (in
+      // src/lib/splash.ts) already removed the element.
+      (function () {
+        setTimeout(function () {
+          var el = document.getElementById("splash");
+          if (el) el.classList.add("splash--with-spinner");
+        }, 2000);
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
