@@ -7,19 +7,16 @@
     <title>Smart Recipe Finder</title>
     <!--
       Cold-start splash. Paints on the first browser frame so the user
-      doesn't stare at a blank white page on a slow network; removed
-      by dismissSplash() (src/lib/splash.ts) once HomePage renders.
-      Splash markup is scoped under #splash with explicit box-sizing
-      and an SVG spinner so Tailwind's preflight can't reshape it.
+      doesn't stare at a blank white page on a slow network;
     -->
     <style>
       /*
-        Reserve scrollbar space only while the splash is on screen, so
-        the centered logo doesn't jump sideways when overflow appears.
-        Removed after dismiss so Radix UI's `react-remove-scroll` (used
-        by Dialog / DropdownMenu / Sheet) doesn't double-pad the body.
+        Reserve scrollbar gutter from the very first paint so the splash
+        logo never jumps when the CSS bundle loads and applies the global
+        scrollbar-gutter rule (index.css). Without this inline rule there
+        is a gap between first paint and bundle evaluation.
       */
-      html[data-splash-active] {
+      html {
         scrollbar-gutter: stable;
       }
 

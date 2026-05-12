@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Search, X, ArrowRight } from "lucide-react";
+import { Search, X, ArrowRight, ChefHat } from "lucide-react";
 import axios from "axios";
 
 import { AnimatedWidth } from "@/components/ui/animated-width";
@@ -66,9 +66,16 @@ export function HomePage() {
           <Link
             to="/"
             onClick={handleClear}
-            className="font-bold text-xl tracking-tighter text-gray-900 cursor-pointer"
+            className="group flex items-center gap-0 hover:gap-2 transition-all duration-300 cursor-pointer"
           >
-            {t("app_name")}
+            <div className="w-0 group-hover:w-7 h-7 overflow-hidden transition-all duration-300 opacity-0 group-hover:opacity-100">
+              <div className="w-7 h-7 bg-black rounded-lg flex items-center justify-center">
+                <ChefHat className="w-3.5 h-3.5 text-white" />
+              </div>
+            </div>
+            <span className="font-bold text-xl tracking-tighter text-gray-900">
+              {t("app_name")}
+            </span>
           </Link>
         }
         rightContent={isAuthenticated ? <CreateRecipeSheet /> : undefined}

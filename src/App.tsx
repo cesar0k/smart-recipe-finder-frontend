@@ -6,7 +6,6 @@ import {
   IndicatorSuspenseFallback,
   RouteTransitionIndicator,
 } from "./components/RouteTransitionIndicator";
-import { dismissSplash } from "./lib/splash";
 
 const HomePage = lazy(() =>
   import("./pages/HomePage").then((m) => ({ default: m.HomePage }))
@@ -117,25 +116,10 @@ function ScrollManager() {
   return null;
 }
 
-/**
- * Cold-start splash dismiss for non-home entry points. The home route
- * defers dismiss until the first batch of recipes renders (handled
- * inside HomePage.tsx); direct entries to /recipe/N, /login etc. just
- * drop the splash on mount.
- */
-function NonHomeSplashDismiss() {
-  const { pathname } = useLocation();
-  useEffect(() => {
-    if (pathname !== "/") dismissSplash();
-  }, [pathname]);
-  return null;
-}
-
 function App() {
   return (
     <>
       <ScrollManager />
-      <NonHomeSplashDismiss />
       <RouteTransitionIndicator />
       <Suspense fallback={<IndicatorSuspenseFallback />}>
         <Routes>

@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/form";
 import { useAuth } from "@/lib/auth/auth-context";
 import { useTranslation } from "react-i18next";
+import { useDismissSplash } from "@/hooks/useDismissSplash";
 
 function createRegisterSchema(t: (key: string) => string) {
   return z
@@ -45,6 +46,7 @@ function createRegisterSchema(t: (key: string) => string) {
 type RegisterFormValues = z.infer<ReturnType<typeof createRegisterSchema>>;
 
 export function RegisterPage() {
+  useDismissSplash();
   const { t } = useTranslation();
   const { register: registerUser, loginWithGoogle, isAuthenticated } = useAuth();
   const navigate = useNavigate();

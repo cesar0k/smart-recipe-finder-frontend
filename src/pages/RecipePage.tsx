@@ -31,8 +31,10 @@ import { RecipeGallery } from "@/features/recipes/components/RecipeGallery";
 import { SimilarRecipesSection } from "@/features/recipes/components/SimilarRecipesSection";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/lib/auth/auth-context";
+import { useDismissSplash } from "@/hooks/useDismissSplash";
 
 export function RecipePage() {
+  useDismissSplash();
   const { recipe, isLoading, isError, isValidId, refetch } = useRecipeDetails();
   const { deleteRecipe, isDeleting } = useDeleteRecipeLogic();
   const { t } = useTranslation();

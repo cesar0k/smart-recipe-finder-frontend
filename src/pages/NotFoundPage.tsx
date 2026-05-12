@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
+import { useDismissSplash } from "@/hooks/useDismissSplash";
 
 export function NotFoundPage() {
+  useDismissSplash();
   const { t } = useTranslation();
 
   return (

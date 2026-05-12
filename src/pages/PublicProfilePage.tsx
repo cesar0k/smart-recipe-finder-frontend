@@ -41,6 +41,7 @@ import {
 } from "@/api/recipes/recipes";
 import { useAuth } from "@/lib/auth/auth-context";
 import type { Recipe } from "@/api/model";
+import { useDismissSplash } from "@/hooks/useDismissSplash";
 
 const PAGE_SIZE = 12;
 
@@ -61,6 +62,7 @@ const ROLE_BADGE: Record<
 };
 
 export function PublicProfilePage() {
+  useDismissSplash();
   const { t, i18n } = useTranslation();
   const { userId } = useParams<{ userId: string }>();
   const { user, hasRole } = useAuth();
