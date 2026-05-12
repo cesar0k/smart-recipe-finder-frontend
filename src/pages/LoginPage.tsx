@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/form";
 import { useAuth } from "@/lib/auth/auth-context";
 import { useTranslation } from "react-i18next";
+import { useDismissSplash } from "@/hooks/useDismissSplash";
 
 function createLoginSchema(t: (key: string) => string) {
   return z.object({
@@ -31,6 +32,7 @@ function createLoginSchema(t: (key: string) => string) {
 type LoginFormValues = z.infer<ReturnType<typeof createLoginSchema>>;
 
 export function LoginPage() {
+  useDismissSplash();
   const { t } = useTranslation();
   const { login, loginWithGoogle, isAuthenticated } = useAuth();
   const navigate = useNavigate();

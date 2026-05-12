@@ -37,10 +37,12 @@ import {
 } from "@/api/moderation/moderation";
 import type { Recipe, RecipeDraftResponse, ModerationLogResponse } from "@/api/model";
 import { useTranslation } from "react-i18next";
+import { useDismissSplash } from "@/hooks/useDismissSplash";
 
 type Tab = "recipes" | "drafts" | "history";
 
 export function ModerationPage() {
+  useDismissSplash();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<Tab>("recipes");

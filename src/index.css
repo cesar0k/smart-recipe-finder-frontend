@@ -117,8 +117,23 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    scrollbar-gutter: stable;
+  }
   body {
     @apply bg-background text-foreground;
+  }
+  /*
+    react-remove-scroll-bar (used by Radix Dialog / Sheet) measures the
+    scrollbar gap as (window.innerWidth - document.clientWidth). With
+    scrollbar-gutter: stable the gutter is always reserved, so clientWidth
+    is already reduced by ~15 px even when no scrollbar is rendered — causing
+    Radix to add a spurious margin-right. We override it back to 0 because
+    the gutter already provides the visual compensation.
+  */
+  body[data-scroll-locked] {
+    margin-right: 0 !important;
+    padding-right: 0 !important;
   }
 }
 

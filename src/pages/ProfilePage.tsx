@@ -19,6 +19,7 @@ import {
   useUploadAvatar,
 } from "@/api/users/users";
 import { useAuth } from "@/lib/auth/auth-context";
+import { useDismissSplash } from "@/hooks/useDismissSplash";
 
 /** Map backend error keys to i18n keys */
 const BACKEND_ERROR_MAP: Record<string, string> = {
@@ -28,6 +29,7 @@ const BACKEND_ERROR_MAP: Record<string, string> = {
 };
 
 export function ProfilePage() {
+  useDismissSplash();
   const { t } = useTranslation();
   const { user, refetchUser } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);

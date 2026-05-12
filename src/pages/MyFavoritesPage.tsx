@@ -10,8 +10,10 @@ import { Spinner } from "@/components/ui/spinner";
 import { Footer } from "@/components/layout/Footer";
 import { FavoriteButton } from "@/features/recipes/components/FavoriteButton";
 import { useMyFavorites } from "@/features/recipes/hooks/useMyFavorites";
+import { useDismissSplash } from "@/hooks/useDismissSplash";
 
 export function MyFavoritesPage() {
+  useDismissSplash();
   const { t } = useTranslation();
   const {
     recipes,

@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
+  ChefHat,
   Heart,
   LogIn,
   LogOut,
@@ -60,9 +61,16 @@ export function Header({ leftContent, rightContent }: HeaderProps) {
         {leftContent ?? (
           <Link
             to="/"
-            className="font-bold text-xl tracking-tighter text-gray-900 cursor-pointer"
+            className="group flex items-center gap-0 hover:gap-2 transition-all duration-300 cursor-pointer"
           >
-            {t("app_name")}
+            <div className="w-0 group-hover:w-7 h-7 overflow-hidden transition-all duration-300 opacity-0 group-hover:opacity-100">
+              <div className="w-7 h-7 bg-black rounded-lg flex items-center justify-center">
+                <ChefHat className="w-3.5 h-3.5 text-white" />
+              </div>
+            </div>
+            <span className="font-bold text-xl tracking-tighter text-gray-900">
+              {t("app_name")}
+            </span>
           </Link>
         )}
         <div className="flex items-center gap-3">
