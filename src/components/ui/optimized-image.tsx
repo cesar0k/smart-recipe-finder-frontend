@@ -51,6 +51,7 @@ export function OptimizedImage({
     img.src = src;
 
     if (img.complete && img.naturalWidth > 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFullLoaded(true);
       imageCache.add(src);
       return;
@@ -89,6 +90,7 @@ export function OptimizedImage({
 
     // Check right away (microtask after commit)
     if (el.complete && el.naturalWidth > 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsLoaded(true);
       imageCache.add(src);
       onImageLoad?.(el);
