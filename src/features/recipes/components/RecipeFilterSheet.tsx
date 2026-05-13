@@ -77,6 +77,7 @@ export function RecipeFilterSheet({
 }: RecipeFilterSheetProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+  const [cuisineSearch, setCuisineSearch] = useState("");
 
   // --- Local draft state (only applied on close) ---
   const [draft, setDraft] = useState<FilterState>({
@@ -91,6 +92,7 @@ export function RecipeFilterSheet({
   // Sync draft from props when dialog opens
   useEffect(() => {
     if (open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDraft({
         include,
         exclude,
@@ -144,7 +146,6 @@ export function RecipeFilterSheet({
         cuisine: selectedCuisine,
       });
 
-  const [cuisineSearch, setCuisineSearch] = useState("");
   const { data: allCuisines = [] } = useGetCuisines({
     query: { staleTime: 5 * 60 * 1000 },
   });

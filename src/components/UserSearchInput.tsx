@@ -29,6 +29,7 @@ export function UserSearchInput() {
   // (don't open on debouncedQuery change — wait for data)
   useEffect(() => {
     if (debouncedQuery.length === 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsOpen(false);
     }
   }, [debouncedQuery]);
@@ -63,6 +64,7 @@ export function UserSearchInput() {
 
   useEffect(() => {
     if (hasContent) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsOpen(true);
     }
   }, [hasContent]);

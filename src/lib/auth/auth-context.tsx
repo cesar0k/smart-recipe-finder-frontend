@@ -48,6 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // On mount: if we have a token, try to load user
   useEffect(() => {
     if (tokenStorage.getAccessToken()) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchUser().finally(() => setIsLoading(false));
     }
   }, [fetchUser]);

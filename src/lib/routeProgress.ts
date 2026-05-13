@@ -277,6 +277,16 @@ export const routeProgress = {
 };
 
 // ── Detect navigation intent ─────────────────────────────────────────────
+
+// React Router calls replaceState during its initial hydration to normalise
+// the URL. We ignore any history mutations that fire within this window so
+// the progress bar doesn't show on a fresh page load.
+const INIT_GRACE_MS = 500;
+const _initAt = Date.now();
+function _isPastInitGrace() {
+  return Date.now() - _initAt > INIT_GRACE_MS;
+}
+
 function bindNavigationListeners() {
   if (typeof window === "undefined") return;
   const w = window as Window & { __routeProgressBound?: boolean };
@@ -339,7 +349,8 @@ function bindNavigationListeners() {
             willChange = true;
           }
         }
-        if (willChange) routeProgress.startNavigation();
+        // Ignore history mutations during React Router's initial hydration.
+        if (willChange && _isPastInitGrace()) routeProgress.startNavigation();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return (original as any)(...args);
       }) as typeof window.history.pushState;
@@ -348,7 +359,9 @@ function bindNavigationListeners() {
     wrap("replaceState");
   }
 
-  window.addEventListener("popstate", () => routeProgress.startNavigation());
+  window.addEventListener("popstate", () => {
+    if (_isPastInitGrace()) routeProgress.startNavigation();
+  });
 }
 
 bindNavigationListeners();
