@@ -456,5 +456,7 @@
   "notif_type_followed_user_published": "Новый рецепт",
   "notif_body_followed_user_published": "{{author}} опубликовал(а) новый рецепт: {{title}}",
 
-  "profile_language_label": "Язык писем"
+  "profile_language_label": "Язык писем",
+
+  "recaptcha_notice": "Этот сайт защищён reCAPTCHA. Применяются Политика конфиденциальности и Условия использования Google."
 }
