@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Check, X, Search, Trash2, ExternalLink } from "lucide-react";
+import { Link, useSearchParams } from "react-router-dom";
+import { Check, X, Search, Trash2, ExternalLink, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -34,18 +34,25 @@ import {
   getListModerationHistoryQueryKey,
   useDeleteModerationLog,
   useDeleteAllModerationHistory,
+  useListReportedComments,
+  useDismissCommentReports,
+  getListReportedCommentsQueryKey,
+  useGetPendingCount,
 } from "@/api/moderation/moderation";
-import type { Recipe, RecipeDraftResponse, ModerationLogResponse } from "@/api/model";
+import { useDeleteRecipeComment } from "@/api/comments/comments";
+import type { Recipe, RecipeDraftResponse, ModerationLogResponse, ReportedCommentResponse } from "@/api/model";
 import { useTranslation } from "react-i18next";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
 
-type Tab = "recipes" | "drafts" | "history";
+type Tab = "recipes" | "drafts" | "comments" | "history";
 
 export function ModerationPage() {
   useDismissSplash();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<Tab>("recipes");
+  const [searchParams] = useSearchParams();
+  const initialTab = (searchParams.get("tab") as Tab | null) ?? "recipes";
+  const [activeTab, setActiveTab] = useState<Tab>(initialTab);
 
   // Rejection dialog state
   const [rejectTarget, setRejectTarget] = useState<{
@@ -75,12 +82,18 @@ export function ModerationPage() {
       { query: { enabled: activeTab === "history" } }
     );
 
+  const { data: pendingCount } = useGetPendingCount();
+  const { data: reportedComments, isLoading: commentsLoading } =
+    useListReportedComments(undefined, { query: { enabled: activeTab === "comments" } });
+
   const { mutateAsync: moderateRecipe, isPending: isModeratingRecipe } =
     useModerateRecipe();
   const { mutateAsync: moderateDraft, isPending: isModeratingDraft } =
     useModerateDraft();
   const { mutateAsync: deleteLog } = useDeleteModerationLog();
   const { mutateAsync: deleteAllHistory } = useDeleteAllModerationHistory();
+  const { mutateAsync: dismissReports } = useDismissCommentReports();
+  const { mutateAsync: deleteComment } = useDeleteRecipeComment();
 
   const handleApproveRecipe = async (id: number) => {
     try {
@@ -170,6 +183,26 @@ export function ModerationPage() {
     }
   };
 
+  const handleDismissReports = async (commentId: number) => {
+    try {
+      await dismissReports({ commentId });
+      toast.success(t("moderation_comment_dismissed"));
+      queryClient.invalidateQueries({ queryKey: getListReportedCommentsQueryKey() });
+    } catch {
+      toast.error(t("moderation_error"));
+    }
+  };
+
+  const handleDeleteComment = async (commentId: number) => {
+    try {
+      await deleteComment({ commentId });
+      toast.success(t("moderation_comment_deleted"));
+      queryClient.invalidateQueries({ queryKey: getListReportedCommentsQueryKey() });
+    } catch {
+      toast.error(t("moderation_error"));
+    }
+  };
+
   const isModerating = isModeratingRecipe || isModeratingDraft;
 
   const formatDate = (dateStr: string) => {
@@ -185,6 +218,10 @@ export function ModerationPage() {
 
   const pendingRecipeCount = pendingRecipes?.length ?? 0;
   const pendingDraftCount = pendingDrafts?.length ?? 0;
+  // Use pending-count for the badge (available before entering the tab),
+  // fall back to loaded data length once the tab is visited.
+  const reportedCommentCount =
+    pendingCount?.comment_reports ?? reportedComments?.length ?? 0;
 
   return (
     <div className="min-h-screen bg-white font-sans">
@@ -244,6 +281,28 @@ export function ModerationPage() {
           <button
             type="button"
             className={`inline-flex items-center h-9 px-4 text-sm font-medium rounded-full border transition-colors ${
+              activeTab === "comments"
+                ? "bg-black text-white border-black"
+                : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+            }`}
+            onClick={() => setActiveTab("comments")}
+          >
+            {t("moderation_tab_comments")}
+            {reportedCommentCount > 0 && (
+              <span
+                className={`ml-2 text-xs font-bold px-1.5 py-0.5 rounded-full ${
+                  activeTab === "comments"
+                    ? "bg-white text-black"
+                    : "bg-red-500 text-white"
+                }`}
+              >
+                {reportedCommentCount}
+              </span>
+            )}
+          </button>
+          <button
+            type="button"
+            className={`inline-flex items-center h-9 px-4 text-sm font-medium rounded-full border transition-colors ${
               activeTab === "history"
                 ? "bg-black text-white border-black"
                 : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
@@ -255,6 +314,127 @@ export function ModerationPage() {
         </div>
 
         <Separator className="mb-6" />
+
+        {/* Comments tab */}
+        {activeTab === "comments" && (
+          <>
+            {commentsLoading && (
+              <div className="flex justify-center py-10">
+                <Spinner size="lg" className="text-gray-300" />
+              </div>
+            )}
+            {!commentsLoading && (!reportedComments || reportedComments.length === 0) && (
+              <p className="text-gray-500 text-center py-10">
+                {t("moderation_no_reported_comments")}
+              </p>
+            )}
+            {reportedComments?.map((item: ReportedCommentResponse) => (
+              <div
+                key={item.comment_id}
+                className="border border-orange-200 rounded-2xl p-6 mb-4 space-y-4 bg-orange-50/30"
+              >
+                {/* Header */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-gray-800">
+                      {t("moderation_reported_comment_title")}
+                    </span>
+                    <span className="text-xs bg-orange-100 text-orange-700 font-bold px-2 py-0.5 rounded-full">
+                      {t("moderation_comment_reports_count", { count: item.report_count })}
+                    </span>
+                  </div>
+                  <Link
+                    to={`/recipe/${item.recipe_id}#comment-${item.comment_id}`}
+                    target="_blank"
+                    className="text-xs text-gray-500 hover:text-black flex items-center gap-1 shrink-0"
+                  >
+                    <ExternalLink className="w-3 h-3" />
+                    {item.recipe_title.length > 30
+                      ? item.recipe_title.slice(0, 30) + "…"
+                      : item.recipe_title}
+                  </Link>
+                </div>
+
+                {/* Comment thread context */}
+                <div className="space-y-2">
+                  {/* Parent comment if this is a reply */}
+                  {item.parent_comment_id && (
+                    <div className="flex gap-3 opacity-70">
+                      <MessageCircle className="w-4 h-4 text-gray-400 shrink-0 mt-0.5" />
+                      <div className="text-sm text-gray-600">
+                        <Link
+                          to={`/user/${item.author_id}`}
+                          className="font-medium hover:underline mr-1"
+                        >
+                          {item.parent_author_username ?? t("deleted_user")}
+                        </Link>
+                        <span className="italic text-gray-400">
+                          {item.parent_content || t("comment_deleted")}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* The reported comment */}
+                  <div className="flex gap-3">
+                    <MessageCircle className="w-4 h-4 text-orange-500 shrink-0 mt-1" />
+                    <div className="flex-1 min-w-0">
+                      <Link
+                        to={`/user/${item.author_id}`}
+                        className="text-sm font-semibold text-gray-800 hover:underline"
+                      >
+                        {item.author_username ?? t("deleted_user")}
+                      </Link>
+                      <p className="text-sm text-gray-700 mt-0.5 bg-white border border-orange-200 rounded-xl px-4 py-3">
+                        {item.content}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Reports */}
+                <div className="border-t border-orange-100 pt-3 space-y-1.5">
+                  <p className="text-xs font-medium text-gray-500 tracking-wide">
+                    {t("moderation_report_reasons")}
+                  </p>
+                  {item.reports.map((rep, idx) => (
+                    <div key={idx} className="flex items-baseline gap-2 text-xs">
+                      <Link
+                        to={`/user/${rep.reporter_id}`}
+                        className="font-medium text-gray-600 hover:underline shrink-0"
+                      >
+                        {rep.reporter_username ?? t("deleted_user")}
+                      </Link>
+                      <span className="text-gray-500">{rep.reason}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center gap-3">
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    className="rounded-full gap-2"
+                    onClick={() => handleDeleteComment(item.comment_id)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    {t("comment_delete")}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="rounded-full gap-2 border-gray-200"
+                    onClick={() => handleDismissReports(item.comment_id)}
+                  >
+                    <Check className="w-4 h-4" />
+                    {t("moderation_dismiss_reports")}
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </>
+        )}
 
         {/* Recipes tab */}
         {activeTab === "recipes" && (

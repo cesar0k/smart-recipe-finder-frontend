@@ -28,11 +28,13 @@ import type {
   DeleteModerationLog200,
   HTTPValidationError,
   ListModerationHistoryParams,
+  ListReportedCommentsParams,
   ModerationAction,
   ModerationLogResponse,
   PendingCountResponse,
   Recipe,
-  RecipeDraftResponse
+  RecipeDraftResponse,
+  ReportedCommentResponse
 } from '.././model';
 
 import { customInstance } from '.././axios';
@@ -660,6 +662,163 @@ export const useModerateDraft = <TError = HTTPValidationError,
       > => {
 
       const mutationOptions = getModerateDraftMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    /**
+ * List comments with active reports for moderation.
+ * @summary List Reported Comments
+ */
+export const listReportedComments = (
+    params?: ListReportedCommentsParams,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<ReportedCommentResponse[]>(
+      {url: `/api/v1/moderation/comments`, method: 'GET',
+        params, signal
+    },
+      options);
+    }
+  
+
+
+
+export const getListReportedCommentsQueryKey = (params?: ListReportedCommentsParams,) => {
+    return [
+    `/api/v1/moderation/comments`, ...(params ? [params]: [])
+    ] as const;
+    }
+
+    
+export const getListReportedCommentsQueryOptions = <TData = Awaited<ReturnType<typeof listReportedComments>>, TError = HTTPValidationError>(params?: ListReportedCommentsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listReportedComments>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListReportedCommentsQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listReportedComments>>> = ({ signal }) => listReportedComments(params, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listReportedComments>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ListReportedCommentsQueryResult = NonNullable<Awaited<ReturnType<typeof listReportedComments>>>
+export type ListReportedCommentsQueryError = HTTPValidationError
+
+
+export function useListReportedComments<TData = Awaited<ReturnType<typeof listReportedComments>>, TError = HTTPValidationError>(
+ params: undefined |  ListReportedCommentsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof listReportedComments>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listReportedComments>>,
+          TError,
+          Awaited<ReturnType<typeof listReportedComments>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListReportedComments<TData = Awaited<ReturnType<typeof listReportedComments>>, TError = HTTPValidationError>(
+ params?: ListReportedCommentsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listReportedComments>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof listReportedComments>>,
+          TError,
+          Awaited<ReturnType<typeof listReportedComments>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useListReportedComments<TData = Awaited<ReturnType<typeof listReportedComments>>, TError = HTTPValidationError>(
+ params?: ListReportedCommentsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listReportedComments>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary List Reported Comments
+ */
+
+export function useListReportedComments<TData = Awaited<ReturnType<typeof listReportedComments>>, TError = HTTPValidationError>(
+ params?: ListReportedCommentsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof listReportedComments>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getListReportedCommentsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * Dismiss all reports for a comment (keep comment, clear reports).
+ * @summary Dismiss Comment Reports
+ */
+export const dismissCommentReports = (
+    commentId: number,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<void>(
+      {url: `/api/v1/moderation/comments/${commentId}/dismiss`, method: 'POST', signal
+    },
+      options);
+    }
+  
+
+
+export const getDismissCommentReportsMutationOptions = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof dismissCommentReports>>, TError,{commentId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof dismissCommentReports>>, TError,{commentId: number}, TContext> => {
+
+const mutationKey = ['dismissCommentReports'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof dismissCommentReports>>, {commentId: number}> = (props) => {
+          const {commentId} = props ?? {};
+
+          return  dismissCommentReports(commentId,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DismissCommentReportsMutationResult = NonNullable<Awaited<ReturnType<typeof dismissCommentReports>>>
+    
+    export type DismissCommentReportsMutationError = HTTPValidationError
+
+    /**
+ * @summary Dismiss Comment Reports
+ */
+export const useDismissCommentReports = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof dismissCommentReports>>, TError,{commentId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof dismissCommentReports>>,
+        TError,
+        {commentId: number},
+        TContext
+      > => {
+
+      const mutationOptions = getDismissCommentReportsMutationOptions(options);
 
       return useMutation(mutationOptions, queryClient);
     }

@@ -24,19 +24,14 @@ export function SimilarRecipesSection({ recipeId }: SimilarRecipesSectionProps) 
   if (!isError && !isLoading && similar.length === 0) return null;
 
   return (
-    <section className="mt-16 pt-12 border-t border-gray-100">
-      <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight mb-1">
-        {t("similar_recipes_title")}
-      </h2>
-      <p className="text-gray-500 mb-6">{t("similar_recipes_desc")}</p>
-
+    <section className="w-full">
       {isError ? (
         <p className="text-sm text-gray-400 py-6 text-center">
           {t("similar_recipes_error")}
         </p>
       ) : isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Array.from({ length: 3 }).map((_, i) => (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
             <RecipeCardSkeleton key={i} />
           ))}
         </div>
@@ -49,7 +44,7 @@ export function SimilarRecipesSection({ recipeId }: SimilarRecipesSectionProps) 
             {similar.map((recipe) => (
               <CarouselItem
                 key={recipe.id}
-                className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3"
+                className="pl-4 basis-full sm:basis-1/2 lg:basis-1/4"
               >
                 <Link to={`/recipe/${recipe.id}`} className="block h-full">
                   <RecipeCard
@@ -59,6 +54,8 @@ export function SimilarRecipesSection({ recipeId }: SimilarRecipesSectionProps) 
                     image={recipe.image_urls?.[0] || ""}
                     thumbnail={recipe.thumbnail_urls?.[0]}
                     ownerUsername={recipe.owner_username}
+                    averageRating={recipe.average_rating}
+                    favoritesCount={recipe.favorites_count}
                   />
                 </Link>
               </CarouselItem>

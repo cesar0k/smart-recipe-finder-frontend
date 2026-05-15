@@ -6,6 +6,7 @@
  */
 import type { UserResponseDisplayName } from './userResponseDisplayName';
 import type { UserResponseAvatarUrl } from './userResponseAvatarUrl';
+import type { UserResponsePendingEmail } from './userResponsePendingEmail';
 
 export interface UserResponse {
   id: number;
@@ -17,4 +18,7 @@ export interface UserResponse {
   auth_provider: string;
   is_active: boolean;
   created_at: string;
+  email_verified?: boolean;
+  pending_email?: UserResponsePendingEmail;
+  language?: string;
 }

@@ -26,6 +26,8 @@ import type {
 import type {
   BodyUploadAvatar,
   ChangePassword200,
+  EmailPrefResponse,
+  EmailPrefUpdate,
   HTTPValidationError,
   ListUsersParams,
   PasswordChange,
@@ -138,7 +140,7 @@ export function useSearchUsers<TData = Awaited<ReturnType<typeof searchUsers>>, 
 
 
 /**
- * Get public user profile. Public endpoint.
+ * Get public user profile. Optional auth — adds is_following for viewer.
  * @summary Get User Profile
  */
 export const getUserProfile = (
@@ -513,6 +515,166 @@ export const useChangePassword = <TError = HTTPValidationError,
       > => {
 
       const mutationOptions = getChangePasswordMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    /**
+ * Return all email notification preferences for the current user.
+
+Types with no explicit row default to enabled=True.
+Returns the full list of known types merged with any saved preferences.
+ * @summary Get Email Preferences
+ */
+export const getEmailPreferences = (
+    
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<EmailPrefResponse[]>(
+      {url: `/api/v1/users/me/email-preferences`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+
+
+export const getGetEmailPreferencesQueryKey = () => {
+    return [
+    `/api/v1/users/me/email-preferences`
+    ] as const;
+    }
+
+    
+export const getGetEmailPreferencesQueryOptions = <TData = Awaited<ReturnType<typeof getEmailPreferences>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEmailPreferences>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetEmailPreferencesQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEmailPreferences>>> = ({ signal }) => getEmailPreferences(requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getEmailPreferences>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetEmailPreferencesQueryResult = NonNullable<Awaited<ReturnType<typeof getEmailPreferences>>>
+export type GetEmailPreferencesQueryError = unknown
+
+
+export function useGetEmailPreferences<TData = Awaited<ReturnType<typeof getEmailPreferences>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEmailPreferences>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEmailPreferences>>,
+          TError,
+          Awaited<ReturnType<typeof getEmailPreferences>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEmailPreferences<TData = Awaited<ReturnType<typeof getEmailPreferences>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEmailPreferences>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getEmailPreferences>>,
+          TError,
+          Awaited<ReturnType<typeof getEmailPreferences>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetEmailPreferences<TData = Awaited<ReturnType<typeof getEmailPreferences>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEmailPreferences>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Email Preferences
+ */
+
+export function useGetEmailPreferences<TData = Awaited<ReturnType<typeof getEmailPreferences>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEmailPreferences>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetEmailPreferencesQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * Create or update a single email notification preference.
+ * @summary Update Email Preference
+ */
+export const updateEmailPreference = (
+    emailPrefUpdate: EmailPrefUpdate,
+ options?: SecondParameter<typeof customInstance>,) => {
+      
+      
+      return customInstance<EmailPrefResponse>(
+      {url: `/api/v1/users/me/email-preferences`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: emailPrefUpdate
+    },
+      options);
+    }
+  
+
+
+export const getUpdateEmailPreferenceMutationOptions = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateEmailPreference>>, TError,{data: EmailPrefUpdate}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateEmailPreference>>, TError,{data: EmailPrefUpdate}, TContext> => {
+
+const mutationKey = ['updateEmailPreference'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateEmailPreference>>, {data: EmailPrefUpdate}> = (props) => {
+          const {data} = props ?? {};
+
+          return  updateEmailPreference(data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateEmailPreferenceMutationResult = NonNullable<Awaited<ReturnType<typeof updateEmailPreference>>>
+    export type UpdateEmailPreferenceMutationBody = EmailPrefUpdate
+    export type UpdateEmailPreferenceMutationError = HTTPValidationError
+
+    /**
+ * @summary Update Email Preference
+ */
+export const useUpdateEmailPreference = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateEmailPreference>>, TError,{data: EmailPrefUpdate}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateEmailPreference>>,
+        TError,
+        {data: EmailPrefUpdate},
+        TContext
+      > => {
+
+      const mutationOptions = getUpdateEmailPreferenceMutationOptions(options);
 
       return useMutation(mutationOptions, queryClient);
     }

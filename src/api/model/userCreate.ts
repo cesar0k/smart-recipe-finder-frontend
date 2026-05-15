@@ -19,4 +19,6 @@ export interface UserCreate {
    * @maxLength 128
    */
   password: string;
+  /** @pattern ^(ru|en)$ */
+  language?: string;
 }

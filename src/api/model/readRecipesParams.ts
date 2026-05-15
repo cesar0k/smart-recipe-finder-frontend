@@ -44,8 +44,12 @@ cuisine?: string | null;
  */
 meal_type?: string | null;
 /**
- * Sort order: newest (default) or popular (by favorites_count)
- * @pattern ^(newest|popular)$
+ * Only return recipes with at least one comment
+ */
+has_comments?: boolean;
+/**
+ * Sort order: newest (default, id DESC), popular (engagement score), top_rated (average_rating DESC), most_favorited (favorites_count DESC)
+ * @pattern ^(newest|popular|top_rated|most_favorited)$
  */
 sort?: string;
 };

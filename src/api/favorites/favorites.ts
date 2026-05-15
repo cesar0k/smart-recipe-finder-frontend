@@ -258,13 +258,7 @@ export function useReadMyFavorites<TData = Awaited<ReturnType<typeof readMyFavor
 
 
 /**
- * Lightweight overlay endpoint: which of the given recipes are
-favorited by the current user.
-
-Designed for the homepage category shelves, where the recipe list is
-served from a shared (user-agnostic) Redis cache and so cannot carry
-``is_favorited`` directly. The client batches this call once per
-shelves-page render to paint the heart-toggle state correctly.
+ * Batched lookup of favorited state — used by shelves overlay (shared cache).
  * @summary Check Favorites
  */
 export const checkFavorites = (

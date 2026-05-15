@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
-export type RecipeSort = "newest" | "popular";
+export type RecipeSort = "newest" | "popular" | "top_rated" | "most_favorited";
 
 interface RecipeSortMenuProps {
   value: RecipeSort;
@@ -23,6 +23,8 @@ interface RecipeSortMenuProps {
 const OPTIONS: { value: RecipeSort; labelKey: string }[] = [
   { value: "newest", labelKey: "sort_newest" },
   { value: "popular", labelKey: "sort_popular" },
+  { value: "top_rated", labelKey: "sort_top_rated" },
+  { value: "most_favorited", labelKey: "sort_most_favorited" },
 ];
 
 export function RecipeSortMenu({

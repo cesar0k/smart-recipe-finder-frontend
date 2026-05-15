@@ -105,6 +105,8 @@ export function CategoryShelves() {
                       image={recipe.image_urls?.[0] ?? ""}
                       thumbnail={recipe.thumbnail_urls?.[0]}
                       ownerUsername={recipe.owner_username}
+                      averageRating={recipe.average_rating}
+                      favoritesCount={recipe.favorites_count}
                       imageOverlay={
                         <FavoriteButton
                           recipeId={recipe.id}

@@ -141,6 +141,50 @@
   border-radius: var(--radius-3xl) !important;
 }
 
+
+/* Reply indent + L-shaped connector */
+.comment-reply {
+  padding-left: 2.5rem;
+  position: relative;
+}
+.comment-reply::before {
+  content: "";
+  position: absolute;
+  /*
+    The line starts at the vertical centre of the PARENT avatar and ends
+    at the vertical centre of THIS (reply) avatar.
+
+    Parent row:  py-3 bottom = 12px,  avatar h-8 centre = 16px from top of avatar.
+    So from the top of THIS element, the parent avatar centre was at -(12px + 16px) = -28px.
+
+    This reply row: py-3 top = 12px, avatar centre = +16px → total 28px from top.
+
+    Horizontal: parent avatar centre x = 16px (w-8/2).
+    Reply avatar centre x = pl-10(40px) + w-8/2(16px) = 56px.
+    Connector width = 56 - 16 = 40px → but we only need the L-bottom part width = 40px.
+    We use left:1rem (=16px) and width:1.5rem so the bottom bar ends just left of reply avatar.
+  */
+  left: 1rem;         /* x-centre of parent avatar */
+  top: -1.75rem;      /* -(12px bottom-pad + 16px half-avatar) ≈ -28px */
+  width: 1.5rem;      /* horizontal reach toward reply avatar */
+  height: 3.5rem;     /* 28px up + 28px down = 56px total */
+  border-left: 1.5px solid rgb(156 163 175);
+  border-bottom: 1.5px solid rgb(156 163 175);
+  border-bottom-left-radius: 6px;
+  pointer-events: none;
+}
+
+/* Comment deep-link highlight — animated via box-shadow (animatable), fades out over 3s */
+@keyframes comment-highlight-fade {
+  0%   { box-shadow: 0 0 0 2px #111827; }
+  60%  { box-shadow: 0 0 0 2px #111827; }
+  100% { box-shadow: 0 0 0 2px rgba(17, 24, 39, 0); }
+}
+.comment-highlight {
+  border-radius: 0.75rem;
+  animation: comment-highlight-fade 3s ease-out forwards;
+}
+
 @keyframes shimmer {
   0% {
     background-position: -200% 0;

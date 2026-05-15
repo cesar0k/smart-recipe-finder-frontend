@@ -36,8 +36,8 @@ difficulty?: string | null;
  */
 cuisine?: string | null;
 /**
- * Sort order applied AFTER relevance filtering: 'newest' (default) keeps vector-distance order, 'popular' re-orders the result set by favorites_count.
- * @pattern ^(newest|popular)$
+ * Sort order applied AFTER relevance filtering: 'newest' (default) keeps vector-distance order, 'popular' re-orders by engagement score, 'top_rated' by average_rating, 'most_favorited' by favorites_count.
+ * @pattern ^(newest|popular|top_rated|most_favorited)$
  */
 sort?: string;
 };

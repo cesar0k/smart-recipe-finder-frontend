@@ -5,6 +5,7 @@
  * OpenAPI spec version: 2.0.0
  */
 import type { NotificationResponseRecipeId } from './notificationResponseRecipeId';
+import type { NotificationResponseCommentId } from './notificationResponseCommentId';
 
 export interface NotificationResponse {
   id: number;
@@ -14,5 +15,6 @@ export interface NotificationResponse {
   message: string;
   is_read: boolean;
   recipe_id?: NotificationResponseRecipeId;
+  comment_id?: NotificationResponseCommentId;
   created_at: string;
 }

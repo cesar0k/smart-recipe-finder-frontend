@@ -16,13 +16,18 @@ import type {
 
 import type {
   BodyLoginUser,
+  ForgotPassword200,
+  ForgotPasswordRequest,
   GoogleAuthCode,
   HTTPValidationError,
   LogoutUser200,
   RefreshRequest,
+  ResetPasswordRequest,
+  SendVerificationEmail200,
   TokenPair,
   UserCreate,
-  UserResponse
+  UserResponse,
+  VerifyEmailRequest
 } from '.././model';
 
 import { customInstance } from '.././axios';
@@ -364,6 +369,267 @@ export const useGoogleAuth = <TError = HTTPValidationError,
       > => {
 
       const mutationOptions = getGoogleAuthMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    /**
+ * Send (or re-send) an email verification link to the current user.
+ * @summary Send Verification Email
+ */
+export const sendVerificationEmail = (
+    
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<SendVerificationEmail200>(
+      {url: `/api/v1/auth/send-verification-email`, method: 'POST', signal
+    },
+      options);
+    }
+  
+
+
+export const getSendVerificationEmailMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sendVerificationEmail>>, TError,void, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof sendVerificationEmail>>, TError,void, TContext> => {
+
+const mutationKey = ['sendVerificationEmail'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof sendVerificationEmail>>, void> = () => {
+          
+
+          return  sendVerificationEmail(requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SendVerificationEmailMutationResult = NonNullable<Awaited<ReturnType<typeof sendVerificationEmail>>>
+    
+    export type SendVerificationEmailMutationError = unknown
+
+    /**
+ * @summary Send Verification Email
+ */
+export const useSendVerificationEmail = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sendVerificationEmail>>, TError,void, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof sendVerificationEmail>>,
+        TError,
+        void,
+        TContext
+      > => {
+
+      const mutationOptions = getSendVerificationEmailMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    /**
+ * Confirm email ownership using the token from the verification link.
+ * @summary Verify Email
+ */
+export const verifyEmail = (
+    verifyEmailRequest: VerifyEmailRequest,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<UserResponse>(
+      {url: `/api/v1/auth/verify-email`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: verifyEmailRequest, signal
+    },
+      options);
+    }
+  
+
+
+export const getVerifyEmailMutationOptions = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof verifyEmail>>, TError,{data: VerifyEmailRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof verifyEmail>>, TError,{data: VerifyEmailRequest}, TContext> => {
+
+const mutationKey = ['verifyEmail'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof verifyEmail>>, {data: VerifyEmailRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  verifyEmail(data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type VerifyEmailMutationResult = NonNullable<Awaited<ReturnType<typeof verifyEmail>>>
+    export type VerifyEmailMutationBody = VerifyEmailRequest
+    export type VerifyEmailMutationError = HTTPValidationError
+
+    /**
+ * @summary Verify Email
+ */
+export const useVerifyEmail = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof verifyEmail>>, TError,{data: VerifyEmailRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof verifyEmail>>,
+        TError,
+        {data: VerifyEmailRequest},
+        TContext
+      > => {
+
+      const mutationOptions = getVerifyEmailMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    /**
+ * Request a password reset email.
+
+Always returns 200 to prevent email enumeration.
+If the account was registered via Google, returns detail='google_auth_user'.
+ * @summary Forgot Password
+ */
+export const forgotPassword = (
+    forgotPasswordRequest: ForgotPasswordRequest,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<ForgotPassword200>(
+      {url: `/api/v1/auth/forgot-password`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: forgotPasswordRequest, signal
+    },
+      options);
+    }
+  
+
+
+export const getForgotPasswordMutationOptions = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof forgotPassword>>, TError,{data: ForgotPasswordRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof forgotPassword>>, TError,{data: ForgotPasswordRequest}, TContext> => {
+
+const mutationKey = ['forgotPassword'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof forgotPassword>>, {data: ForgotPasswordRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  forgotPassword(data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ForgotPasswordMutationResult = NonNullable<Awaited<ReturnType<typeof forgotPassword>>>
+    export type ForgotPasswordMutationBody = ForgotPasswordRequest
+    export type ForgotPasswordMutationError = HTTPValidationError
+
+    /**
+ * @summary Forgot Password
+ */
+export const useForgotPassword = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof forgotPassword>>, TError,{data: ForgotPasswordRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof forgotPassword>>,
+        TError,
+        {data: ForgotPasswordRequest},
+        TContext
+      > => {
+
+      const mutationOptions = getForgotPasswordMutationOptions(options);
+
+      return useMutation(mutationOptions, queryClient);
+    }
+    /**
+ * Apply a new password using the reset token from the email link.
+ * @summary Reset Password
+ */
+export const resetPassword = (
+    resetPasswordRequest: ResetPasswordRequest,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<UserResponse>(
+      {url: `/api/v1/auth/reset-password`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: resetPasswordRequest, signal
+    },
+      options);
+    }
+  
+
+
+export const getResetPasswordMutationOptions = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof resetPassword>>, TError,{data: ResetPasswordRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof resetPassword>>, TError,{data: ResetPasswordRequest}, TContext> => {
+
+const mutationKey = ['resetPassword'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof resetPassword>>, {data: ResetPasswordRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  resetPassword(data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ResetPasswordMutationResult = NonNullable<Awaited<ReturnType<typeof resetPassword>>>
+    export type ResetPasswordMutationBody = ResetPasswordRequest
+    export type ResetPasswordMutationError = HTTPValidationError
+
+    /**
+ * @summary Reset Password
+ */
+export const useResetPassword = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof resetPassword>>, TError,{data: ResetPasswordRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof resetPassword>>,
+        TError,
+        {data: ResetPasswordRequest},
+        TContext
+      > => {
+
+      const mutationOptions = getResetPasswordMutationOptions(options);
 
       return useMutation(mutationOptions, queryClient);
     }

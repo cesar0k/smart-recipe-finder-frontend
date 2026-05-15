@@ -6,10 +6,7 @@
  */
 
 /**
- * IDs (from the request) that the current user has favorited.
-
-Returning the positive-match subset (instead of `{id: bool}`) keeps the
-payload small for the common case where most recipes aren't favorited.
+ * Subset of the requested IDs that the current user has favorited.
  */
 export interface FavoritesCheckResponse {
   favorited_ids: number[];

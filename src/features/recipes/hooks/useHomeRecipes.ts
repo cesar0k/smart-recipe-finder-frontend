@@ -27,8 +27,12 @@ export function useHomeRecipes() {
   const cuisineFromUrl =
     searchParams.get("cuisine")?.split(",").filter(Boolean) || [];
   const mealTypeFromUrl = searchParams.get("meal_type") || undefined;
-  const sortFromUrl: "newest" | "popular" =
-    searchParams.get("sort") === "popular" ? "popular" : "newest";
+  const hasCommentsFromUrl = searchParams.get("has_comments") === "true";
+  const VALID_SORTS = ["newest", "popular", "top_rated", "most_favorited"] as const;
+  type SortValue = typeof VALID_SORTS[number];
+  const rawSort = searchParams.get("sort");
+  const sortFromUrl: SortValue =
+    VALID_SORTS.includes(rawSort as SortValue) ? (rawSort as SortValue) : "newest";
 
   const [searchTerm, setSearchTerm] = useState(queryFromUrl);
 
@@ -90,8 +94,8 @@ export function useHomeRecipes() {
         difficulty: difficultyParam,
         cuisine: cuisineParam,
         sort: sortFromUrl,
-        // meal_type is a backend extension not yet in the auto-generated type
         ...(mealTypeFromUrl ? { meal_type: mealTypeFromUrl } : {}),
+        ...(hasCommentsFromUrl ? { has_comments: true } : {}),
       } as Parameters<typeof readRecipes>[0]),
     initialPageParam: 0,
     getNextPageParam: (lastPage, _allPages, lastPageParam) => {
@@ -201,7 +205,7 @@ export function useHomeRecipes() {
     updateParams({ cuisine: vals.length ? vals.join(",") : undefined });
   };
 
-  const setSort = (next: "newest" | "popular") => {
+  const setSort = (next: "newest" | "popular" | "top_rated" | "most_favorited") => {
     // "newest" is the default — keep the URL clean by omitting it.
     updateParams({ sort: next === "newest" ? undefined : next });
   };
@@ -225,6 +229,7 @@ export function useHomeRecipes() {
     maxTime: number | undefined;
     difficulty: string[];
     cuisine: string[];
+    hasComments?: boolean;
   }) => {
     updateParams({
       include_ingredients: filters.include.length ? filters.include.join(",") : undefined,
@@ -233,6 +238,7 @@ export function useHomeRecipes() {
       max_time: filters.maxTime !== undefined ? String(filters.maxTime) : undefined,
       difficulty: filters.difficulty.length ? filters.difficulty.join(",") : undefined,
       cuisine: filters.cuisine.length ? filters.cuisine.join(",") : undefined,
+      has_comments: filters.hasComments ? "true" : undefined,
     });
   };
 
@@ -285,6 +291,8 @@ export function useHomeRecipes() {
 
     sort: sortFromUrl,
     setSort,
+
+    hasComments: hasCommentsFromUrl,
 
     resetFilters,
     applyAllFilters,
