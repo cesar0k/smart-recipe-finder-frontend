@@ -13,7 +13,6 @@ import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { Header } from "@/components/layout/Header";
-import { BackButton } from "@/components/BackButton";
 import { RecipeCard } from "@/features/recipes/components/RecipeCard";
 import { RecipeCardSkeleton } from "@/components/skeletons/RecipeCardSkeleton";
 import { ProfileHeaderSkeleton } from "@/components/skeletons/ProfileHeaderSkeleton";
@@ -167,7 +166,6 @@ export function PublicProfilePage() {
   return (
     <div className="min-h-screen bg-white font-sans">
       <Header
-        leftContent={<BackButton />}
         rightContent={isOwnProfile ? <CreateRecipeSheet /> : undefined}
       />
 

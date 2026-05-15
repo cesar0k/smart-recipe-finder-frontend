@@ -18,7 +18,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Header } from "@/components/layout/Header";
-import { BackButton } from "@/components/BackButton";
 import { AvatarCropDialog } from "@/components/AvatarCropDialog";
 import { EmailVerificationBanner } from "@/features/profile/components/EmailVerificationBanner";
 
@@ -215,7 +214,7 @@ export function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-white font-sans">
-      <Header leftContent={<BackButton />} />
+      <Header />
 
       <main className="container mx-auto px-4 py-6 md:py-10 max-w-md flex flex-col items-center">
         <div className="w-full">
