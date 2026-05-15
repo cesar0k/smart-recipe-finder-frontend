@@ -27,6 +27,7 @@
   "form_description_placeholder": "Кратко опишите блюдо — чем оно особенное?",
   "form_photos_label": "Фотографии",
   "form_add_photo": "Добавить",
+  "form_drop_photo": "Отпустите",
   "form_time_label": "Время (мин)",
   "form_difficulty_label": "Сложность",
   "form_select_placeholder": "Выбрать",

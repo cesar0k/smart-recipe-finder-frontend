@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { User, Camera, Mail } from "lucide-react";
+import { User, Camera, Mail, Upload } from "lucide-react";
+import { useDropzone } from "react-dropzone";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
@@ -139,21 +140,32 @@ export function ProfilePage() {
     }
   };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Read file as data URL for the cropper
+  const readFileForCrop = (file: File) => {
     const reader = new FileReader();
     reader.onload = () => {
       setCropImageSrc(reader.result as string);
       setIsCropOpen(true);
     };
     reader.readAsDataURL(file);
+  };
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    readFileForCrop(file);
     // Reset input so same file can be selected again
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
+
+  const { getRootProps: getAvatarRootProps, isDragActive: isAvatarDragActive } = useDropzone({
+    onDrop: (acceptedFiles) => {
+      if (acceptedFiles[0]) readFileForCrop(acceptedFiles[0]);
+    },
+    accept: { "image/jpeg": [], "image/png": [], "image/webp": [], "image/heic": [], "image/heif": [] },
+    noClick: true,
+    maxFiles: 1,
+    disabled: isUploading,
+  });
 
   const handleCroppedAvatar = useCallback(
     async (blob: Blob) => {
@@ -241,11 +253,10 @@ export function ProfilePage() {
 
           {/* Avatar */}
           <div className="flex justify-center mb-6">
-            <button
-              type="button"
-              className="relative group"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading}
+            <div
+              {...getAvatarRootProps()}
+              className="relative group cursor-pointer"
+              onClick={() => !isUploading && fileInputRef.current?.click()}
             >
               {user?.avatar_url ? (
                 <img
@@ -258,10 +269,20 @@ export function ProfilePage() {
                   <User className="w-9 h-9 text-gray-400" />
                 </div>
               )}
-              <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <Camera className="w-5 h-5 text-white" />
+              <div
+                className={`absolute inset-0 rounded-full flex items-center justify-center transition-opacity ${
+                  isAvatarDragActive
+                    ? "opacity-100 bg-black/50"
+                    : "opacity-0 group-hover:opacity-100 bg-black/40"
+                }`}
+              >
+                {isAvatarDragActive ? (
+                  <Upload className="w-5 h-5 text-white" />
+                ) : (
+                  <Camera className="w-5 h-5 text-white" />
+                )}
               </div>
-            </button>
+            </div>
             <input
               ref={fileInputRef}
               type="file"
