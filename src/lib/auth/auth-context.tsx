@@ -9,6 +9,7 @@ import {
 } from "react";
 import { toast } from "sonner";
 import i18next from "i18next";
+import i18n from "@/lib/i18n";
 import type { UserResponse } from "@/api/model";
 import { tokenStorage } from "./token-storage";
 import { loginUser, logoutUser, registerUser, googleAuth } from "@/api/auth/auth";
@@ -95,7 +96,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = useCallback(
     async (email: string, username: string, password: string, displayName?: string) => {
-      await registerUser({ email, username, display_name: displayName || undefined, password });
+      // Pass detected browser language so emails arrive in the right language immediately
+      const detectedLang = i18n.language?.startsWith("ru") ? "ru" : "en";
+      await registerUser({
+        email,
+        username,
+        display_name: displayName || undefined,
+        password,
+        language: detectedLang,
+      });
       // Auto-login after registration
       await login(username, password);
     },
