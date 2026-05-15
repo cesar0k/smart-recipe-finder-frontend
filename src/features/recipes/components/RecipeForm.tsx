@@ -1,6 +1,7 @@
 import { useFieldArray, useForm, type DefaultValues, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Trash2, Image as ImageIcon, X, Star } from "lucide-react";
+import { useDropzone } from "react-dropzone";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -76,6 +77,7 @@ export function RecipeForm({
     existingUrls,
     newPreviews,
     handleFileChange,
+    handleDropFiles,
     removeNewFile,
     removeExistingUrl,
     setAsCoverExisting,
@@ -83,6 +85,14 @@ export function RecipeForm({
     isExistingCover,
     isNewFileCover,
   } = useRecipeImageManager(form);
+
+  const totalImages = existingUrls.length + (imageFiles?.length || 0);
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop: handleDropFiles,
+    accept: { "image/*": [] },
+    noClick: true,
+    disabled: totalImages >= 5,
+  });
 
   return (
     <Form {...form}>
@@ -137,7 +147,15 @@ export function RecipeForm({
             {t("form_photos_label")}
           </FormLabel>
 
-          <div className="grid grid-cols-3 gap-4 mb-2">
+          <div
+            {...getRootProps()}
+            className={`grid grid-cols-3 gap-4 mb-2 rounded-2xl p-1 -m-1 transition-all ${
+              isDragActive ? "ring-2 ring-black/20 bg-gray-50/80" : ""
+            }`}
+          >
+            {/* Hidden dropzone input (react-dropzone requires it) */}
+            <input {...getInputProps()} />
+
             {/* Old photos */}
             {existingUrls.map((url, index) => {
               const isCover = isExistingCover(url, index);
@@ -230,7 +248,7 @@ export function RecipeForm({
             })}
 
             {/* Upload image button */}
-            {existingUrls.length + (imageFiles?.length || 0) < 5 && (
+            {totalImages < 5 && (
               <div className="aspect-square">
                 <input
                   type="file"
@@ -242,11 +260,15 @@ export function RecipeForm({
                 />
                 <label
                   htmlFor="file-upload"
-                  className="flex flex-col items-center justify-center w-full h-full border-2 border-dashed border-gray-200 rounded-2xl cursor-pointer hover:border-black/20 hover:bg-gray-50 transition-all gap-2 text-gray-400 hover:text-gray-600"
+                  className={`flex flex-col items-center justify-center w-full h-full border-2 border-dashed rounded-2xl cursor-pointer transition-all gap-2 ${
+                    isDragActive
+                      ? "border-black/30 bg-gray-100 text-gray-700"
+                      : "border-gray-200 text-gray-400 hover:border-black/20 hover:bg-gray-50 hover:text-gray-600"
+                  }`}
                 >
                   <ImageIcon className="w-6 h-6" />
-                  <span className="text-xs font-medium">
-                    {t("form_add_photo")}
+                  <span className="text-xs font-medium text-center leading-tight px-1">
+                    {isDragActive ? t("form_drop_photo") : t("form_add_photo")}
                   </span>
                 </label>
               </div>

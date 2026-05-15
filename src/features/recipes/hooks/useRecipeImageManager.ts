@@ -83,6 +83,17 @@ export function useRecipeImageManager(form: UseFormReturn<RecipeFormValues>) {
     setValue("coverExistingUrl", null);
   };
 
+  const handleDropFiles = (acceptedFiles: File[]) => {
+    const currentFiles = getValues("imageFiles") || [];
+    const remaining = 5 - existingUrls.length - currentFiles.length;
+    if (remaining <= 0) {
+      toast.error(t("toast_error_too_many_images"));
+      return;
+    }
+    const newFiles = [...currentFiles, ...acceptedFiles.slice(0, remaining)];
+    setValue("imageFiles", newFiles, { shouldValidate: true });
+  };
+
   const isExistingCover = (url: string, index: number) => {
     if (newCoverIndex != null) return false;
     if (coverExistingUrl != null) return url === coverExistingUrl;
@@ -102,6 +113,7 @@ export function useRecipeImageManager(form: UseFormReturn<RecipeFormValues>) {
     newCoverIndex,
     coverExistingUrl,
     handleFileChange,
+    handleDropFiles,
     removeNewFile,
     removeExistingUrl,
     setAsCoverExisting,

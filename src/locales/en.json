@@ -27,6 +27,7 @@
   "form_description_placeholder": "Briefly describe your dish — what makes it special?",
   "form_photos_label": "Photos",
   "form_add_photo": "Add Photo",
+  "form_drop_photo": "Drop here",
   "form_time_label": "Time (min)",
   "form_difficulty_label": "Difficulty",
   "form_select_placeholder": "Select",
