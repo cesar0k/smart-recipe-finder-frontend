@@ -1,92 +1,138 @@
-# Smart Recipe Finder (Frontend)
+# Smart Recipe Finder — Frontend
 
-Backend – [Smart Recipe Finder Backend](https://github.com/cesar0k/smart-recipe-finder)
+React + TypeScript SPA for a recipe platform with semantic search, ratings, comments, follows, and real-time notifications.
+
+Backend — [smart-recipe-finder-backend](https://github.com/cesar0k/smart-recipe-finder-backend)
 
 ## Tech Stack
 
-- **Core:** [React 19](https://react.dev/), [TypeScript](https://www.typescriptlang.org/), [Vite](https://vitejs.dev/).
-- **State Management & Data Fetching:** [TanStack Query (React Query)](https://tanstack.com/query) for server state, and [Zustand](https://zustand-demo.pmnd.rs/) for global client state.
-- **Routing:** [React Router v7](https://reactrouter.com/).
-- **Styling:** [Tailwind CSS](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/) (Radix UI primitives).
-- **Forms & Validation:** [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/).
-- **API Client:** [Orval](https://orval.dev/) - automatic TypeScript hook generation from OpenAPI spec.
+| | |
+|---|---|
+| Core | React 19, TypeScript, Vite |
+| Server state | TanStack Query (React Query) |
+| Routing | React Router v7 |
+| Styling | Tailwind CSS v4 + shadcn/ui (Radix UI) |
+| Animations | Framer Motion |
+| Forms | React Hook Form + Zod |
+| API client | Orval (auto-generated hooks from OpenAPI spec) |
+| i18n | i18next + browser language detection |
+| Auth | JWT in memory + refresh token in localStorage |
+| Real-time | WebSocket with auto-reconnect and exponential backoff |
 
 ## Features
 
-- **Recipe Management:** Create, read, update, and delete recipes.
-- **Smart Search:** Search for recipes by name, and filter by ingredients to include or exclude.
-- **Internationalization:** Support for multiple languages (English and Russian).
+### Recipes
 
-## Project Structure
+- Browse, search, and filter recipes.
+- Create, edit, and delete own recipes.
+- Draft/moderation workflow — see status badges (pending, approved, rejected, has pending draft).
+- Image gallery (up to 5 photos per recipe) with thumbnail lazy-loading.
+- Similar recipes sidebar.
+- Category shelves on the home feed.
 
-```text
-src/
-├── api/             # Auto-generated API hooks and models (Orval)
-│   ├── model/       # API model definitions
-│   ├── recipes/     # API hooks for recipes
-│   └── root/        # API hooks for root
-├── components/      # Shared UI components (Buttons, Inputs, Skeletons)
-│   ├── layout/      # Layout components (e.g., Footer)
-│   ├── skeletons/   # Skeleton components (e.g., RecipeCardSkeleton)
-│   └── ui/          # shadcn/ui components
-├── features/        # Business logic divided by domain
-│   └── recipes/     # All recipe-related components, hooks, and types
-│       ├── components/ # Recipe-specific components
-│       ├── hooks/      # Recipe-specific hooks
-│       ├── lib/        # Recipe-specific utilities
-│       └── types/      # Recipe-specific types
-├── pages/           # Page layout components (HomePage, RecipePage)
-├── locales/         # Localization files (e.g., en.json, ru.json)
-└── lib/             # Utilities and helpers
-```
+### Search & Discovery
+
+- Natural-language semantic search.
+- Ingredient include/exclude filters.
+- Sort by: newest, popular, top rated, most favorited.
+- Filter by cooking time, difficulty, cuisine, and more.
+
+### Engagement
+
+- Star ratings (1–5) with animated button and live average.
+- Threaded comments with reply, delete, and report actions.
+- Favorites with animated heart button and count.
+- Follow/unfollow authors with debounced requests and optimistic UI.
+- Follower and following list pages per profile.
+
+### User System
+
+- Registration and login (local credentials or Google OAuth2).
+- Public and own profile pages with recipe lists, follower counts, and follow button.
+- Avatar upload with in-browser crop dialog.
+- Email verification banner (soft — does not block access).
+- Password reset via email link.
+- Email change with confirmation to new address.
+- Language preference for transactional and notification emails (`ru` / `en`).
+
+### Notifications
+
+- Real-time in-app notification panel (WebSocket).
+- Infinite scroll inside the dropdown.
+- Unread count badge.
+- Notifications for: new comment, comment reply, recipe approved/rejected, draft approved/rejected, new follower, new recipe from followed author, recipe deleted, new pending recipe (moderators).
+- Per-type email notification toggles in profile settings.
+
+### Moderation
+
+- Moderation queue for pending recipes and reported comments.
+- Inline approve/reject with optional rejection reason.
+- Moderators and admins see role badge on profiles.
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js (v20+)
-- The backend service running (locally or remotely).
+- Node.js 20+
+- Backend running at `http://localhost:8001` (or configure `VITE_API_URL`).
 
-### 1. Clone the repository
+### 1. Clone and install
 
 ```bash
 git clone https://github.com/cesar0k/smart-recipe-finder-frontend.git
 cd smart-recipe-finder-frontend
-```
-
-### 2. Install dependencies
-
-```bash
 npm install
 ```
 
-### 3. Environment Setup
-
-Create a local environment file by copying the provided example:
+### 2. Configure environment
 
 ```bash
 cp .env.example .env
 ```
 
-### 4. Run Development Server
+Key variables:
+
+```dotenv
+VITE_API_URL=http://localhost:8001
+VITE_WS_URL=ws://localhost:8001        # optional, derived from API URL if omitted
+VITE_GOOGLE_CLIENT_ID=                 # optional, enables Google sign-in button
+```
+
+### 3. Start dev server
 
 ```bash
 npm run dev
 ```
 
-The app will be available at `http://localhost:5173`.
+App available at `http://localhost:5173`.
 
 ## API Code Generation
 
-This project uses **Orval** to generate React Query hooks based on the backend's `openapi.json`. You don't need to write `fetch` requests manually.
-
-If the backend API changes:
-
-1. Ensure the backend is running at the URL specified in `.env`.
-2. Run the generation command:
+API hooks are auto-generated from the backend's OpenAPI spec using Orval. Never edit files inside `src/api/` manually.
 
 ```bash
 npm run gen:api
 ```
 
-This will update `src/api/recipes/recipes.ts` and TypeScript interfaces.
+Requires the backend to be running (falls back to the committed `openapi.json` snapshot if unreachable).
+
+## Project Structure
+
+```
+src/
+├── api/                  # Auto-generated hooks and models (Orval) — do not edit
+├── components/           # Shared UI (layout, skeletons, shadcn/ui wrappers)
+├── features/
+│   ├── recipes/          # Recipe components, hooks, and utilities
+│   │   ├── components/   # RecipeCard, FavoriteButton, StarRatingButton, RecipeComments…
+│   │   └── hooks/        # useUpdateRecipeInCaches, useHomeRecipes…
+│   ├── profile/          # EmailVerificationBanner
+│   └── users/            # FollowButton
+├── hooks/                # Shared hooks (useDismissSplash, useNotificationWS…)
+├── lib/
+│   ├── auth/             # AuthContext, token storage
+│   ├── ws/               # WebSocket client with reconnect logic
+│   └── i18n.ts           # i18next setup with browser language detection
+├── locales/              # en.json, ru.json
+└── pages/                # Route-level components (lazy-loaded)
+```
