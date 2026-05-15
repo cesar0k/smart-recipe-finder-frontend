@@ -87,7 +87,7 @@ export function RecipeGallery({ images, thumbnails, title }: RecipeGalleryProps)
 
   if (!images || images.length === 0) {
     return (
-      <div className="aspect-[4/3] w-full overflow-hidden rounded-[2rem] border border-gray-100 shadow-sm bg-gray-50 flex flex-col items-center justify-center text-gray-400">
+      <div className="aspect-[4/3] w-full overflow-hidden rounded-[2rem] border border-gray-200 shadow-sm bg-gray-50 flex flex-col items-center justify-center text-gray-400">
         <ImageIcon className="w-12 h-12 mb-2 opacity-20" />
         <span className="text-sm font-medium opacity-40">
           {t("no_photos_yet")}
@@ -108,7 +108,7 @@ export function RecipeGallery({ images, thumbnails, title }: RecipeGalleryProps)
     return (
       <>
         <div
-          className="w-full overflow-hidden rounded-[2rem] border border-gray-100 shadow-sm bg-gray-50 cursor-pointer group relative"
+          className="w-full overflow-hidden rounded-[2rem] border border-gray-200 shadow-sm bg-gray-50 cursor-pointer group relative"
           style={containerStyle}
           onClick={() => openLightbox(0)}
         >
@@ -136,7 +136,7 @@ export function RecipeGallery({ images, thumbnails, title }: RecipeGalleryProps)
   return (
     <>
       <div
-        className="group relative rounded-[2rem] overflow-hidden shadow-sm border border-gray-100"
+        className="group relative rounded-[2rem] overflow-hidden shadow-sm border border-gray-200"
         style={containerStyle}
       >
         <Carousel setApi={setApi} className="w-full h-full" opts={{ loop: true }}>

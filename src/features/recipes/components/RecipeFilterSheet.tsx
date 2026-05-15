@@ -245,7 +245,7 @@ export function RecipeFilterSheet({
             </div>
           </div>
 
-          <div className="h-px bg-gray-100" />
+          <div className="h-px bg-gray-200" />
 
           {/* Difficulty */}
           <div className="space-y-3">
@@ -295,7 +295,7 @@ export function RecipeFilterSheet({
             </div>
           </div>
 
-          <div className="h-px bg-gray-100" />
+          <div className="h-px bg-gray-200" />
 
           {/* Cuisine */}
           <div className="space-y-3">
@@ -355,7 +355,7 @@ export function RecipeFilterSheet({
             )}
           </div>
 
-          <div className="h-px bg-gray-100" />
+          <div className="h-px bg-gray-200" />
 
           {/* Include ingredients */}
           <div className="space-y-3">
@@ -373,7 +373,7 @@ export function RecipeFilterSheet({
             />
           </div>
 
-          <div className="h-px bg-gray-100" />
+          <div className="h-px bg-gray-200" />
 
           {/* Exclude ingredients */}
           <div className="space-y-3">
@@ -391,7 +391,7 @@ export function RecipeFilterSheet({
             />
           </div>
 
-          <div className="h-px bg-gray-100" />
+          <div className="h-px bg-gray-200" />
 
           {/* Has comments filter */}
           <label className="flex items-center gap-3 cursor-pointer select-none">

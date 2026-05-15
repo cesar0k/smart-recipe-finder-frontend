@@ -4,7 +4,7 @@ import { ImageIcon, Clock } from "lucide-react";
 
 export function RecipeCardSkeleton() {
   return (
-    <Card className="flex flex-col gap-0 rounded-[24px] border border-gray-100 bg-white shadow-sm p-0">
+    <Card className="flex flex-col gap-0 rounded-[24px] border border-gray-200 bg-white shadow-sm p-0">
       <div className="relative aspect-[4/3] w-full overflow-hidden rounded-t-[24px] bg-gray-100">
         <Skeleton className="h-full w-full rounded-none" />
         <div className="absolute inset-0 flex items-center justify-center">

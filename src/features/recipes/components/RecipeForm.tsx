@@ -109,7 +109,7 @@ export function RecipeForm({
                 <Input
                   placeholder={t("form_title_placeholder")}
                   {...field}
-                  className="rounded-full px-4 border-gray-200 bg-gray-50/50 focus:bg-white transition-all"
+                  className="rounded-full px-4 border-gray-300 bg-white transition-all"
                 />
               </FormControl>
               <FormMessage className="ml-4" />
@@ -131,7 +131,7 @@ export function RecipeForm({
               <FormControl>
                 <Textarea
                   placeholder={t("form_description_placeholder")}
-                  className="min-h-[80px] rounded-[1.5rem] p-4 px-5 border-gray-200 bg-gray-50/50 focus:bg-white resize-none"
+                  className="min-h-[80px] rounded-[1.5rem] p-4 px-5 border-gray-300 bg-white resize-none"
                   maxLength={2000}
                   {...field}
                   value={field.value || ""}
@@ -162,7 +162,7 @@ export function RecipeForm({
               return (
                 <div
                   key={url}
-                  className="relative aspect-square rounded-2xl overflow-hidden border border-gray-100 bg-gray-50 group"
+                  className="relative aspect-square rounded-2xl overflow-hidden border border-gray-200 bg-gray-50 group"
                 >
                   <OptimizedImage
                     src={url}
@@ -211,7 +211,7 @@ export function RecipeForm({
               return (
                 <div
                   key={index}
-                  className="relative aspect-square rounded-2xl overflow-hidden border border-gray-100 group"
+                  className="relative aspect-square rounded-2xl overflow-hidden border border-gray-200 group"
                 >
                   <OptimizedImage src={url} alt={t("new_preview_alt")} />
 
@@ -289,7 +289,7 @@ export function RecipeForm({
                   <Input
                     type="number"
                     {...field}
-                    className="rounded-full px-4 border-gray-200 bg-gray-50/50 focus:bg-white"
+                    className="rounded-full px-4 border-gray-300 bg-white"
                   />
                 </FormControl>
                 <FormMessage className="ml-4" />
@@ -310,7 +310,7 @@ export function RecipeForm({
                   value={field.value}
                 >
                   <FormControl>
-                    <SelectTrigger className="w-full rounded-full px-4 border-gray-200 bg-gray-50/50 focus:bg-white">
+                    <SelectTrigger className="w-full rounded-full px-4 border-gray-300 bg-white">
                       <SelectValue placeholder={t("form_select_placeholder")} />
                     </SelectTrigger>
                   </FormControl>
@@ -343,7 +343,7 @@ export function RecipeForm({
                     placeholder={t("form_cuisine_placeholder")}
                     {...field}
                     value={field.value || ""}
-                    className="rounded-full px-4 border-gray-200 bg-gray-50/50 focus:bg-white"
+                    className="rounded-full px-4 border-gray-300 bg-white"
                   />
                 </FormControl>
                 <FormMessage className="ml-4" />
@@ -367,7 +367,7 @@ export function RecipeForm({
                       <Input
                         placeholder={t("form_ingredient_placeholder")}
                         {...field}
-                        className="rounded-full px-4 border-gray-200 bg-gray-50/50 focus:bg-white"
+                        className="rounded-full px-4 border-gray-300 bg-white"
                       />
                     </FormControl>
                     <FormMessage className="ml-4" />
@@ -408,7 +408,7 @@ export function RecipeForm({
               <FormControl>
                 <Textarea
                   placeholder={t("form_instructions_placeholder")}
-                  className="min-h-[150px] rounded-[1.5rem] p-4 px-5 border-gray-200 bg-gray-50/50 focus:bg-white resize-none"
+                  className="min-h-[150px] rounded-[1.5rem] p-4 px-5 border-gray-300 bg-white resize-none"
                   {...field}
                 />
               </FormControl>

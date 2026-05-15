@@ -105,7 +105,7 @@ export function UserSearchInput() {
           }}
           onBlur={() => setIsFocused(false)}
           onKeyDown={handleKeyDown}
-          className="w-full h-8 pl-8 pr-3 text-xs rounded-full border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+          className="w-full h-8 pl-8 pr-3 text-xs rounded-full border-gray-300 bg-white transition-colors"
         />
       </motion.div>
 

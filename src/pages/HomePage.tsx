@@ -159,9 +159,9 @@ export function HomePage() {
 
                 {/* "All recipes" divider placeholder — matches the real one */}
                 <div className="flex items-center gap-4 mb-5 border-gray-100">
-                  <div className="flex-1 h-px bg-gray-100" />
+                  <div className="flex-1 h-px bg-gray-200" />
                   <div className="h-8 w-32 bg-gray-100 rounded-lg animate-pulse" />
-                  <div className="flex-1 h-px bg-gray-100" />
+                  <div className="flex-1 h-px bg-gray-200" />
                 </div>
               </>
             )}
@@ -202,11 +202,11 @@ export function HomePage() {
         {/* ALL RECIPES heading — only on the default feed, after category shelves */}
         {!isSearchView && !hasActiveFilters && !isLoading && !isError && recipes && recipes.length > 0 && (
           <div className="flex items-center gap-4 mb-5 border-gray-100">
-            <div className="flex-1 h-px bg-gray-100" />
+            <div className="flex-1 h-px bg-gray-200" />
             <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight whitespace-nowrap">
               {t("all_recipes")}
             </h2>
-            <div className="flex-1 h-px bg-gray-100" />
+            <div className="flex-1 h-px bg-gray-200" />
           </div>
         )}
 

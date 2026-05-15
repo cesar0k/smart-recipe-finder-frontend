@@ -8,7 +8,6 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { UserAvatar } from "@/components/ui/user-avatar";
-import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/lib/auth/auth-context";
 import {
   useListRecipeComments,
@@ -77,7 +76,7 @@ function CommentForm({
         autoFocus={autoFocus}
         rows={parentCommentId ? 2 : 3}
         maxLength={2000}
-        className="resize-none rounded-2xl border-gray-200 bg-gray-50 focus:bg-white text-sm"
+        className="resize-none rounded-2xl border-gray-300 bg-white text-sm"
       />
       <div className="flex justify-end gap-2">
         {onSuccess && parentCommentId !== undefined && (
@@ -294,7 +293,7 @@ function CommentItem({ comment, recipeId, depth = 0, onDeleted }: CommentItemPro
                   rows={2}
                   maxLength={500}
                   autoFocus
-                  className="resize-none rounded-2xl border-gray-200 bg-gray-50 focus:bg-white text-sm"
+                  className="resize-none rounded-2xl border-gray-300 bg-white text-sm"
                 />
                 <div className="flex justify-end gap-2">
                   <Button
@@ -415,8 +414,6 @@ export function RecipeComments({ recipeId }: RecipeCommentsProps) {
       {/* New comment form */}
       <CommentForm recipeId={recipeId} onSuccess={handleMutation} />
 
-      <Separator />
-
       {/* Comment list */}
       {isLoading && allComments.length === 0 ? (
         <div className="space-y-4">
@@ -434,7 +431,7 @@ export function RecipeComments({ recipeId }: RecipeCommentsProps) {
       ) : allComments.length === 0 ? (
         <p className="text-sm text-gray-400 text-center py-6">{t("comments_empty")}</p>
       ) : (
-        <div className="divide-y divide-gray-100">
+        <div className="divide-y divide-gray-200">
           {allComments.map((comment) => (
             <CommentItem
               key={comment.id}
