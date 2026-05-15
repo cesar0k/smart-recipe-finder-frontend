@@ -119,9 +119,9 @@ export function RegisterPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-8">
       <div className="w-full max-w-sm">
         {/* Card */}
-        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
           {/* Logo header */}
-          <div className="flex items-center justify-center py-4 border-b border-gray-200">
+          <div className="flex items-center justify-center py-4 border-b border-gray-300">
             <Link to="/" className="group flex items-center gap-0 hover:gap-2 transition-all duration-300">
               <div className="w-0 group-hover:w-8 h-8 overflow-hidden transition-all duration-300 opacity-0 group-hover:opacity-100">
                 <div className="w-8 h-8 bg-black rounded-xl flex items-center justify-center">
@@ -183,7 +183,7 @@ export function RegisterPage() {
                         placeholder="you@example.com"
                         autoComplete="email"
                         {...field}
-                        className="rounded-full px-4 border-gray-200 bg-gray-50/50 focus:bg-white h-12"
+                        className="rounded-full px-4 border-gray-300 bg-white h-12"
                       />
                     </FormControl>
                     <FormMessage className="ml-4" />
@@ -204,7 +204,7 @@ export function RegisterPage() {
                         placeholder={t("register_username_placeholder")}
                         autoComplete="username"
                         {...field}
-                        className="rounded-full px-4 border-gray-200 bg-gray-50/50 focus:bg-white h-12"
+                        className="rounded-full px-4 border-gray-300 bg-white h-12"
                       />
                     </FormControl>
                     <FormMessage className="ml-4" />
@@ -225,7 +225,7 @@ export function RegisterPage() {
                         placeholder={t("register_display_name_placeholder")}
                         autoComplete="name"
                         {...field}
-                        className="rounded-full px-4 border-gray-200 bg-gray-50/50 focus:bg-white h-12"
+                        className="rounded-full px-4 border-gray-300 bg-white h-12"
                       />
                     </FormControl>
                     <FormMessage className="ml-4" />
@@ -246,7 +246,7 @@ export function RegisterPage() {
                         placeholder={t("register_password_placeholder")}
                         autoComplete="new-password"
                         {...field}
-                        className="rounded-full px-4 border-gray-200 bg-gray-50/50 focus:bg-white h-12"
+                        className="rounded-full px-4 border-gray-300 bg-white h-12"
                       />
                     </FormControl>
                     <FormMessage className="ml-4" />
@@ -267,7 +267,7 @@ export function RegisterPage() {
                         placeholder={t("register_confirm_password_placeholder")}
                         autoComplete="new-password"
                         {...field}
-                        className="rounded-full px-4 border-gray-200 bg-gray-50/50 focus:bg-white h-12"
+                        className="rounded-full px-4 border-gray-300 bg-white h-12"
                       />
                     </FormControl>
                     <FormMessage className="ml-4" />

@@ -4,7 +4,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { MoreVertical, Trash2, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -97,10 +96,10 @@ function RecipeBottomTabs({
   ];
 
   return (
-    <div id="recipe-tabs" className="border-t border-gray-100 mt-8">
+    <div id="recipe-tabs" className="mt-8">
       {/* Tab bar */}
       <div className="container mx-auto px-4">
-        <div className="flex justify-center border-b border-gray-200">
+        <div className="flex justify-center">
           {tabs.map((item) => (
             <button
               key={item.id}
@@ -334,7 +333,7 @@ export function RecipePage() {
               />
             </div>
 
-            <Separator className="bg-gray-100 hidden lg:block" />
+            {/* Separator removed — was barely visible on white */}
 
             {/* Instructions */}
             <div className="space-y-6">

@@ -4,7 +4,7 @@ export function Footer() {
   const { t } = useTranslation();
 
   return (
-    <footer className="py-8 mt-auto border-t border-gray-200 bg-white">
+    <footer className="py-8 mt-auto border-t border-gray-300 bg-white">
       <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="text-sm text-gray-500">
           {t("footer_rights", { year: new Date().getFullYear() })}

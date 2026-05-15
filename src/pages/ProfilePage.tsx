@@ -262,7 +262,7 @@ export function ProfilePage() {
                 <img
                   src={user.avatar_url}
                   alt={user.username}
-                  className="w-20 h-20 rounded-full object-cover border-2 border-gray-100"
+                  className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
                 />
               ) : (
                 <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center">
@@ -339,7 +339,7 @@ export function ProfilePage() {
             <div className="space-y-1.5">
               <Label className="text-sm">{t("profile_language_label")}</Label>
               <Select value={language} onValueChange={(v) => setLanguage(v as "ru" | "en")}>
-                <SelectTrigger className="w-full rounded-full h-9 text-sm border-gray-200 bg-gray-50/50 focus:bg-white">
+                <SelectTrigger className="w-full rounded-full h-9 text-sm border-gray-300 bg-white">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="rounded-2xl">
@@ -441,7 +441,7 @@ export function ProfilePage() {
                 return (
                   <div
                     key={pref.type}
-                    className="flex items-center justify-between rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3"
+                    className="flex items-center justify-between rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3"
                   >
                     <span className="text-sm text-gray-700">{t(labelKey)}</span>
                     <button
