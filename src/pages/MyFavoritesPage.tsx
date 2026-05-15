@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import axios from "axios";
 
 import { Header } from "@/components/layout/Header";
-import { BackButton } from "@/components/BackButton";
 import { RecipeCard } from "@/features/recipes/components/RecipeCard";
 import { RecipeCardSkeleton } from "@/components/skeletons/RecipeCardSkeleton";
 import { Spinner } from "@/components/ui/spinner";
@@ -28,7 +27,7 @@ export function MyFavoritesPage() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans">
-      <Header leftContent={<BackButton />} />
+      <Header />
 
       <main className="flex-1 container mx-auto px-4 py-8 md:py-12">
         <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight mb-6">

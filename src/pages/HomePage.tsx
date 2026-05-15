@@ -67,9 +67,9 @@ export function HomePage() {
           <Link
             to="/"
             onClick={handleClear}
-            className="group flex items-center gap-0 hover:gap-2 transition-all duration-300 cursor-pointer"
+            className="group flex items-center gap-2 cursor-pointer"
           >
-            <div className="w-0 group-hover:w-7 h-7 overflow-hidden transition-all duration-300 opacity-0 group-hover:opacity-100">
+            <div className="w-7 h-7 transition-transform duration-300 group-hover:scale-110">
               <div className="w-7 h-7 bg-black rounded-lg flex items-center justify-center">
                 <ChefHat className="w-3.5 h-3.5 text-white" />
               </div>
