@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Heart } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -13,11 +13,13 @@ import {
   useFavoriteRecipe,
   useUnfavoriteRecipe,
 } from "@/api/favorites/favorites";
-import type { Recipe } from "@/api/model";
+import { useUpdateRecipeInCaches } from "@/features/recipes/hooks/useUpdateRecipeInCaches";
 
 interface FavoriteButtonProps {
   recipeId: number;
   isFavorited: boolean;
+  /** Show count inside the button (recipe detail page only). */
+  favoritesCount?: number;
   /** When true, render as a small overlay icon (used on RecipeCard). */
   compact?: boolean;
   className?: string;
@@ -31,6 +33,7 @@ interface FavoriteButtonProps {
 export function FavoriteButton({
   recipeId,
   isFavorited,
+  favoritesCount,
   compact = false,
   className,
 }: FavoriteButtonProps) {
@@ -38,77 +41,11 @@ export function FavoriteButton({
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
+  const updateRecipeInCaches = useUpdateRecipeInCaches();
 
   const { mutate: favorite, isPending: favoring } = useFavoriteRecipe();
   const { mutate: unfavorite, isPending: unfavoring } = useUnfavoriteRecipe();
   const isPending = favoring || unfavoring;
-
-  // Walks every recipe-bearing React Query cache (infinite, flat, single
-  // detail) and patches the recipe inline. Keeps optimistic state in sync
-  // across HomePage / shelves / MyFavorites / RecipePage simultaneously.
-  const updateRecipeInCaches = (next: Partial<Recipe>) => {
-    queryClient.setQueriesData<Recipe>(
-      { queryKey: ["/api/v1/recipes/", recipeId] as unknown as readonly unknown[], exact: false },
-      (old) => (old ? { ...old, ...next } : old)
-    );
-    queryClient
-      .getQueryCache()
-      .findAll()
-      .forEach((query) => {
-        const data = query.state.data as unknown;
-        if (!data) return;
-        // Infinite query: { pages: Recipe[][], pageParams: [] }
-        if (
-          typeof data === "object" &&
-          data !== null &&
-          "pages" in data &&
-          Array.isArray((data as { pages: unknown }).pages)
-        ) {
-          const infinite = data as { pages: Recipe[][]; pageParams: unknown[] };
-          let mutated = false;
-          const newPages = infinite.pages.map((page) =>
-            page.map((r) => {
-              if (r.id === recipeId) {
-                mutated = true;
-                return { ...r, ...next };
-              }
-              return r;
-            })
-          );
-          if (mutated) {
-            queryClient.setQueryData(query.queryKey, {
-              ...infinite,
-              pages: newPages,
-            });
-          }
-          return;
-        }
-        // Flat list cache.
-        if (Array.isArray(data)) {
-          let mutated = false;
-          const newList = (data as Recipe[]).map((r) => {
-            if (r && typeof r === "object" && "id" in r && r.id === recipeId) {
-              mutated = true;
-              return { ...r, ...next };
-            }
-            return r;
-          });
-          if (mutated) {
-            queryClient.setQueryData(query.queryKey, newList);
-          }
-          return;
-        }
-        // Single-recipe cache (detail page).
-        if (
-          typeof data === "object" &&
-          data !== null &&
-          "id" in data &&
-          (data as Recipe).id === recipeId
-        ) {
-          queryClient.setQueryData(query.queryKey, { ...(data as Recipe), ...next });
-        }
-      });
-  };
 
   /** Keeps the /favorites/check overlay cache (used by shelves) in sync. */
   const updateFavoritesCheckCaches = (favorited: boolean) => {
@@ -149,11 +86,11 @@ export function FavoriteButton({
 
     const previous = { is_favorited: isFavorited };
     // Optimistic: flip immediately.
-    updateRecipeInCaches({ is_favorited: !isFavorited });
+    updateRecipeInCaches(recipeId, { is_favorited: !isFavorited });
     updateFavoritesCheckCaches(!isFavorited);
 
     const onError = () => {
-      updateRecipeInCaches(previous);
+      updateRecipeInCaches(recipeId, previous);
       updateFavoritesCheckCaches(isFavorited);
       toast.error(t("favorite_toast_error"));
     };
@@ -163,7 +100,7 @@ export function FavoriteButton({
         { recipeId },
         {
           onSuccess: (recipe) => {
-            updateRecipeInCaches({
+            updateRecipeInCaches(recipeId, {
               is_favorited: false,
               favorites_count: recipe.favorites_count,
             });
@@ -178,7 +115,7 @@ export function FavoriteButton({
         { recipeId },
         {
           onSuccess: (recipe) => {
-            updateRecipeInCaches({
+            updateRecipeInCaches(recipeId, {
               is_favorited: true,
               favorites_count: recipe.favorites_count,
             });
@@ -221,10 +158,12 @@ export function FavoriteButton({
     );
   }
 
-  // AnimatedWidth interpolates the wrapper width when the label changes;
-  // colour + Heart scale are driven by framer-motion on the button itself.
   const ROSE_500 = "#f43f5e";
   const ROSE_500_BORDER = "#f43f5e";
+  const showCount = typeof favoritesCount === "number" && favoritesCount > 0;
+  // When showing a count, the display text is just the number; otherwise the label.
+  const displayText = showCount ? String(favoritesCount) : label;
+
   return (
     <AnimatedWidth className="rounded-full">
       <motion.button
@@ -242,7 +181,6 @@ export function FavoriteButton({
         }}
         transition={{ duration: 0.2, ease: "easeOut" }}
         className={cn(
-          // Match buttonVariants size=default minus its color transitions:
           "inline-flex items-center justify-center whitespace-nowrap text-sm font-medium h-9 px-4 py-2 rounded-full border gap-2 outline-none disabled:opacity-100 disabled:pointer-events-none focus-visible:ring-ring/50 focus-visible:ring-[3px] [&_svg]:pointer-events-none [&_svg]:shrink-0 shadow-xs",
           isFavorited && "hover:bg-rose-600",
           !isFavorited && "hover:bg-accent",
@@ -259,7 +197,25 @@ export function FavoriteButton({
             fill={isFavorited ? "currentColor" : "none"}
           />
         </motion.span>
-        <span className="whitespace-nowrap">{label}</span>
+        {/* Animate text cross-fade so it doesn't flash when width changes */}
+        <span className="relative inline-flex items-center h-[1em]">
+          {/* invisible sizer keeps AnimatedWidth tracking the widest text */}
+          <span className="invisible whitespace-nowrap" aria-hidden="true">
+            {displayText}
+          </span>
+          <AnimatePresence mode="popLayout" initial={false}>
+            <motion.span
+              key={displayText}
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
+              className="absolute inset-0 inline-flex items-center whitespace-nowrap"
+            >
+              {displayText}
+            </motion.span>
+          </AnimatePresence>
+        </span>
       </motion.button>
     </AnimatedWidth>
   );

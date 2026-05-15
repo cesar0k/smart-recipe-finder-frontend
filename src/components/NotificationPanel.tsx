@@ -1,6 +1,6 @@
 import { Bell, Check, CheckCheck, Trash2, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,15 +11,15 @@ import {
 import {
   useGetUnreadCount,
   getGetUnreadCountQueryKey,
-  useListNotifications,
   getListNotificationsQueryKey,
   useMarkNotificationRead,
   useMarkAllNotificationsRead,
   useDeleteNotification,
   useDeleteAllNotifications,
+  listNotifications,
 } from "@/api/notifications/notifications";
 import type { NotificationResponse } from "@/api/model";
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useAuth } from "@/lib/auth/auth-context";
 
 /**
@@ -41,6 +41,18 @@ function useNotificationLink() {
         return n.recipe_id ? `/recipe/${n.recipe_id}` : profilePath;
       case "recipe_deleted":
         return profilePath;
+      case "new_comment":
+      case "comment_reply":
+        if (n.recipe_id && n.comment_id) {
+          return `/recipe/${n.recipe_id}#comment-${n.comment_id}`;
+        }
+        return n.recipe_id ? `/recipe/${n.recipe_id}#comments` : null;
+      case "comment_reported":
+        return "/moderation?tab=comments";
+      case "followed_user_published":
+        return n.recipe_id ? `/recipe/${n.recipe_id}` : null;
+      case "user_followed":
+        return null;
       default:
         return null;
     }
@@ -97,6 +109,31 @@ function useNotificationText() {
           heading: t("notif_type_recipe_deleted"),
           body: t("notif_body_recipe_deleted", { title: recipeName }),
         };
+      case "new_comment":
+        return {
+          heading: t("notif_type_new_comment"),
+          body: t("notif_body_new_comment", { title: recipeName }),
+        };
+      case "comment_reply":
+        return {
+          heading: t("notif_type_comment_reply"),
+          body: t("notif_body_comment_reply", { title: recipeName }),
+        };
+      case "comment_reported":
+        return {
+          heading: t("notif_type_comment_reported"),
+          body: t("notif_body_comment_reported", { title: recipeName }),
+        };
+      case "user_followed":
+        return {
+          heading: t("notif_type_user_followed"),
+          body: t("notif_body_user_followed", { username: n.message }),
+        };
+      case "followed_user_published":
+        return {
+          heading: t("notif_type_followed_user_published"),
+          body: t("notif_body_followed_user_published", { author: n.message, title: recipeName }),
+        };
       default:
         return { heading: n.type, body: recipeName };
     }
@@ -129,6 +166,8 @@ function useRelativeTime() {
   };
 }
 
+const PAGE_SIZE = 20;
+
 export function NotificationPanel() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -139,7 +178,43 @@ export function NotificationPanel() {
   const [open, setOpen] = useState(false);
 
   const { data: unreadData } = useGetUnreadCount();
-  const { data: notifications } = useListNotifications({ skip: 0, limit: 20 });
+
+  const {
+    data: infiniteData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: getListNotificationsQueryKey({ limit: PAGE_SIZE }),
+    queryFn: ({ pageParam = 0 }) =>
+      listNotifications({ skip: pageParam as number, limit: PAGE_SIZE }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, _all, lastPageParam) => {
+      if (!lastPage || lastPage.length < PAGE_SIZE) return undefined;
+      return (lastPageParam as number) + PAGE_SIZE;
+    },
+  });
+
+  const notifications: NotificationResponse[] = infiniteData?.pages.flat() ?? [];
+
+  // Sentinel for infinite scroll inside the dropdown
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const sentinelCallbackRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (observerRef.current) observerRef.current.disconnect();
+      if (!node) return;
+      observerRef.current = new IntersectionObserver(
+        (entries) => {
+          if (entries[0]?.isIntersecting && hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+          }
+        },
+        { threshold: 0.1 },
+      );
+      observerRef.current.observe(node);
+    },
+    [hasNextPage, isFetchingNextPage, fetchNextPage],
+  );
   const { mutateAsync: markRead } = useMarkNotificationRead();
   const { mutateAsync: markAllRead } = useMarkAllNotificationsRead();
   const { mutateAsync: deleteOne } = useDeleteNotification();
@@ -233,7 +308,7 @@ export function NotificationPanel() {
               </p>
             </div>
           )}
-          {notifications?.map((n: NotificationResponse) => {
+          {notifications.map((n: NotificationResponse) => {
             const { heading, body } = getNotifText(n);
             const link = getNotificationLink(n);
 
@@ -299,6 +374,13 @@ export function NotificationPanel() {
               </div>
             );
           })}
+          {/* Infinite scroll sentinel */}
+          <div ref={sentinelCallbackRef} className="h-1" />
+          {isFetchingNextPage && (
+            <div className="flex justify-center py-2">
+              <div className="w-4 h-4 border-2 border-gray-200 border-t-gray-500 rounded-full animate-spin" />
+            </div>
+          )}
         </div>
 
         {/* Footer — sticky bottom, always visible */}

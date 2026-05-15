@@ -37,6 +37,21 @@ const MyFavoritesPage = lazy(() =>
 const NotFoundPage = lazy(() =>
   import("./pages/NotFoundPage").then((m) => ({ default: m.NotFoundPage }))
 );
+const EmailVerifyPage = lazy(() =>
+  import("./pages/EmailVerifyPage").then((m) => ({ default: m.EmailVerifyPage }))
+);
+const ForgotPasswordPage = lazy(() =>
+  import("./pages/ForgotPasswordPage").then((m) => ({ default: m.ForgotPasswordPage }))
+);
+const ResetPasswordPage = lazy(() =>
+  import("./pages/ResetPasswordPage").then((m) => ({ default: m.ResetPasswordPage }))
+);
+const FollowersPage = lazy(() =>
+  import("./pages/FollowersPage").then((m) => ({ default: m.FollowersPage }))
+);
+const FollowingPage = lazy(() =>
+  import("./pages/FollowingPage").then((m) => ({ default: m.FollowingPage }))
+);
 
 const HOME_SCROLL_KEY = "home_scroll_y";
 
@@ -90,14 +105,14 @@ function ScrollManager() {
       if (saved > 0) {
         let attempts = 0;
         const tryRestore = () => {
-          window.scrollTo(0, saved);
-          // If the page isn't tall enough yet, retry (content still loading)
-          if (window.scrollY < saved * 0.9 && attempts < 20) {
+          const pageIsReady = document.body.scrollHeight > saved * 1.1;
+          window.scrollTo({ top: saved, behavior: pageIsReady ? "smooth" : "instant" });
+          if (window.scrollY < saved * 0.9 && attempts < 8) {
             attempts++;
-            restoreTimer.current = setTimeout(tryRestore, 100);
+            restoreTimer.current = setTimeout(tryRestore, 200);
           }
         };
-        requestAnimationFrame(tryRestore);
+        restoreTimer.current = setTimeout(() => requestAnimationFrame(tryRestore), 50);
       }
     } else if (mealTypeAdded || (pathname !== "/" && prev !== pathname)) {
       // New category view or any non-home navigation → top
@@ -160,6 +175,11 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/verify-email" element={<EmailVerifyPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/user/:userId/followers" element={<FollowersPage />} />
+          <Route path="/user/:userId/following" element={<FollowingPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>

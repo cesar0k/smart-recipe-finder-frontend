@@ -206,6 +206,15 @@ export function LoginPage() {
               >
                 {isSubmitting ? t("login_loading") : t("login_btn")}
               </Button>
+
+              <div className="text-center">
+                <Link
+                  to="/forgot-password"
+                  className="text-sm text-gray-400 hover:text-gray-700 hover:underline transition-colors"
+                >
+                  {t("forgot_password_link")}
+                </Link>
+              </div>
             </form>
           </Form>
           </div>

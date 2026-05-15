@@ -6,6 +6,7 @@ import {
   ChefHat,
   Shield,
   ShieldCheck,
+  Users,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
@@ -41,6 +42,7 @@ import {
 } from "@/api/recipes/recipes";
 import { useAuth } from "@/lib/auth/auth-context";
 import type { Recipe } from "@/api/model";
+import { FollowButton } from "@/features/users/components/FollowButton";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
 
 const PAGE_SIZE = 12;
@@ -237,7 +239,7 @@ export function PublicProfilePage() {
               </div>
 
               {/* Stats */}
-              <div className="flex items-center gap-4 text-sm text-gray-500">
+              <div className="flex items-center gap-4 text-sm text-gray-500 flex-wrap justify-center">
                 <div className="flex items-center gap-1.5">
                   <CalendarDays className="w-4 h-4 text-gray-400" />
                   {t("user_joined", {
@@ -248,7 +250,24 @@ export function PublicProfilePage() {
                   <ChefHat className="w-4 h-4 text-gray-400" />
                   {t("user_recipe_count", { count: profile.recipe_count })}
                 </div>
+                <Link
+                  to={`/user/${uid}/followers`}
+                  className="flex items-center gap-1.5 hover:text-gray-700 transition-colors"
+                >
+                  <Users className="w-4 h-4 text-gray-400" />
+                  {t("followers_count", { count: profile.followers_count ?? 0 })}
+                </Link>
               </div>
+
+              {/* Follow button */}
+              {!isOwnProfile && (
+                <div className="pt-1">
+                  <FollowButton
+                    userId={uid}
+                    isFollowing={profile.is_following ?? false}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Recipes */}

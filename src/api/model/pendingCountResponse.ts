@@ -8,4 +8,5 @@
 export interface PendingCountResponse {
   recipes: number;
   drafts: number;
+  comment_reports?: number;
 }

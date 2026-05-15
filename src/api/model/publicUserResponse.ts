@@ -15,4 +15,6 @@ export interface PublicUserResponse {
   role?: string;
   created_at: string;
   recipe_count?: number;
+  followers_count?: number;
+  is_following?: boolean;
 }

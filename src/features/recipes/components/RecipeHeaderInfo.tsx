@@ -1,5 +1,4 @@
-import { AnimatePresence, motion } from "framer-motion";
-import { AlertTriangle, ChefHat, Clock, Heart, User } from "lucide-react";
+import { AlertTriangle, ChefHat, Clock, MessageCircle, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { type Recipe } from "@/api/model/recipe";
@@ -7,16 +6,20 @@ import { useTranslation } from "react-i18next";
 import { getDifficultyKey } from "@/lib/utils";
 import { useAuth } from "@/lib/auth/auth-context";
 import { FavoriteButton } from "@/features/recipes/components/FavoriteButton";
+import { StarRatingButton } from "@/features/recipes/components/StarRatingButton";
 
 interface RecipeHeaderInfoProps {
   recipe: Recipe;
   /** Whether the viewer is allowed to see moderation metadata (status, reject reason) */
   canViewStatus?: boolean;
+  /** Called when the comments count badge is clicked — scrolls to and activates Comments tab. */
+  onScrollToComments?: () => void;
 }
 
 export function RecipeHeaderInfo({
   recipe,
   canViewStatus = false,
+  onScrollToComments,
 }: RecipeHeaderInfoProps) {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -105,38 +108,34 @@ export function RecipeHeaderInfo({
               : t("unknown_difficulty")}
           </span>
         </div>
+        {/* Comments count badge — clickable, scrolls to Comments tab */}
+        <button
+          type="button"
+          onClick={onScrollToComments}
+          className="flex items-center gap-2 bg-white border border-gray-200 px-4 py-2 rounded-full transition-colors hover:border-gray-300 hover:bg-gray-50 disabled:pointer-events-none"
+          disabled={!onScrollToComments}
+        >
+          <MessageCircle className="w-4 h-4 text-gray-400" />
+          <span className="font-medium text-gray-900 text-sm">
+            {t("comments_count", { count: recipe.comments_count ?? 0 })}
+          </span>
+        </button>
       </div>
 
       {recipe.status === "approved" && (
-        <motion.div
-          layout
-          transition={{ duration: 0.3, ease: "easeOut" }}
-          className="flex flex-wrap items-center gap-3 pt-2"
-        >
+        <div className="flex items-center gap-3 pt-2 flex-wrap">
           <FavoriteButton
             recipeId={recipe.id}
             isFavorited={recipe.is_favorited ?? false}
+            favoritesCount={recipe.favorites_count ?? 0}
           />
-          {/* Counter slides in/out as favorites_count crosses 0. */}
-          <AnimatePresence initial={false}>
-            {(recipe.favorites_count ?? 0) > 0 && (
-              <motion.span
-                key="fav-counter"
-                layout
-                initial={{ width: 0, opacity: 0 }}
-                animate={{ width: "auto", opacity: 1 }}
-                exit={{ width: 0, opacity: 0 }}
-                transition={{ duration: 0.3, ease: "easeOut" }}
-                className="inline-flex items-center gap-1.5 text-sm text-gray-500 overflow-hidden"
-              >
-                <Heart className="w-4 h-4 text-rose-400 fill-current shrink-0" />
-                <span className="whitespace-nowrap">
-                  {t("favorites_count", { count: recipe.favorites_count ?? 0 })}
-                </span>
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </motion.div>
+          <StarRatingButton
+            recipeId={recipe.id}
+            userRating={recipe.user_rating ?? null}
+            averageRating={recipe.average_rating ?? 0}
+            ratingsCount={recipe.ratings_count ?? 0}
+          />
+        </div>
       )}
     </div>
   );

@@ -7,9 +7,11 @@
 import type { UserSelfUpdateUsername } from './userSelfUpdateUsername';
 import type { UserSelfUpdateDisplayName } from './userSelfUpdateDisplayName';
 import type { UserSelfUpdateEmail } from './userSelfUpdateEmail';
+import type { UserSelfUpdateLanguage } from './userSelfUpdateLanguage';
 
 export interface UserSelfUpdate {
   username?: UserSelfUpdateUsername;
   display_name?: UserSelfUpdateDisplayName;
   email?: UserSelfUpdateEmail;
+  language?: UserSelfUpdateLanguage;
 }

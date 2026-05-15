@@ -15,6 +15,7 @@ import type { RecipeOwnerId } from './recipeOwnerId';
 import type { RecipeOwnerUsername } from './recipeOwnerUsername';
 import type { RecipeRejectionReason } from './recipeRejectionReason';
 import type { RecipeTags } from './recipeTags';
+import type { RecipeUserRating } from './recipeUserRating';
 
 export interface Recipe {
   title?: RecipeTitle;
@@ -36,5 +37,10 @@ export interface Recipe {
   has_pending_draft?: boolean;
   tags?: RecipeTags;
   favorites_count?: number;
+  average_rating?: number;
+  ratings_count?: number;
+  comments_count?: number;
+  engagement_score?: number;
   is_favorited?: boolean;
+  user_rating?: RecipeUserRating;
 }

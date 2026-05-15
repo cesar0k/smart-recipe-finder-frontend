@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { MoreVertical, Trash2, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -29,9 +31,137 @@ import { useDeleteRecipeLogic } from "../features/recipes/hooks/useDeleteRecipeL
 import { RecipeHeaderInfo } from "@/features/recipes/components/RecipeHeaderInfo";
 import { RecipeGallery } from "@/features/recipes/components/RecipeGallery";
 import { SimilarRecipesSection } from "@/features/recipes/components/SimilarRecipesSection";
+import { RecipeComments } from "@/features/recipes/components/RecipeComments";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/lib/auth/auth-context";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
+
+// ── Bottom tabs: Similar | Comments ──────────────────────────────────────────
+
+export type RecipeTab = "similar" | "comments";
+
+function RecipeBottomTabs({
+  recipeId,
+  commentsCount,
+  activeTab,
+  onTabChange,
+  commentsEverShown,
+  onShowComments,
+}: {
+  recipeId: number;
+  commentsCount: number;
+  activeTab: RecipeTab;
+  onTabChange: (tab: RecipeTab) => void;
+  commentsEverShown: boolean;
+  onShowComments: () => void;
+}) {
+  const { t } = useTranslation();
+  const tab = activeTab;
+
+  const [panelMinHeight, setPanelMinHeight] = useState<number | undefined>(undefined);
+
+  const handleTabClick = (next: RecipeTab) => {
+    if (next === tab) return;
+    if (next === "comments") onShowComments();
+
+    // Only lock panel height when switching TO comments (prevents collapse during load).
+    // When switching back to similar, just let it shrink naturally.
+    if (next === "comments") {
+      const panelEl = document.getElementById("tab-panel-container");
+      if (panelEl) setPanelMinHeight(panelEl.offsetHeight);
+    }
+
+    const savedScroll = window.scrollY;
+    onTabChange(next);
+
+    if (next === "comments") {
+      // Preserve scroll position when switching to comments
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => window.scrollTo(0, savedScroll))
+      );
+    }
+    // When switching back to similar — don't force scroll,
+    // let the browser auto-correct if scrollY exceeds new page height.
+
+    setTimeout(() => setPanelMinHeight(undefined), 600);
+  };
+
+  const tabs = [
+    { id: "similar" as const, label: t("similar_recipes_title") },
+    {
+      id: "comments" as const,
+      label: commentsCount > 0
+        ? `${t("comments_title")} (${commentsCount})`
+        : t("comments_title"),
+    },
+  ];
+
+  return (
+    <div id="recipe-tabs" className="border-t border-gray-100 mt-8">
+      {/* Tab bar */}
+      <div className="container mx-auto px-4">
+        <div className="flex justify-center border-b border-gray-200">
+          {tabs.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => handleTabClick(item.id)}
+              className={[
+                "relative px-8 py-3 text-sm font-medium transition-colors",
+                tab === item.id ? "text-gray-900" : "text-gray-400 hover:text-gray-700",
+              ].join(" ")}
+            >
+              {item.label}
+              {tab === item.id && (
+                <motion.span
+                  layoutId="tab-indicator"
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900 rounded-full"
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                />
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Tab panels — min-height locked during tab switch to prevent scroll jump */}
+      <div
+        id="tab-panel-container"
+        className="container mx-auto px-4 py-8"
+        style={{
+          overflowAnchor: "none",
+          minHeight: panelMinHeight,
+          transition: undefined,
+        }}
+      >
+        <AnimatePresence mode="wait" initial={false}>
+          {tab === "similar" ? (
+            <motion.div
+              key="similar"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, transition: { duration: 0 } }}
+              transition={{ duration: 0.15 }}
+            >
+              <SimilarRecipesSection recipeId={recipeId} />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="comments"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, transition: { duration: 0 } }}
+              transition={{ duration: 0.15 }}
+              className="max-w-3xl mx-auto"
+            >
+              {commentsEverShown && <RecipeComments recipeId={recipeId} />}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
 
 export function RecipePage() {
   useDismissSplash();
@@ -39,6 +169,44 @@ export function RecipePage() {
   const { deleteRecipe, isDeleting } = useDeleteRecipeLogic();
   const { t } = useTranslation();
   const { user, hasRole } = useAuth();
+  const { hash } = useLocation();
+  const isCommentsHash = hash === "#comments" || hash.startsWith("#comment-");
+  const [activeTab, setActiveTab] = useState<RecipeTab>(
+    isCommentsHash ? "comments" : "similar"
+  );
+  const [commentsEverShown, setCommentsEverShown] = useState(isCommentsHash);
+  const showComments = () => setCommentsEverShown(true);
+
+  // When navigated from a notification — switch tab, scroll, highlight the comment.
+  // Runs on every hash change so it works even when already on the recipe page.
+  useEffect(() => {
+    if (!isCommentsHash || isLoading || !recipe) return;
+
+    // Always switch to comments tab
+    setActiveTab("comments");
+    setCommentsEverShown(true);
+
+    const tabsEl = document.getElementById("recipe-tabs");
+    if (hash.startsWith("#comment-")) {
+      const commentId = hash.slice("#comment-".length);
+      // Give comments time to render, then scroll + highlight
+      const timer = setTimeout(() => {
+        const commentEl = document.getElementById(`comment-${commentId}`);
+        if (commentEl) {
+          commentEl.scrollIntoView({ behavior: "smooth", block: "center" });
+          // Add highlight class, then fade it out via transition
+          commentEl.classList.add("comment-highlight");
+          setTimeout(() => commentEl.classList.remove("comment-highlight"), 2000);
+        } else {
+          tabsEl?.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 450);
+      return () => clearTimeout(timer);
+    } else {
+      tabsEl?.scrollIntoView({ behavior: "smooth" });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hash, isLoading, recipe]);
 
   const canModify =
     !!user &&
@@ -118,7 +286,15 @@ export function RecipePage() {
 
             {/* Mobile version of title */}
             <div className="lg:hidden">
-              <RecipeHeaderInfo recipe={recipe} canViewStatus={canModify} />
+              <RecipeHeaderInfo
+                recipe={recipe}
+                canViewStatus={canModify}
+                onScrollToComments={() => {
+                  showComments();
+                  setActiveTab("comments");
+                  document.getElementById("recipe-tabs")?.scrollIntoView({ behavior: "smooth" });
+                }}
+              />
             </div>
 
             {/* Ingredients */}
@@ -147,7 +323,15 @@ export function RecipePage() {
           {/* Right side */}
           <div className="space-y-8">
             <div className="hidden lg:block">
-              <RecipeHeaderInfo recipe={recipe} canViewStatus={canModify} />
+              <RecipeHeaderInfo
+                recipe={recipe}
+                canViewStatus={canModify}
+                onScrollToComments={() => {
+                  showComments();
+                  setActiveTab("comments");
+                  document.getElementById("recipe-tabs")?.scrollIntoView({ behavior: "smooth" });
+                }}
+              />
             </div>
 
             <Separator className="bg-gray-100 hidden lg:block" />
@@ -166,7 +350,16 @@ export function RecipePage() {
           </div>
         </div>
 
-        <SimilarRecipesSection recipeId={recipe.id} />
+        {recipe.status === "approved" && (
+          <RecipeBottomTabs
+            recipeId={recipe.id}
+            commentsCount={recipe.comments_count ?? 0}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            commentsEverShown={commentsEverShown}
+            onShowComments={showComments}
+          />
+        )}
       </main>
 
       {/* Edit sheet */}

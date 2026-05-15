@@ -1,4 +1,4 @@
-import { Clock, Pencil, Trash2 } from "lucide-react";
+import { Clock, Heart, Pencil, Star, Trash2 } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 import { OptimizedImage } from "@/components/ui/optimized-image";
@@ -18,6 +18,8 @@ interface RecipeCardProps {
   ownerUsername?: string | null;
   /** Moderator's reason — shown inline on rejected cards */
   rejectionReason?: string | null;
+  averageRating?: number;
+  favoritesCount?: number;
   /** Called when "Fix" button is pressed on rejected recipes (owner-only) */
   onResubmit?: () => void;
   /** Called when generic "Edit" button is pressed (e.g. by moderators on any status) */
@@ -46,6 +48,8 @@ export function RecipeCard({
   hasPendingDraft,
   ownerUsername,
   rejectionReason,
+  averageRating = 0,
+  favoritesCount = 0,
   onResubmit,
   onEdit,
   onDelete,
@@ -115,6 +119,18 @@ export function RecipeCard({
             <h3 className="font-bold text-lg text-gray-900 leading-tight line-clamp-1 [overflow-wrap:anywhere]">
               {title}
             </h3>
+
+            {/* Stats row — always visible */}
+            <div className="flex items-center gap-3 text-xs text-gray-400">
+              <span className="flex items-center gap-1">
+                <Star className="w-3.5 h-3.5 text-amber-400 fill-current shrink-0" />
+                {averageRating > 0 ? averageRating.toFixed(1) : "—"}
+              </span>
+              <span className="flex items-center gap-1">
+                <Heart className="w-3.5 h-3.5 text-rose-400 fill-current shrink-0" />
+                {favoritesCount}
+              </span>
+            </div>
 
             <div className="flex items-center gap-2 flex-wrap">
               <div className="flex items-center text-gray-500 bg-gray-100 px-2.5 py-1 rounded-lg text-xs font-semibold tracking-wide">

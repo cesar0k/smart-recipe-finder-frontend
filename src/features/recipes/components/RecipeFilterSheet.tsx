@@ -27,6 +27,7 @@ interface FilterState {
   maxTime: number | undefined;
   difficulty: string[];
   cuisine: string[];
+  hasComments: boolean;
 }
 
 interface RecipeFilterSheetProps {
@@ -37,6 +38,7 @@ interface RecipeFilterSheetProps {
   maxTime: number | undefined;
   selectedDifficulty: string[];
   selectedCuisine: string[];
+  hasComments?: boolean;
   /** Called once with all filter values when the dialog closes */
   onApply: (filters: FilterState) => void;
 }
@@ -48,7 +50,8 @@ function countFilters(f: FilterState): number {
     (f.minTime !== undefined ? 1 : 0) +
     (f.maxTime !== undefined ? 1 : 0) +
     f.difficulty.length +
-    f.cuisine.length
+    f.cuisine.length +
+    (f.hasComments ? 1 : 0)
   );
 }
 
@@ -62,7 +65,8 @@ function filtersDiffer(a: FilterState, b: FilterState): boolean {
     a.minTime !== b.minTime ||
     a.maxTime !== b.maxTime ||
     !sameArr(a.difficulty, b.difficulty) ||
-    !sameArr(a.cuisine, b.cuisine)
+    !sameArr(a.cuisine, b.cuisine) ||
+    a.hasComments !== b.hasComments
   );
 }
 
@@ -73,6 +77,7 @@ export function RecipeFilterSheet({
   maxTime,
   selectedDifficulty,
   selectedCuisine,
+  hasComments = false,
   onApply,
 }: RecipeFilterSheetProps) {
   const { t } = useTranslation();
@@ -87,6 +92,7 @@ export function RecipeFilterSheet({
     maxTime,
     difficulty: selectedDifficulty,
     cuisine: selectedCuisine,
+    hasComments,
   });
 
   // Sync draft from props when dialog opens
@@ -100,6 +106,7 @@ export function RecipeFilterSheet({
         maxTime,
         difficulty: selectedDifficulty,
         cuisine: selectedCuisine,
+        hasComments,
       });
       setCuisineSearch("");
     }
@@ -115,7 +122,7 @@ export function RecipeFilterSheet({
     setOpen(nextOpen);
     if (!nextOpen && open && filtersDiffer(draft, {
       include, exclude, minTime, maxTime,
-      difficulty: selectedDifficulty, cuisine: selectedCuisine,
+      difficulty: selectedDifficulty, cuisine: selectedCuisine, hasComments,
     })) {
       const snapshot = draft;
       setTimeout(() => onApply(snapshot), 300);
@@ -130,6 +137,7 @@ export function RecipeFilterSheet({
       maxTime: undefined,
       difficulty: [],
       cuisine: [],
+      hasComments: false,
     };
     setDraft(empty);
   };
@@ -144,6 +152,7 @@ export function RecipeFilterSheet({
         maxTime,
         difficulty: selectedDifficulty,
         cuisine: selectedCuisine,
+        hasComments,
       });
 
   const { data: allCuisines = [] } = useGetCuisines({
@@ -381,6 +390,21 @@ export function RecipeFilterSheet({
               variant="destructive"
             />
           </div>
+
+          <div className="h-px bg-gray-100" />
+
+          {/* Has comments filter */}
+          <label className="flex items-center gap-3 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={draft.hasComments}
+              onChange={(e) =>
+                setDraft((d) => ({ ...d, hasComments: e.target.checked }))
+              }
+              className="w-4 h-4 rounded accent-gray-900 cursor-pointer"
+            />
+            <span className="text-sm text-gray-700">{t("filter_has_comments")}</span>
+          </label>
         </div>
       </DialogScrollContent>
     </Dialog>

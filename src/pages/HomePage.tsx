@@ -45,6 +45,7 @@ export function HomePage() {
     maxTime,
     selectedDifficulty,
     selectedCuisine,
+    hasComments,
     applyAllFilters,
     sort,
     setSort,
@@ -130,6 +131,7 @@ export function HomePage() {
               maxTime={maxTime}
               selectedDifficulty={selectedDifficulty}
               selectedCuisine={selectedCuisine}
+              hasComments={hasComments}
               onApply={applyAllFilters}
             />
 
@@ -225,6 +227,8 @@ export function HomePage() {
                     image={recipe.image_urls?.[0] || ""}
                     thumbnail={recipe.thumbnail_urls?.[0]}
                     ownerUsername={recipe.owner_username}
+                    averageRating={recipe.average_rating}
+                    favoritesCount={recipe.favorites_count}
                     imageOverlay={
                       <FavoriteButton
                         recipeId={recipe.id}
