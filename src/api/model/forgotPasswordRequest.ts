@@ -4,7 +4,9 @@
  * Smart Recipes Finder
  * OpenAPI spec version: 2.0.0
  */
+import type { ForgotPasswordRequestRecaptchaToken } from './forgotPasswordRequestRecaptchaToken';
 
 export interface ForgotPasswordRequest {
   email: string;
+  recaptcha_token?: ForgotPasswordRequestRecaptchaToken;
 }

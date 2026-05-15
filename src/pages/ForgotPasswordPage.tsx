@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useForgotPassword } from "@/api/auth/auth";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
+import { useRecaptcha } from "@/hooks/useRecaptcha";
 
 export function ForgotPasswordPage() {
   useDismissSplash();
@@ -18,13 +19,16 @@ export function ForgotPasswordPage() {
   const [error, setError] = useState<string | null>(null);
 
   const { mutate: forgotPassword, isPending } = useForgotPassword();
+  const executeRecaptcha = useRecaptcha("forgot_password");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
+    const recaptchaToken = await executeRecaptcha();
+
     forgotPassword(
-      { data: { email } },
+      { data: { email, recaptcha_token: recaptchaToken || undefined } },
       {
         onSuccess: () => setSent(true),
         onError: (err) => {
@@ -115,6 +119,9 @@ export function ForgotPasswordPage() {
               >
                 {isPending ? t("forgot_password_sending") : t("forgot_password_btn")}
               </Button>
+              <p className="text-center text-[11px] text-gray-400">
+                {t("recaptcha_notice")}
+              </p>
             </form>
           </div>
         </div>

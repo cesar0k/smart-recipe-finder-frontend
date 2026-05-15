@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,6 +21,7 @@ import {
 import { useAuth } from "@/lib/auth/auth-context";
 import { useTranslation } from "react-i18next";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
+import { useRecaptcha } from "@/hooks/useRecaptcha";
 
 function createLoginSchema(t: (key: string) => string) {
   return z.object({
@@ -35,6 +36,7 @@ export function LoginPage() {
   useDismissSplash();
   const { t } = useTranslation();
   const { login, loginWithGoogle, isAuthenticated } = useAuth();
+  const executeRecaptcha = useRecaptcha("login");
   const navigate = useNavigate();
   const location = useLocation();
   const [error, setError] = useState<string | null>(null);
@@ -42,10 +44,12 @@ export function LoginPage() {
 
   const from = (location.state as { from?: string })?.from || "/";
 
-  // If already authenticated, redirect
-  if (isAuthenticated) {
-    navigate(from, { replace: true });
-  }
+  // If already authenticated, redirect (useEffect avoids setState-during-render warning)
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, navigate, from]);
 
   const loginSchema = createLoginSchema(t);
 
@@ -58,7 +62,8 @@ export function LoginPage() {
     setError(null);
     setIsSubmitting(true);
     try {
-      await login(data.username, data.password);
+      const recaptchaToken = await executeRecaptcha();
+      await login(data.username, data.password, recaptchaToken);
       navigate(from, { replace: true });
     } catch (err) {
       if (axios.isAxiosError(err)) {
@@ -152,7 +157,12 @@ export function LoginPage() {
           </div>
 
           <Form {...form}>
-            <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form
+              noValidate
+              onSubmit={form.handleSubmit(onSubmit)}
+              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) form.handleSubmit(onSubmit)(); }}
+              className="space-y-4"
+            >
               <FormField
                 control={form.control}
                 name="username"
@@ -206,6 +216,10 @@ export function LoginPage() {
               >
                 {isSubmitting ? t("login_loading") : t("login_btn")}
               </Button>
+
+              <p className="text-center text-[11px] text-gray-400">
+                {t("recaptcha_notice")}
+              </p>
 
               <div className="text-center">
                 <Link

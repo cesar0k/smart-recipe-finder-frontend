@@ -132,6 +132,8 @@ export const customInstance = <T>(
   const promise = AXIOS_INSTANCE({
     ...config,
     ...options,
+    // Merge headers from both config and options instead of letting options overwrite
+    headers: { ...config.headers, ...options?.headers },
     signal: controller.signal,
   }).then(({ data }) => data);
 

@@ -456,5 +456,7 @@
   "notif_type_followed_user_published": "New recipe",
   "notif_body_followed_user_published": "{{author}} published: {{title}}",
 
-  "profile_language_label": "Email language"
+  "profile_language_label": "Email language",
+
+  "recaptcha_notice": "This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply."
 }

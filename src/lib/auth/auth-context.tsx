@@ -19,9 +19,9 @@ interface AuthContextValue {
   user: UserResponse | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (username: string, password: string) => Promise<void>;
+  login: (username: string, password: string, recaptchaToken?: string) => Promise<void>;
   loginWithGoogle: (code: string) => Promise<void>;
-  register: (email: string, username: string, password: string, displayName?: string) => Promise<void>;
+  register: (email: string, username: string, password: string, displayName?: string, recaptchaToken?: string) => Promise<void>;
   logout: () => Promise<void>;
   /** Re-fetch current user data (e.g. after avatar/profile update) */
   refetchUser: () => Promise<void>;
@@ -76,8 +76,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback(
-    async (username: string, password: string) => {
-      const tokens = await loginUser({ username, password });
+    async (username: string, password: string, recaptchaToken?: string) => {
+      const tokens = await loginUser(
+        { username, password },
+        // Merge headers rather than replacing — loginUser sets Content-Type: form-urlencoded
+        // and customInstance spreads options on top, so we must nest under `headers` only.
+        recaptchaToken
+          ? { headers: { "x-recaptcha-token": recaptchaToken } }
+          : undefined,
+      );
       tokenStorage.setTokens(tokens.access_token, tokens.refresh_token);
       await fetchUser();
     },
@@ -95,7 +102,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const register = useCallback(
-    async (email: string, username: string, password: string, displayName?: string) => {
+    async (email: string, username: string, password: string, displayName?: string, recaptchaToken?: string) => {
       // Pass detected browser language so emails arrive in the right language immediately
       const detectedLang = i18n.language?.startsWith("ru") ? "ru" : "en";
       await registerUser({
@@ -104,6 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         display_name: displayName || undefined,
         password,
         language: detectedLang,
+        recaptcha_token: recaptchaToken || undefined,
       });
       // Auto-login after registration
       await login(username, password);

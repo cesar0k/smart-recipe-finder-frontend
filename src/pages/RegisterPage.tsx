@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,6 +21,7 @@ import {
 import { useAuth } from "@/lib/auth/auth-context";
 import { useTranslation } from "react-i18next";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
+import { useRecaptcha } from "@/hooks/useRecaptcha";
 
 function createRegisterSchema(t: (key: string) => string) {
   return z
@@ -49,6 +50,7 @@ export function RegisterPage() {
   useDismissSplash();
   const { t } = useTranslation();
   const { register: registerUser, loginWithGoogle, isAuthenticated } = useAuth();
+  const executeRecaptcha = useRecaptcha("register");
   const navigate = useNavigate();
   const location = useLocation();
   const [error, setError] = useState<string | null>(null);
@@ -56,9 +58,11 @@ export function RegisterPage() {
 
   const from = (location.state as { from?: string })?.from || "/";
 
-  if (isAuthenticated) {
-    navigate(from, { replace: true });
-  }
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, navigate, from]);
 
   const googleLogin = useGoogleLogin({
     flow: "auth-code",
@@ -90,7 +94,8 @@ export function RegisterPage() {
     setError(null);
     setIsSubmitting(true);
     try {
-      await registerUser(data.email, data.username, data.password, data.displayName);
+      const recaptchaToken = await executeRecaptcha();
+      await registerUser(data.email, data.username, data.password, data.displayName, recaptchaToken);
       navigate(from, { replace: true });
     } catch (err) {
       if (axios.isAxiosError(err)) {
@@ -281,6 +286,9 @@ export function RegisterPage() {
               >
                 {isSubmitting ? t("register_loading") : t("register_btn")}
               </Button>
+              <p className="text-center text-[11px] text-gray-400">
+                {t("recaptcha_notice")}
+              </p>
             </form>
           </Form>
           </div>
