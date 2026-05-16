@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
-import { useMemo } from "react";
+import { memo, useMemo } from "react";
 import { RecipeCard } from "./RecipeCard";
 import { FavoriteButton } from "./FavoriteButton";
 import { RecipeCardSkeleton } from "@/components/skeletons/RecipeCardSkeleton";
@@ -23,32 +23,30 @@ export function CategoryShelves() {
   const { isAuthenticated } = useAuth();
   const { data: categories, isLoading, isError } = useRecipeCategories(LIMIT_PER);
 
-  // Shelves are cached user-agnostically; favorited state comes from a
-  // separate /favorites/check overlay call.
-  const visibleRecipeIds = useMemo(() => {
-    if (!categories) return [] as number[];
+  // Build a stable sorted comma-string of all visible recipe IDs.
+  // Sorting ensures the string is identical even if category order changes.
+  const idsParam = useMemo(() => {
+    if (!categories) return "";
     const seen = new Set<number>();
     for (const cat of categories) {
-      for (const r of cat.recipes) {
-        seen.add(r.id);
-      }
+      for (const r of cat.recipes) seen.add(r.id);
     }
-    return Array.from(seen);
+    return Array.from(seen).sort((a, b) => a - b).join(",");
   }, [categories]);
 
-  const idsParam = visibleRecipeIds.join(",");
   const { data: checkResp } = useCheckFavorites(
     { ids: idsParam },
     {
       query: {
-        enabled: isAuthenticated && visibleRecipeIds.length > 0,
+        enabled: isAuthenticated && idsParam.length > 0,
         staleTime: 30_000,
       },
     }
   );
+  // Depend only on the array reference, not the whole response object
   const favoritedSet = useMemo(
     () => new Set(checkResp?.favorited_ids ?? []),
-    [checkResp]
+    [checkResp?.favorited_ids]
   );
 
   if (isError) {
@@ -136,7 +134,7 @@ export function CategoryShelves() {
 }
 
 // ── "Show all" link in the header ─────────────────────────────────────────────
-function ShowAllLink({ mealType, label }: { mealType: string; label: string }) {
+const ShowAllLink = memo(function ShowAllLink({ mealType, label }: { mealType: string; label: string }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const href = `/?meal_type=${encodeURIComponent(mealType)}&category_label=${encodeURIComponent(label)}`;
@@ -150,10 +148,10 @@ function ShowAllLink({ mealType, label }: { mealType: string; label: string }) {
       <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
     </button>
   );
-}
+});
 
 // ── "Show all" card at end of carousel ───────────────────────────────────────
-function ShowAllCard({ mealType, label }: { mealType: string; label: string }) {
+const ShowAllCard = memo(function ShowAllCard({ mealType, label }: { mealType: string; label: string }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const href = `/?meal_type=${encodeURIComponent(mealType)}&category_label=${encodeURIComponent(label)}`;
@@ -167,7 +165,7 @@ function ShowAllCard({ mealType, label }: { mealType: string; label: string }) {
       <span className="text-sm font-medium">{t("show_all")}</span>
     </button>
   );
-}
+});
 
 // ── Skeleton ──────────────────────────────────────────────────────────────────
 // Mirrors the real shelf: no top border, mt-12 only for idx !== 0, h2 + "Show all"

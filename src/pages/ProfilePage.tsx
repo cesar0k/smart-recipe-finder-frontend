@@ -225,10 +225,10 @@ export function ProfilePage() {
   const isGoogleUser = user?.auth_provider === "google";
 
   return (
-    <div className="min-h-screen bg-white font-sans">
+    <div className="min-h-screen bg-white font-sans pb-16 md:pb-0">
       <Header />
 
-      <main className="container mx-auto px-4 py-6 md:py-10 max-w-md flex flex-col items-center">
+      <main className="container mx-auto px-4 pt-6 pb-24 md:pb-10 max-w-md flex flex-col items-center">
         <div className="w-full">
           <h1 className="text-2xl font-bold text-gray-900 mb-6 text-center">
             {t("profile_title")}

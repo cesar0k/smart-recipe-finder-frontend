@@ -16,11 +16,11 @@ export function FollowersPage() {
   const { data: followers, isLoading } = useGetFollowers(uid, { skip: 0, limit: 100 });
 
   return (
-    <div className="min-h-screen bg-white font-sans">
+    <div className="min-h-screen bg-white font-sans pb-16 md:pb-0">
       <Header leftContent={<BackButton />} />
 
-      <main className="container mx-auto px-4 py-8 max-w-lg">
-        <h1 className="text-xl font-bold text-gray-900 mb-6">
+      <main className="container mx-auto px-4 pt-8 pb-24 md:pb-8 max-w-lg">
+        <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight mb-6">
           {t("followers_page_title")}
         </h1>
 

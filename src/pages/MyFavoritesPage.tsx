@@ -29,7 +29,7 @@ export function MyFavoritesPage() {
     <div className="min-h-screen bg-white flex flex-col font-sans">
       <Header />
 
-      <main className="flex-1 container mx-auto px-4 py-8 md:py-12">
+      <main className="flex-1 container mx-auto px-4 pt-8 pb-24 md:py-12">
         <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight mb-6">
           {t("favorites_title")}
         </h1>

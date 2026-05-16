@@ -153,7 +153,7 @@
   "toast_updated_pending": "Изменения отправлены на модерацию",
 
   "moderation_title": "Модерация",
-  "moderation_tab_recipes": "Новые рецепты",
+  "moderation_tab_recipes": "Рецепты",
   "moderation_tab_drafts": "Правки",
   "moderation_no_pending_recipes": "Нет рецептов на модерации",
   "moderation_no_pending_drafts": "Нет правок на модерации",
@@ -249,7 +249,7 @@
   "user_search_loading": "Поиск...",
   "user_search_empty": "Пользователи не найдены",
   "my_recipes_link": "Мои рецепты",
-  "profile_my_link": "Мой профиль",
+  "profile_my_link": "Профиль",
   "profile_settings_link": "Настройки",
   "my_recipes_title": "Мои рецепты",
   "my_recipes_empty": "Вы ещё не создали ни одного рецепта",
@@ -459,5 +459,8 @@
 
   "profile_language_label": "Язык писем",
 
-  "recaptcha_notice": "Этот сайт защищён reCAPTCHA. Применяются Политика конфиденциальности и Условия использования Google."
+  "recaptcha_notice": "Этот сайт защищён reCAPTCHA. Применяются Политика конфиденциальности и Условия использования Google.",
+
+  "nav_home": "Главная",
+  "nav_notifications": "Уведомления"
 }

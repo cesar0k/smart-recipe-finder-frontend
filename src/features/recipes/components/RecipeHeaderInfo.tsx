@@ -58,7 +58,7 @@ export function RecipeHeaderInfo({
         </Badge>
       )}
 
-      <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight leading-[1.1] break-words">
+      <h1 className="text-2xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 tracking-tight leading-[1.1] break-words">
         {recipe.title}
       </h1>
 
@@ -93,16 +93,16 @@ export function RecipeHeaderInfo({
         </p>
       )}
 
-      <div className="flex flex-wrap items-center gap-3 text-gray-500 pt-2">
-        <div className="flex items-center gap-2 bg-white border border-gray-200 px-4 py-2 rounded-full">
-          <Clock className="w-5 h-5 text-gray-400" />
-          <span className="font-medium text-gray-900">
+      <div className="flex flex-wrap items-center gap-2 text-gray-500 pt-2">
+        <div className="flex items-center gap-1.5 bg-white border border-gray-200 px-3 py-1.5 rounded-full">
+          <Clock className="w-4 h-4 text-gray-400 shrink-0" />
+          <span className="font-medium text-gray-900 text-sm">
             {recipe.cooking_time_in_minutes} {t("min")}
           </span>
         </div>
-        <div className="flex items-center gap-2 bg-white border border-gray-200 px-4 py-2 rounded-full">
-          <ChefHat className="w-5 h-5 text-gray-400" />
-          <span className="font-medium text-gray-900">
+        <div className="flex items-center gap-1.5 bg-white border border-gray-200 px-3 py-1.5 rounded-full">
+          <ChefHat className="w-4 h-4 text-gray-400 shrink-0" />
+          <span className="font-medium text-gray-900 text-sm">
             {recipe.difficulty
               ? t(getDifficultyKey(recipe.difficulty))
               : t("unknown_difficulty")}
@@ -112,18 +112,22 @@ export function RecipeHeaderInfo({
         <button
           type="button"
           onClick={onScrollToComments}
-          className="flex items-center gap-2 bg-white border border-gray-200 px-4 py-2 rounded-full transition-colors hover:border-gray-300 hover:bg-gray-50 disabled:pointer-events-none"
+          className="flex items-center gap-1.5 bg-white border border-gray-200 px-3 py-1.5 rounded-full transition-colors hover:border-gray-300 hover:bg-gray-50 disabled:pointer-events-none"
           disabled={!onScrollToComments}
         >
-          <MessageCircle className="w-4 h-4 text-gray-400" />
-          <span className="font-medium text-gray-900 text-sm">
+          <MessageCircle className="w-4 h-4 text-gray-400 shrink-0" />
+          {/* On mobile show just the number; on desktop show full label */}
+          <span className="font-medium text-gray-900 text-sm md:hidden">
+            {recipe.comments_count ?? 0}
+          </span>
+          <span className="font-medium text-gray-900 text-sm hidden md:inline">
             {t("comments_count", { count: recipe.comments_count ?? 0 })}
           </span>
         </button>
       </div>
 
       {recipe.status === "approved" && (
-        <div className="flex items-center gap-3 pt-2 flex-wrap">
+        <div className="flex items-center gap-3 pt-2 flex-nowrap">
           <FavoriteButton
             recipeId={recipe.id}
             isFavorited={recipe.is_favorited ?? false}

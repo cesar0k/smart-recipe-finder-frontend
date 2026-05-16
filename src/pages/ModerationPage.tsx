@@ -224,7 +224,7 @@ export function ModerationPage() {
     pendingCount?.comment_reports ?? reportedComments?.length ?? 0;
 
   return (
-    <div className="min-h-screen bg-white font-sans">
+    <div className="min-h-screen bg-white font-sans pb-16 md:pb-0">
       <Header leftContent={<BackButton />} />
 
       <main className="container mx-auto px-4 py-8 md:py-12 max-w-3xl">

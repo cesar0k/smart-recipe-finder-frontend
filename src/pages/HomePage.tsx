@@ -1,18 +1,15 @@
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Search, X, ArrowRight, ChefHat } from "lucide-react";
+import { ChefHat } from "lucide-react";
 import axios from "axios";
 
-import { AnimatedWidth } from "@/components/ui/animated-width";
 import { dismissSplash } from "@/lib/splash";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { RecipeCard } from "@/features/recipes/components/RecipeCard";
 import { FavoriteButton } from "@/features/recipes/components/FavoriteButton";
 import { useHomeRecipes } from "../features/recipes/hooks/useHomeRecipes";
 import { CreateRecipeSheet } from "@/features/recipes/components/CreateRecipeSheet";
-import { RecipeFilterSheet } from "@/features/recipes/components/RecipeFilterSheet";
-import { RecipeSortMenu } from "@/features/recipes/components/RecipeSortMenu";
+import { HomeSearchBlock } from "@/features/recipes/components/HomeSearchBlock";
 import { RecipeCardSkeleton } from "@/components/skeletons/RecipeCardSkeleton";
 import { CategoryShelves, CategoryShelfSkeleton } from "@/features/recipes/components/CategoryShelf";
 import { Footer } from "@/components/layout/Footer";
@@ -30,15 +27,12 @@ export function HomePage() {
     isError,
     error,
     isEmpty,
-    searchTerm,
-    setSearchTerm,
     submittedSearch,
     handleSearch,
     handleClear,
     isSearchView,
     hasActiveFilters,
     heading,
-    onKeyDown,
     includeIngredients,
     excludeIngredients,
     minTime,
@@ -54,27 +48,30 @@ export function HomePage() {
     hasNextPage,
   } = useHomeRecipes();
 
+  // Stable callbacks to avoid unnecessary re-renders of HomeSearchBlock
+  const stableHandleSearch = useCallback(handleSearch, [handleSearch]);
+  const stableHandleClear = useCallback(handleClear, [handleClear]);
+
   // Tear down the splash once the first batch of recipes is rendered.
-  // Also fires for error / empty so an empty backend doesn't strand it.
   useEffect(() => {
     if (!isLoading) dismissSplash();
   }, [isLoading]);
 
   return (
-    <div className="min-h-screen bg-white flex flex-col font-sans">
+    <div className="min-h-screen bg-white flex flex-col font-sans pb-16 md:pb-0">
       <Header
         leftContent={
           <Link
             to="/"
             onClick={handleClear}
-            className="group flex items-center gap-2 cursor-pointer"
+            className="group flex items-center gap-2 cursor-pointer shrink-0"
           >
-            <div className="w-7 h-7 transition-transform duration-300 group-hover:scale-110">
-              <div className="w-7 h-7 bg-black rounded-lg flex items-center justify-center">
-                <ChefHat className="w-3.5 h-3.5 text-white" />
+            <div className="w-9 h-9 md:w-7 md:h-7 transition-transform duration-300 group-hover:scale-110">
+              <div className="w-9 h-9 md:w-7 md:h-7 bg-black rounded-xl md:rounded-lg flex items-center justify-center">
+                <ChefHat className="w-5 h-5 md:w-3.5 md:h-3.5 text-white" />
               </div>
             </div>
-            <span className="font-bold text-xl tracking-tighter text-gray-900">
+            <span className="hidden md:inline font-bold text-xl tracking-tighter text-gray-900">
               {t("app_name")}
             </span>
           </Link>
@@ -84,63 +81,24 @@ export function HomePage() {
 
       {/* MAIN */}
       <main className={`flex-1 container mx-auto px-4 pt-8 md:pt-12 ${hasNextPage ? "pb-0" : "py-8 md:py-12"}`}>
-        {/* SEARCH BLOCK */}
-        <div className="max-w-4xl mx-auto text-center mb-12 space-y-6">
-          <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 tracking-tight w-full truncate">
-            {heading}
-          </h1>
-
-          <div className="flex items-center gap-3 w-full max-w-xl mx-auto">
-            <div className="relative flex items-center flex-1 min-w-0">
-              <Search className="absolute left-4 text-gray-400 w-5 h-5 pointer-events-none" />
-
-              <Input
-                placeholder={t("hero_search_placeholder")}
-                className="pl-12 pr-24 h-14 text-lg rounded-full border-gray-200 shadow-sm focus:border-gray-400 focus:ring-0 transition-all hover:border-gray-300 hover:shadow-md"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyDown={onKeyDown}
-              />
-
-              <div className="absolute right-2 flex items-center gap-1">
-                {searchTerm && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleClear}
-                    className="h-10 w-10 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100"
-                  >
-                    <X className="w-5 h-5" />
-                  </Button>
-                )}
-
-                <Button
-                  size="icon"
-                  onClick={handleSearch}
-                  className="h-10 w-10 rounded-full bg-black text-white hover:bg-gray-800 shadow-md"
-                >
-                  <ArrowRight className="w-5 h-5" />
-                </Button>
-              </div>
-            </div>
-
-            <RecipeFilterSheet
-              include={includeIngredients}
-              exclude={excludeIngredients}
-              minTime={minTime}
-              maxTime={maxTime}
-              selectedDifficulty={selectedDifficulty}
-              selectedCuisine={selectedCuisine}
-              hasComments={hasComments}
-              onApply={applyAllFilters}
-            />
-
-            {/* Sort is only meaningful in search view (category shelves are unsortable). */}
-            <AnimatedWidth open={isSearchView}>
-              <RecipeSortMenu value={sort} onChange={setSort} />
-            </AnimatedWidth>
-          </div>
-        </div>
+        {/* SEARCH BLOCK — isolated in its own memo component so typing doesn't re-render the whole page */}
+        <HomeSearchBlock
+          submittedSearch={submittedSearch}
+          heading={heading}
+          isSearchView={isSearchView}
+          sort={sort}
+          setSort={setSort}
+          includeIngredients={includeIngredients}
+          excludeIngredients={excludeIngredients}
+          minTime={minTime}
+          maxTime={maxTime}
+          selectedDifficulty={selectedDifficulty}
+          selectedCuisine={selectedCuisine}
+          hasComments={hasComments}
+          applyAllFilters={applyAllFilters}
+          onSearch={stableHandleSearch}
+          onClear={stableHandleClear}
+        />
 
         {/* CATEGORY SHELVES — visible only on the default feed (no search/filters) */}
         {!isSearchView && !hasActiveFilters && <CategoryShelves />}
@@ -157,7 +115,7 @@ export function HomePage() {
                   ))}
                 </div>
 
-                {/* "All recipes" divider placeholder — matches the real one */}
+                {/* "All recipes" divider placeholder */}
                 <div className="flex items-center gap-4 mb-5 border-gray-100">
                   <div className="flex-1 h-px bg-gray-200" />
                   <div className="h-8 w-32 bg-gray-100 rounded-lg animate-pulse" />
@@ -199,7 +157,7 @@ export function HomePage() {
           </div>
         )}
 
-        {/* ALL RECIPES heading — only on the default feed, after category shelves */}
+        {/* ALL RECIPES heading */}
         {!isSearchView && !hasActiveFilters && !isLoading && !isError && recipes && recipes.length > 0 && (
           <div className="flex items-center gap-4 mb-5 border-gray-100">
             <div className="flex-1 h-px bg-gray-200" />
@@ -241,9 +199,9 @@ export function HomePage() {
               ))}
             </div>
 
-            {/* Infinite scroll sentinel */}
+            {/* Infinite scroll sentinel — pb-24 on mobile keeps loader above BottomNav */}
             {hasNextPage && (
-              <div ref={sentinelRef} className="flex justify-center items-center py-8">
+              <div ref={sentinelRef} className="flex justify-center items-center py-8 pb-24 md:pb-8">
                 {isFetchingNextPage && <Spinner size="md" />}
               </div>
             )}

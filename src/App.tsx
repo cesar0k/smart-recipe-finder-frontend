@@ -6,6 +6,7 @@ import {
   IndicatorSuspenseFallback,
   RouteTransitionIndicator,
 } from "./components/RouteTransitionIndicator";
+import { BottomNav } from "./components/layout/BottomNav";
 
 const HomePage = lazy(() =>
   import("./pages/HomePage").then((m) => ({ default: m.HomePage }))
@@ -51,6 +52,9 @@ const FollowersPage = lazy(() =>
 );
 const FollowingPage = lazy(() =>
   import("./pages/FollowingPage").then((m) => ({ default: m.FollowingPage }))
+);
+const NotificationsPage = lazy(() =>
+  import("./pages/NotificationsPage").then((m) => ({ default: m.NotificationsPage }))
 );
 
 const HOME_SCROLL_KEY = "home_scroll_y";
@@ -180,9 +184,18 @@ function App() {
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/user/:userId/followers" element={<FollowersPage />} />
           <Route path="/user/:userId/following" element={<FollowingPage />} />
+          <Route
+            path="/notifications"
+            element={
+              <ProtectedRoute>
+                <NotificationsPage />
+              </ProtectedRoute>
+            }
+          />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>
+      <BottomNav />
       <Toaster />
     </>
   );

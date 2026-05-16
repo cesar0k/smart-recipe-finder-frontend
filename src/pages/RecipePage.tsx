@@ -216,7 +216,7 @@ export function RecipePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-white font-sans">
+      <div className="min-h-screen bg-white font-sans pb-16 md:pb-0">
         <Header leftContent={<BackButton />} />
         <main className="container mx-auto px-4 py-8 md:py-12">
           <RecipePageSkeleton />
@@ -240,7 +240,7 @@ export function RecipePage() {
   }
 
   return (
-    <div className="min-h-screen bg-white font-sans">
+    <div className="min-h-screen bg-white font-sans pb-16 md:pb-0">
       <Header
         leftContent={<BackButton />}
         rightContent={
@@ -273,7 +273,7 @@ export function RecipePage() {
       />
 
       <main className="container mx-auto px-4 py-8 md:py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-10 lg:gap-16">
           {/* Left side */}
           <div className="space-y-8">
             {/* Image */}

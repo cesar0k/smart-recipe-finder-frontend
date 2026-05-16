@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useImperativeHandle, forwardRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, ChefHat } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -8,7 +8,13 @@ import { useTranslation } from "react-i18next";
 import { useSearchUsers } from "@/api/users/users";
 import type { PublicUserResponse } from "@/api/model";
 
-export function UserSearchInput() {
+export interface UserSearchInputHandle {
+  focus: () => void;
+  clear: () => void;
+}
+
+export const UserSearchInput = forwardRef<UserSearchInputHandle, { autoFocus?: boolean; fullWidth?: boolean }>(
+function UserSearchInput({ autoFocus = false, fullWidth = false }, ref) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
@@ -16,6 +22,12 @@ export function UserSearchInput() {
   const [isOpen, setIsOpen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useImperativeHandle(ref, () => ({
+    focus: () => inputRef.current?.focus(),
+    clear: () => { setQuery(""); setDebouncedQuery(""); setIsOpen(false); },
+  }));
 
   // Debounce
   useEffect(() => {
@@ -85,17 +97,23 @@ export function UserSearchInput() {
     }
   };
 
+  // Memoized mobile check — computed once on mount, stable until resize
+  const isMobile = useRef(typeof window !== "undefined" && window.innerWidth < 768).current;
+  const collapsedW = isMobile ? 96 : 160;
+  const expandedW = isMobile ? 140 : 224;
+
   return (
-    <div ref={containerRef} className="relative">
+    <div ref={containerRef} className={fullWidth ? "relative w-full" : "relative"}>
       {/* Width animates on focus/blur; initial={false} avoids a stuttery mount-time anim. */}
       <motion.div
         initial={false}
-        animate={{ width: isFocused ? 224 : 160 }}
+        animate={fullWidth ? { width: "100%" } : { width: isFocused ? expandedW : collapsedW }}
         transition={{ duration: 0.2, ease: "easeOut" }}
         className="relative"
       >
         <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
         <Input
+          ref={inputRef}
           placeholder={t("user_search_placeholder")}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -105,6 +123,7 @@ export function UserSearchInput() {
           }}
           onBlur={() => setIsFocused(false)}
           onKeyDown={handleKeyDown}
+          autoFocus={autoFocus}
           className="w-full h-8 pl-8 pr-3 text-xs rounded-full border-gray-300 bg-white transition-colors"
         />
       </motion.div>
@@ -113,11 +132,11 @@ export function UserSearchInput() {
         {isOpen && (
           <motion.div
             key="user-search-dropdown"
-            initial={{ opacity: 0, scale: 0.95, y: -4 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: -4 }}
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
-            className="absolute top-full mt-2 right-0 w-64 bg-white rounded-2xl border border-gray-200 shadow-lg z-30 overflow-hidden origin-top-right"
+            className={`absolute top-full mt-2 right-0 bg-white rounded-2xl border border-gray-200 shadow-lg z-30 overflow-hidden origin-top-right ${fullWidth ? "left-0 w-full" : "w-64"}`}
           >
             {!isFetching && (!results || results.length === 0) && (
               <div className="px-4 py-3 text-xs text-gray-400 text-center">
@@ -126,9 +145,8 @@ export function UserSearchInput() {
             )}
 
             {results?.map((user) => (
-              <motion.button
+              <button
                 key={user.id}
-                layout
                 type="button"
                 className="w-full px-4 py-2.5 flex items-center gap-3 hover:bg-gray-50 transition-colors text-left"
                 onClick={() => handleSelect(user.id)}
@@ -147,11 +165,12 @@ export function UserSearchInput() {
                     {t("user_recipe_count", { count: user.recipe_count })}
                   </p>
                 </div>
-              </motion.button>
+              </button>
             ))}
           </motion.div>
         )}
       </AnimatePresence>
     </div>
   );
-}
+});
+UserSearchInput.displayName = "UserSearchInput";
