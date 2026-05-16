@@ -14,6 +14,9 @@ import { RecipeLightbox } from "./RecipeLightbox";
 import { useTranslation } from "react-i18next";
 
 const FALLBACK_RATIO = 4 / 3;
+// Minimum ratio (width/height): prevents very tall portrait images from
+// dominating the viewport. 4/5 = gives ~125% of container width as height.
+const MIN_RATIO = 4 / 5;
 // iOS-like spring curve: gentle start, smooth deceleration
 const TRANSITION = "aspect-ratio 0.4s cubic-bezier(0.2, 0, 0, 1)";
 
@@ -55,7 +58,7 @@ export function RecipeGallery({ images, thumbnails, title }: RecipeGalleryProps)
         // If this is the currently visible slide (or the first load),
         // update the container immediately.
         if (index === 0 && activeRatio === FALLBACK_RATIO) {
-          setActiveRatio(ratio);
+          setActiveRatio(Math.max(MIN_RATIO, ratio));
         }
       }
     },
@@ -70,7 +73,7 @@ export function RecipeGallery({ images, thumbnails, title }: RecipeGalleryProps)
       const idx = api.selectedScrollSnap();
       const ratio = ratiosRef.current[idx];
       if (ratio) {
-        setActiveRatio(ratio);
+        setActiveRatio(Math.max(MIN_RATIO, ratio));
       }
     };
 
