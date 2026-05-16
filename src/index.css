@@ -129,12 +129,8 @@
     @apply bg-background text-foreground;
   }
   /*
-    react-remove-scroll-bar (used by Radix Dialog / Sheet) measures the
-    scrollbar gap as (window.innerWidth - document.clientWidth). With
-    scrollbar-gutter: stable the gutter is always reserved, so clientWidth
-    is already reduced by ~15 px even when no scrollbar is rendered — causing
-    Radix to add a spurious margin-right. We override it back to 0 because
-    the gutter already provides the visual compensation.
+    Prevent the spurious extra margin-right that react-remove-scroll-bar would add
+    on top of the scrollbar-gutter compensation.
   */
   body[data-scroll-locked] {
     margin-right: 0 !important;
@@ -146,6 +142,21 @@
   border-radius: var(--radius-3xl) !important;
 }
 
+
+/* Extend modal overlays to cover the scrollbar gutter.
+   Radix sets --removed-body-scroll-bar-size on body = scrollbar width.
+   Must be outside @layer base to beat Tailwind's inset-0 utility. */
+[data-slot="dialog-overlay"],
+[data-slot="sheet-overlay"] {
+  right: calc(-1 * var(--removed-body-scroll-bar-size, 0px)) !important;
+}
+
+/* The scrollbar gutter area is painted by the <html> element background.
+   Darken it when a modal is open so it blends with the overlay. */
+body[data-scroll-locked] ~ * { }
+html:has(body[data-scroll-locked]) {
+  background-color: black;
+}
 
 /* Reply indent + L-shaped connector */
 .comment-reply {
