@@ -252,27 +252,27 @@ function CommentItem({ comment, recipeId, depth = 0, onDeleted }: CommentItemPro
             </div>
           )}
 
-          {/* Inline reply form */}
-          <AnimatePresence initial={false}>
-            {replyOpen && (
-              <motion.div
-                key="reply-form"
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
-                className="overflow-hidden mt-3"
-              >
-                <CommentForm
-                  recipeId={recipeId}
-                  parentCommentId={comment.id}
-                  placeholder={t("comment_reply_placeholder")}
-                  autoFocus
-                  onSuccess={() => setReplyOpen(false)}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {/* Inline reply form — grid-rows trick animates height without jumping */}
+          <motion.div
+            initial={false}
+            animate={{
+              gridTemplateRows: replyOpen ? "1fr" : "0fr",
+              opacity: replyOpen ? 1 : 0,
+              marginTop: replyOpen ? 12 : 0,
+            }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="grid"
+          >
+            <div className="overflow-hidden">
+              <CommentForm
+                recipeId={recipeId}
+                parentCommentId={comment.id}
+                placeholder={t("comment_reply_placeholder")}
+                autoFocus={replyOpen}
+                onSuccess={() => setReplyOpen(false)}
+              />
+            </div>
+          </motion.div>
 
           {/* Inline report form */}
           <AnimatePresence initial={false}>
@@ -280,12 +280,13 @@ function CommentItem({ comment, recipeId, depth = 0, onDeleted }: CommentItemPro
               <motion.form
                 key="report-form"
                 onSubmit={handleReport}
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
+                initial={{ gridTemplateRows: "0fr", opacity: 0 }}
+                animate={{ gridTemplateRows: "1fr", opacity: 1 }}
+                exit={{ gridTemplateRows: "0fr", opacity: 0 }}
                 transition={{ duration: 0.2, ease: "easeOut" }}
-                className="overflow-hidden mt-3 flex flex-col gap-2"
+                className="mt-3 grid"
               >
+                <div className="overflow-hidden flex flex-col gap-2">
                 <Textarea
                   value={reportReason}
                   onChange={(e) => setReportReason(e.target.value)}
@@ -315,6 +316,7 @@ function CommentItem({ comment, recipeId, depth = 0, onDeleted }: CommentItemPro
                     {t("comment_report_submit")}
                   </Button>
                 </div>
+              </div>
               </motion.form>
             )}
           </AnimatePresence>

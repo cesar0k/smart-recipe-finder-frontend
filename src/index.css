@@ -125,10 +125,17 @@
   }
   html {
     scrollbar-gutter: stable;
-    overscroll-behavior: none; /* prevent scroll bleeding into bottom nav on mobile */
+    overscroll-behavior: none;
   }
   body {
     @apply bg-background text-foreground;
+  }
+  /* Prevent iOS/Android from zooming in when focusing inputs.
+     Browsers zoom when font-size < 16px — set it globally on mobile. */
+  @media (max-width: 767px) {
+    input, textarea, select {
+      font-size: 16px !important;
+    }
   }
   /*
     Prevent the spurious extra margin-right that react-remove-scroll-bar would add
