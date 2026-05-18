@@ -7,6 +7,7 @@ import {
   RouteTransitionIndicator,
 } from "./components/RouteTransitionIndicator";
 import { BottomNav } from "./components/layout/BottomNav";
+import { ScrollToTop } from "./components/ui/scroll-to-top";
 
 const HomePage = lazy(() =>
   import("./pages/HomePage").then((m) => ({ default: m.HomePage }))
@@ -196,6 +197,7 @@ function App() {
         </Routes>
       </Suspense>
       <BottomNav />
+      <ScrollToTop />
       <Toaster />
     </>
   );
