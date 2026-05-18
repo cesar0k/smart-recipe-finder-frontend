@@ -318,6 +318,7 @@ export function ProfilePage() {
               <Input
                 id="username"
                 placeholder={t("profile_username_placeholder")}
+                autoCapitalize="none"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="rounded-full h-9 px-4 text-sm"
@@ -330,6 +331,7 @@ export function ProfilePage() {
               <Input
                 id="email"
                 type="email"
+                autoCapitalize="none"
                 placeholder={t("profile_email_placeholder")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}

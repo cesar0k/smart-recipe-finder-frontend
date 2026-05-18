@@ -161,7 +161,8 @@ export function FavoriteButton({
   const ROSE_500 = "#f43f5e";
   const ROSE_500_BORDER = "#f43f5e";
   const showCount = typeof favoritesCount === "number" && favoritesCount > 0;
-  // When showing a count, the display text is just the number; otherwise the label.
+  // Show the count when available; show label only when count > 0 (avoids
+  // text-change flash when toggling with zero favorites).
   const displayText = showCount ? String(favoritesCount) : label;
 
   return (
@@ -197,25 +198,26 @@ export function FavoriteButton({
             fill={isFavorited ? "currentColor" : "none"}
           />
         </motion.span>
-        {/* Animate text cross-fade so it doesn't flash when width changes */}
-        <span className="relative inline-flex items-center h-[1em]">
-          {/* invisible sizer keeps AnimatedWidth tracking the widest text */}
-          <span className="invisible whitespace-nowrap" aria-hidden="true">
-            {displayText}
-          </span>
-          <AnimatePresence mode="popLayout" initial={false}>
-            <motion.span
-              key={displayText}
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.18, ease: "easeOut" }}
-              className="absolute inset-0 inline-flex items-center whitespace-nowrap"
-            >
+        {/* Only show text when there's a count — avoids label-change flash with 0 favorites */}
+        {showCount && (
+          <span className="relative inline-flex items-center h-[1em]">
+            <span className="invisible whitespace-nowrap" aria-hidden="true">
               {displayText}
-            </motion.span>
-          </AnimatePresence>
-        </span>
+            </span>
+            <AnimatePresence mode="popLayout" initial={false}>
+              <motion.span
+                key={displayText}
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.18, ease: "easeOut" }}
+                className="absolute inset-0 inline-flex items-center whitespace-nowrap"
+              >
+                {displayText}
+              </motion.span>
+            </AnimatePresence>
+          </span>
+        )}
       </motion.button>
     </AnimatedWidth>
   );

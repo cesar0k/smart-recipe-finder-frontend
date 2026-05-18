@@ -175,6 +175,7 @@ export function LoginPage() {
                       <Input
                         placeholder={t("login_username_placeholder")}
                         autoComplete="username"
+                        autoCapitalize="none"
                         {...field}
                         className="rounded-full px-4 border-gray-300 bg-white h-12"
                       />

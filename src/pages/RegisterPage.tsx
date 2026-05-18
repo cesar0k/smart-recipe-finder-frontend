@@ -182,6 +182,7 @@ export function RegisterPage() {
                         type="email"
                         placeholder="you@example.com"
                         autoComplete="email"
+                        autoCapitalize="none"
                         {...field}
                         className="rounded-full px-4 border-gray-300 bg-white h-12"
                       />
@@ -203,6 +204,7 @@ export function RegisterPage() {
                       <Input
                         placeholder={t("register_username_placeholder")}
                         autoComplete="username"
+                        autoCapitalize="none"
                         {...field}
                         className="rounded-full px-4 border-gray-300 bg-white h-12"
                       />

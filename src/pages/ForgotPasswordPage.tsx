@@ -100,6 +100,7 @@ export function ForgotPasswordPage() {
                 <Input
                   id="email"
                   type="email"
+                  autoCapitalize="none"
                   placeholder="you@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
