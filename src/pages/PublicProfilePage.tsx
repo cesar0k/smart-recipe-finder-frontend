@@ -164,12 +164,12 @@ export function PublicProfilePage() {
   const roleBadge = profile?.role ? ROLE_BADGE[profile.role] : null;
 
   return (
-    <div className="min-h-screen bg-white font-sans">
+    <div className="min-h-screen bg-white font-sans pb-16 md:pb-0">
       <Header
         rightContent={isOwnProfile ? <CreateRecipeSheet /> : undefined}
       />
 
-      <main className="container mx-auto px-4 py-6 md:py-7">
+      <main className="container mx-auto px-4 pt-6 pb-24 md:pb-7">
         {isLoading && (
           <>
             <ProfileHeaderSkeleton />

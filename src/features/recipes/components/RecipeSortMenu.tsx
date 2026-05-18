@@ -18,6 +18,7 @@ interface RecipeSortMenuProps {
   onChange: (next: RecipeSort) => void;
   /** When true, hide the option label and only show the icon (mobile-tight). */
   compact?: boolean;
+  className?: string;
 }
 
 const OPTIONS: { value: RecipeSort; labelKey: string }[] = [
@@ -31,6 +32,7 @@ export function RecipeSortMenu({
   value,
   onChange,
   compact = false,
+  className,
 }: RecipeSortMenuProps) {
   const { t } = useTranslation();
   const current = OPTIONS.find((o) => o.value === value) ?? OPTIONS[0]!;
@@ -45,7 +47,8 @@ export function RecipeSortMenu({
           title={t("sort_label")}
           className={cn(
             buttonVariants({ variant: "outline", size: compact ? "icon" : "default" }),
-            "rounded-full gap-2"
+            "rounded-full gap-2",
+            className
           )}
         >
           <ArrowDownUp className="w-4 h-4 shrink-0" />

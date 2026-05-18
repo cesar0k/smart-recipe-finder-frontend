@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useCallback, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { readRecipes, useSearchRecipes } from "@/api/recipes/recipes";
@@ -33,12 +33,6 @@ export function useHomeRecipes() {
   const rawSort = searchParams.get("sort");
   const sortFromUrl: SortValue =
     VALID_SORTS.includes(rawSort as SortValue) ? (rawSort as SortValue) : "newest";
-
-  const [searchTerm, setSearchTerm] = useState(queryFromUrl);
-
-  useEffect(() => {
-    setSearchTerm(queryFromUrl);
-  }, [queryFromUrl]);
 
   const isSearching = queryFromUrl.length > 0;
 
@@ -158,19 +152,13 @@ export function useHomeRecipes() {
     setSearchParams(nextParams);
   };
 
-  const handleSearch = () => {
-    updateParams({ q: searchTerm.trim() || undefined });
+  /** Called by HomeSearchBlock when user submits search */
+  const handleSearch = (term: string) => {
+    updateParams({ q: term || undefined });
   };
 
   const handleClear = () => {
-    setSearchTerm("");
     setSearchParams({});
-  };
-
-  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      handleSearch();
-    }
   };
 
   const setIncludeIngredients = (ingredients: string[]) => {
@@ -269,11 +257,10 @@ export function useHomeRecipes() {
   };
 
   return {
-    searchTerm,
-    setSearchTerm,
+    /** Pass to HomeSearchBlock.onSearch */
     handleSearch,
+    /** Pass to HomeSearchBlock.onClear — also clears URL */
     handleClear,
-    onKeyDown,
 
     includeIngredients: includeFromUrl,
     excludeIngredients: excludeFromUrl,

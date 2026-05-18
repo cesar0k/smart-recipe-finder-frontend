@@ -95,7 +95,7 @@ export function MyRecipesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white font-sans">
+    <div className="min-h-screen bg-white font-sans pb-16 md:pb-0">
       <Header
         leftContent={<BackButton />}
         rightContent={<CreateRecipeSheet />}

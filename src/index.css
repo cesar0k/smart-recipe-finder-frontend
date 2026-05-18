@@ -116,6 +116,7 @@
 /* Hide the reCAPTCHA badge — we disclose usage in the UI per Google's policy */
 .grecaptcha-badge {
   visibility: hidden !important;
+  right: -186px !important; /* prevent badge from causing horizontal overflow */
 }
 
 @layer base {
@@ -124,6 +125,7 @@
   }
   html {
     scrollbar-gutter: stable;
+    overscroll-behavior: none; /* prevent scroll bleeding into bottom nav on mobile */
   }
   body {
     @apply bg-background text-foreground;

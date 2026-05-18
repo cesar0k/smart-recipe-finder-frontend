@@ -459,5 +459,8 @@
 
   "profile_language_label": "Email language",
 
-  "recaptcha_notice": "This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply."
+  "recaptcha_notice": "This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply.",
+
+  "nav_home": "Home",
+  "nav_notifications": "Notifications"
 }

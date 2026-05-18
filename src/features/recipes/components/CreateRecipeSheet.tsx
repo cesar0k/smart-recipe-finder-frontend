@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -31,7 +32,9 @@ export function CreateRecipeSheet() {
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button className="rounded-full font-bold bg-black text-white hover:bg-gray-800 transition-all">
-          {t("create_btn")}
+          {/* Mobile: icon only; Desktop: full label */}
+          <Plus className="w-4 h-4 md:hidden" />
+          <span className="hidden md:inline">{t("create_btn")}</span>
         </Button>
       </DialogTrigger>
       <DialogScrollContent>
