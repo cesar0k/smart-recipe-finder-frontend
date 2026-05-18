@@ -57,6 +57,9 @@ const FollowingPage = lazy(() =>
 const NotificationsPage = lazy(() =>
   import("./pages/NotificationsPage").then((m) => ({ default: m.NotificationsPage }))
 );
+const RecipesPage = lazy(() =>
+  import("./pages/RecipesPage").then((m) => ({ default: m.RecipesPage }))
+);
 
 const HOME_SCROLL_KEY = "home_scroll_y";
 
@@ -193,6 +196,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/recipes" element={<RecipesPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>
