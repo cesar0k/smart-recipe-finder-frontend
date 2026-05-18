@@ -79,9 +79,9 @@ export function HomePage() {
         rightContent={isAuthenticated ? <CreateRecipeSheet /> : undefined}
       />
 
-      {/* MAIN */}
-      <main className={`flex-1 container mx-auto px-4 pt-8 md:pt-12 ${hasNextPage ? "pb-0" : "py-8 md:py-12"}`}>
-        {/* SEARCH BLOCK — isolated in its own memo component so typing doesn't re-render the whole page */}
+      
+      <main className="flex-1 container mx-auto px-4 pt-8 md:pt-12 pb-5">
+        
         <HomeSearchBlock
           submittedSearch={submittedSearch}
           heading={heading}
@@ -100,13 +100,13 @@ export function HomePage() {
           onClear={stableHandleClear}
         />
 
-        {/* CATEGORY SHELVES — visible only on the default feed (no search/filters) */}
+        
         {!isSearchView && !hasActiveFilters && <CategoryShelves />}
 
-        {/* STATES */}
+        
         {isLoading && (
           <>
-            {/* On the default feed mirror the real layout: shelves → divider → grid */}
+            
             {!isSearchView && !hasActiveFilters && (
               <>
                 <div className="mb-12">
@@ -157,27 +157,20 @@ export function HomePage() {
           </div>
         )}
 
-        {/* ALL RECIPES heading */}
+        {/* Default feed — 6 preview cards + link to /recipes */}
         {!isSearchView && !hasActiveFilters && !isLoading && !isError && recipes && recipes.length > 0 && (
-          <div className="flex items-center gap-4 mb-5 border-gray-100">
-            <div className="flex-1 h-px bg-gray-200" />
-            <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight whitespace-nowrap">
-              {t("all_recipes")}
-            </h2>
-            <div className="flex-1 h-px bg-gray-200" />
-          </div>
-        )}
-
-        {/* GRID */}
-        {!isLoading && !isError && recipes && recipes.length > 0 && (
           <>
+            <Link to="/recipes" className="flex items-center gap-4 mb-5 group">
+              <div className="flex-1 h-px bg-gray-200 group-hover:bg-gray-400 transition-colors" />
+              <span className="text-2xl font-extrabold text-gray-900 tracking-tight whitespace-nowrap">
+                {t("all_recipes")}
+              </span>
+              <div className="flex-1 h-px bg-gray-200 group-hover:bg-gray-400 transition-colors" />
+            </Link>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {recipes.map((recipe) => (
-                <Link
-                  key={recipe.id}
-                  to={`/recipe/${recipe.id}`}
-                  className="block"
-                >
+              {recipes.slice(0, 6).map((recipe) => (
+                <Link key={recipe.id} to={`/recipe/${recipe.id}`} className="block">
                   <RecipeCard
                     title={recipe.title || t("untitled_recipe")}
                     time={recipe.cooking_time_in_minutes || 0}
@@ -199,9 +192,44 @@ export function HomePage() {
               ))}
             </div>
 
-            {/* Infinite scroll sentinel — pb-24 on mobile keeps loader above BottomNav */}
+            <div className="flex justify-center mt-5">
+              <Link to="/recipes">
+                <Button variant="outline" className="rounded-full gap-2 px-6">
+                  {t("all_recipes_btn")}
+                </Button>
+              </Link>
+            </div>
+          </>
+        )}
+
+        {/* Search / filter results — full infinite scroll grid */}
+        {(isSearchView || hasActiveFilters) && !isLoading && !isError && recipes && recipes.length > 0 && (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {recipes.map((recipe) => (
+                <Link key={recipe.id} to={`/recipe/${recipe.id}`} className="block">
+                  <RecipeCard
+                    title={recipe.title || t("untitled_recipe")}
+                    time={recipe.cooking_time_in_minutes || 0}
+                    difficulty={recipe.difficulty}
+                    image={recipe.image_urls?.[0] || ""}
+                    thumbnail={recipe.thumbnail_urls?.[0]}
+                    ownerUsername={recipe.owner_username}
+                    averageRating={recipe.average_rating}
+                    favoritesCount={recipe.favorites_count}
+                    imageOverlay={
+                      <FavoriteButton
+                        recipeId={recipe.id}
+                        isFavorited={recipe.is_favorited ?? false}
+                        compact
+                      />
+                    }
+                  />
+                </Link>
+              ))}
+            </div>
             {hasNextPage && (
-              <div ref={sentinelRef} className="flex justify-center items-center py-8 pb-24 md:pb-8">
+              <div ref={sentinelRef} className="flex justify-center py-8">
                 {isFetchingNextPage && <Spinner size="md" />}
               </div>
             )}
