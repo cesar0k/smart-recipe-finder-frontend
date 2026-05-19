@@ -1,9 +1,11 @@
 import { useCallback, useRef, useState } from "react";
+import { EditProfileDialog } from "@/features/profile/components/EditProfileDialog";
 import { Link, useParams } from "react-router-dom";
 import {
   User,
   CalendarDays,
   ChefHat,
+  Pencil,
   Shield,
   ShieldCheck,
   Users,
@@ -125,6 +127,7 @@ export function PublicProfilePage() {
   );
 
   // Edit/delete state
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
   const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
   const [deletingRecipe, setDeletingRecipe] = useState<Recipe | null>(null);
   const { mutateAsync: deleteRecipe, isPending: isDeleting } =
@@ -229,9 +232,18 @@ export function PublicProfilePage() {
                     </Badge>
                   )}
                   {isOwnProfile && (
-                    <span className="text-xs text-gray-400">
-                      {t("recipe_author_you")}
-                    </span>
+                    <>
+                      <span className="text-xs text-gray-400">
+                        {t("recipe_author_you")}
+                      </span>
+                      <button
+                        onClick={() => setEditProfileOpen(true)}
+                        className="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-gray-700 transition-colors"
+                      >
+                        <Pencil className="w-3 h-3" />
+                        {t("edit_profile_btn")}
+                      </button>
+                    </>
                   )}
                 </div>
               </div>
@@ -376,6 +388,11 @@ export function PublicProfilePage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <EditProfileDialog
+        open={editProfileOpen}
+        onOpenChange={setEditProfileOpen}
+      />
     </div>
   );
 }
