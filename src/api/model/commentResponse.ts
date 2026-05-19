@@ -14,6 +14,7 @@ export interface CommentResponse {
   user_id: number;
   author_username?: CommentResponseAuthorUsername;
   author_avatar_url?: CommentResponseAuthorAvatarUrl;
+  author_role?: string | null;
   parent_comment_id?: CommentResponseParentCommentId;
   content: string;
   is_deleted: boolean;

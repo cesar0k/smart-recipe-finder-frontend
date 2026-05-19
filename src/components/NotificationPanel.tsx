@@ -53,7 +53,7 @@ function useNotificationLink() {
       case "followed_user_published":
         return n.recipe_id ? `/recipe/${n.recipe_id}` : null;
       case "user_followed":
-        return null;
+        return n.from_user_id ? `/user/${n.from_user_id}` : null;
       default:
         return null;
     }

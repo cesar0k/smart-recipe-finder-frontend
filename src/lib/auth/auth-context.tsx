@@ -21,7 +21,7 @@ interface AuthContextValue {
   isLoading: boolean;
   login: (username: string, password: string, recaptchaToken?: string) => Promise<void>;
   loginWithGoogle: (code: string) => Promise<void>;
-  register: (email: string, username: string, password: string, displayName?: string, recaptchaToken?: string) => Promise<void>;
+  register: (email: string, username: string, password: string, displayName?: string, recaptchaToken?: string, loginRecaptchaToken?: string) => Promise<void>;
   logout: () => Promise<void>;
   /** Re-fetch current user data (e.g. after avatar/profile update) */
   refetchUser: () => Promise<void>;
@@ -102,7 +102,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const register = useCallback(
-    async (email: string, username: string, password: string, displayName?: string, recaptchaToken?: string) => {
+    async (
+      email: string,
+      username: string,
+      password: string,
+      displayName?: string,
+      recaptchaToken?: string,
+      loginRecaptchaToken?: string,
+    ) => {
       // Pass detected browser language so emails arrive in the right language immediately
       const detectedLang = i18n.language?.startsWith("ru") ? "ru" : "en";
       await registerUser({
@@ -113,8 +120,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         language: detectedLang,
         recaptcha_token: recaptchaToken || undefined,
       });
-      // Auto-login after registration
-      await login(username, password);
+      // Auto-login after registration — use a fresh recaptcha token
+      await login(username, password, loginRecaptchaToken);
     },
     [login]
   );
