@@ -3,7 +3,6 @@ import { SlidersHorizontal, X as XIcon, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Slider } from "@/components/ui/slider";
 import {
   Dialog,
   DialogScrollContent,
@@ -16,6 +15,7 @@ import { useTranslation } from "react-i18next";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useGetCuisines } from "@/api/recipes/recipes";
 import { getDifficultyKey } from "@/lib/utils";
+import { useHistoryBack } from "@/hooks/useHistoryBack";
 
 const MAX_TIME_SLIDER = 180;
 const DIFFICULTIES = ["easy", "medium", "hard"] as const;
@@ -82,6 +82,16 @@ export function RecipeFilterSheet({
 }: RecipeFilterSheetProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+  const handleOpenChange = useHistoryBack(open, (nextOpen) => {
+    setOpen(nextOpen);
+    if (!nextOpen && open && filtersDiffer(draft, {
+      include, exclude, minTime, maxTime,
+      difficulty: selectedDifficulty, cuisine: selectedCuisine, hasComments,
+    })) {
+      const snapshot = draft;
+      setTimeout(() => onApply(snapshot), 300);
+    }
+  });
   const [cuisineSearch, setCuisineSearch] = useState("");
 
   // --- Local draft state (only applied on close) ---
@@ -112,22 +122,6 @@ export function RecipeFilterSheet({
     }
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Apply draft to parent AFTER Radix's exit animation finishes, and
-  // skip the call entirely when nothing changed — otherwise
-  // `setSearchParams` triggers a parent re-render mid-animation and the
-  // dialog briefly re-flashes even though the URL stayed the same.
-  // 300 ms covers Radix's 200 ms baseline plus headroom for throttled
-  // CPUs.
-  const handleOpenChange = (nextOpen: boolean) => {
-    setOpen(nextOpen);
-    if (!nextOpen && open && filtersDiffer(draft, {
-      include, exclude, minTime, maxTime,
-      difficulty: selectedDifficulty, cuisine: selectedCuisine, hasComments,
-    })) {
-      const snapshot = draft;
-      setTimeout(() => onApply(snapshot), 300);
-    }
-  };
 
   const handleReset = () => {
     const empty: FilterState = {
@@ -186,30 +180,18 @@ export function RecipeFilterSheet({
         </Button>
       </DialogTrigger>
 
-      <DialogScrollContent showCloseButton={false}>
+      <DialogScrollContent>
         <DialogHeader className="px-0 py-0">
           <div className="flex items-center justify-between gap-2">
             <DialogTitle>{t("filter_title")}</DialogTitle>
-            <div className="flex items-center gap-1">
-              {countFilters(draft) > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleReset}
-                  className="text-xs text-gray-500 hover:text-gray-900 rounded-full h-7 px-3"
-                >
-                  {t("filter_reset")}
-                </Button>
-              )}
-              <button
-                type="button"
-                onClick={() => handleOpenChange(false)}
-                className="p-1.5 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors"
-              >
-                <XIcon className="size-4" />
-                <span className="sr-only">{t("close_btn")}</span>
-              </button>
-            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleReset}
+              className={`text-xs text-gray-500 hover:text-gray-900 rounded-full h-7 px-3 mr-8 transition-opacity ${countFilters(draft) > 0 ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+            >
+              {t("filter_reset")}
+            </Button>
           </div>
         </DialogHeader>
         <VisuallyHidden>
@@ -222,26 +204,40 @@ export function RecipeFilterSheet({
             <h3 className="text-sm font-medium text-gray-900">
               {t("filter_cooking_time")}
             </h3>
-            <Slider
-              value={[sliderMin, sliderMax]}
-              min={0}
-              max={MAX_TIME_SLIDER}
-              step={5}
-              onValueChange={([min, max]) => {
-                setDraft((d) => ({
-                  ...d,
-                  minTime: min === 0 ? undefined : min,
-                  maxTime: max === MAX_TIME_SLIDER ? undefined : max,
-                }));
-              }}
-            />
-            <div className="flex justify-between text-xs text-gray-500">
-              <span>{sliderMin} {t("min")}</span>
-              <span>
-                {sliderMax === MAX_TIME_SLIDER
-                  ? `${MAX_TIME_SLIDER}+ ${t("min")}`
-                  : `${sliderMax} ${t("min")}`}
-              </span>
+            <div className="flex items-center gap-3">
+              <div className="flex-1">
+                <Input
+                  type="number"
+                  min={0}
+                  max={MAX_TIME_SLIDER}
+                  step={5}
+                  placeholder="0"
+                  value={sliderMin === 0 ? "" : sliderMin}
+                  onChange={(e) => {
+                    const val = e.target.value === "" ? 0 : Math.min(Number(e.target.value), sliderMax);
+                    setDraft((d) => ({ ...d, minTime: val === 0 ? undefined : val }));
+                  }}
+                  className="text-center rounded-full px-4"
+                />
+                <p className="text-xs text-gray-400 text-center mt-1">{t("min_time_label")}</p>
+              </div>
+              <span className="text-gray-400 shrink-0 mb-5">—</span>
+              <div className="flex-1">
+                <Input
+                  type="number"
+                  min={0}
+                  max={MAX_TIME_SLIDER}
+                  step={5}
+                  placeholder={`${MAX_TIME_SLIDER}+`}
+                  value={sliderMax === MAX_TIME_SLIDER ? "" : sliderMax}
+                  onChange={(e) => {
+                    const val = e.target.value === "" ? MAX_TIME_SLIDER : Math.max(Number(e.target.value), sliderMin);
+                    setDraft((d) => ({ ...d, maxTime: val === MAX_TIME_SLIDER ? undefined : val }));
+                  }}
+                  className="text-center rounded-full px-4"
+                />
+                <p className="text-xs text-gray-400 text-center mt-1">{t("max_time_label")}</p>
+              </div>
             </div>
           </div>
 
@@ -331,7 +327,7 @@ export function RecipeFilterSheet({
               className="rounded-full h-9 px-4 text-sm"
             />
             {filteredCuisines.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto">
+              <div className="flex flex-wrap gap-1.5">
                 {filteredCuisines.map((c) => (
                   <button
                     key={c}

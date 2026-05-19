@@ -51,6 +51,7 @@ export function RegisterPage() {
   const { t } = useTranslation();
   const { register: registerUser, loginWithGoogle, isAuthenticated } = useAuth();
   const executeRecaptcha = useRecaptcha("register");
+  const executeLoginRecaptcha = useRecaptcha("login");
   const navigate = useNavigate();
   const location = useLocation();
   const [error, setError] = useState<string | null>(null);
@@ -95,7 +96,9 @@ export function RegisterPage() {
     setIsSubmitting(true);
     try {
       const recaptchaToken = await executeRecaptcha();
-      await registerUser(data.email, data.username, data.password, data.displayName, recaptchaToken);
+      // Get a separate token for the auto-login that follows registration
+      const loginRecaptchaToken = await executeLoginRecaptcha();
+      await registerUser(data.email, data.username, data.password, data.displayName, recaptchaToken, loginRecaptchaToken);
       navigate(from, { replace: true });
     } catch (err) {
       if (axios.isAxiosError(err)) {

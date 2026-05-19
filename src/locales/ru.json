@@ -87,23 +87,19 @@
   "close_btn": "Закрыть",
   "searching_for": "Поиск по запросу \"{{query}}\"...",
   "filtered_recipes": "Отфильтрованные рецепты",
-
   "filter_reset": "Сбросить всё",
   "filter_cooking_time": "Время приготовления",
   "filter_difficulty": "Сложность",
   "filter_cuisine": "Кухня",
   "filter_search_cuisine": "Поиск кухни...",
   "filter_no_cuisines": "Кухни не найдены",
-
   "not_found_title": "Страница не найдена",
   "not_found_desc": "Страница, которую вы ищете, не существует или была перемещена.",
-
   "no_image": "Нет фото",
   "prev_slide": "Предыдущий слайд",
   "next_slide": "Следующий слайд",
   "existing_image_alt": "Существующее изображение {{index}}",
   "new_preview_alt": "Предпросмотр нового изображения",
-
   "validation_title_min": "Название должно содержать минимум 2 символа",
   "validation_title_max": "Название слишком длинное (макс. 255 символов)",
   "validation_time_min": "Время приготовления — минимум 1 минута",
@@ -114,7 +110,6 @@
   "validation_ingredients_max": "Слишком много ингредиентов (макс. 100)",
   "validation_max_files": "Максимум 5 файлов",
   "validation_must_be_file": "Должен быть файлом",
-
   "login_btn": "Войти",
   "login_title": "С возвращением!",
   "login_subtitle": "Войдите в свой аккаунт",
@@ -128,7 +123,6 @@
   "login_invalid_credentials": "Неверный email или пароль",
   "login_account_deactivated": "Этот аккаунт деактивирован",
   "login_generic_error": "Ошибка входа. Попробуйте ещё раз.",
-
   "register_title": "Создать аккаунт",
   "register_subtitle": "Присоединяйтесь, чтобы делиться рецептами",
   "register_display_name_label": "Имя (необязательно)",
@@ -146,13 +140,10 @@
   "register_conflict": "Email или имя пользователя уже заняты",
   "register_validation_error": "Проверьте введённые данные",
   "register_generic_error": "Ошибка регистрации. Попробуйте ещё раз.",
-
   "logout_btn": "Выйти",
   "moderation_link": "Модерация",
-
   "toast_created_pending": "Рецепт отправлен на модерацию",
   "toast_updated_pending": "Изменения отправлены на модерацию",
-
   "moderation_title": "Модерация",
   "moderation_tab_recipes": "Рецепты",
   "moderation_tab_drafts": "Правки",
@@ -171,7 +162,6 @@
   "moderation_recipe_label": "Рецепт",
   "moderation_author_label": "Автор",
   "moderation_edit_for_recipe": "Правка к рецепту",
-
   "admin_link": "Админка",
   "admin_title": "Управление пользователями",
   "admin_no_users": "Пользователи не найдены",
@@ -189,13 +179,10 @@
   "admin_delete_title": "Удалить пользователя?",
   "admin_delete_desc": "Пользователь \"{{username}}\" ({{email}}) будет удалён безвозвратно.",
   "admin_delete_confirm": "Удалить",
-
   "error_title": "Что-то пошло не так",
   "error_desc": "Произошла непредвиденная ошибка. Попробуйте перезагрузить страницу.",
   "error_reload": "Перезагрузить",
-
   "login_field_required": "Обязательное поле",
-
   "register_invalid_email": "Введите корректный email",
   "register_username_min": "Имя пользователя — минимум 3 символа",
   "register_username_max": "Имя пользователя слишком длинное (макс. 100)",
@@ -203,12 +190,10 @@
   "register_password_max": "Пароль слишком длинный (макс. 128)",
   "register_confirm_required": "Подтвердите пароль",
   "register_passwords_must_match": "Пароли не совпадают",
-
   "google_sign_in": "Продолжить с Google",
   "google_sign_up": "Зарегистрироваться через Google",
   "google_auth_error": "Ошибка авторизации через Google. Попробуйте ещё раз.",
   "or_divider": "или",
-
   "notifications_title": "Уведомления",
   "notifications_empty": "Уведомлений пока нет",
   "notifications_mark_all_read": "Отметить все как прочитанные",
@@ -219,7 +204,6 @@
   "notification_recipe_approved": "Рецепт одобрен",
   "notification_recipe_rejected": "Рецепт отклонён",
   "notification_new_pending": "Новый рецепт на модерации",
-
   "notif_type_new_pending": "Новый рецепт на модерации",
   "notif_body_new_pending": "Рецепт «{{title}}» ожидает проверки",
   "notif_type_recipe_approved": "Рецепт одобрен",
@@ -234,14 +218,12 @@
   "notif_type_draft_rejected": "Правки отклонены",
   "notif_body_draft_rejected": "Ваши правки к рецепту «{{title}}» были отклонены",
   "notif_body_draft_rejected_reason": "Ваши правки к рецепту «{{title}}» были отклонены. Причина: {{reason}}",
-
   "notif_type_new_comment": "Новый комментарий",
   "notif_body_new_comment": "Кто-то прокомментировал ваш рецепт «{{title}}»",
   "notif_type_comment_reply": "Новый ответ",
   "notif_body_comment_reply": "Кто-то ответил на ваш комментарий к «{{title}}»",
   "notif_type_comment_reported": "Жалоба на комментарий",
   "notif_body_comment_reported": "На комментарий к рецепту «{{title}}» поступила жалоба",
-
   "user_joined": "С нами с {{date}}",
   "user_recipe_count": "{{count}} рецептов",
   "user_not_found": "Пользователь не найден",
@@ -255,7 +237,6 @@
   "my_recipes_title": "Мои рецепты",
   "my_recipes_empty": "Вы ещё не создали ни одного рецепта",
   "recipe_author_you": "(вы)",
-
   "recipe_status_pending": "На модерации",
   "recipe_status_rejected": "Отклонён",
   "recipe_status_approved": "Одобрен",
@@ -264,10 +245,8 @@
   "recipe_rejected_banner_title": "Этот рецепт был отклонён модератором",
   "similar_recipes_title": "Похожие рецепты",
   "similar_recipes_desc": "Возможно, Вам также понравится",
-
   "my_recipes_fix_and_resubmit": "Исправить и отправить",
   "toast_resubmitted": "Рецепт отправлен на повторную модерацию",
-
   "profile_link": "Настройки профиля",
   "profile_title": "Настройки профиля",
   "profile_display_name_label": "Отображаемое имя",
@@ -303,12 +282,9 @@
   "profile_password_changed": "Пароль успешно изменён",
   "profile_password_error": "Ошибка смены пароля",
   "profile_password_google": "Смена пароля недоступна для аккаунтов Google",
-
   "session_expired": "Сессия истекла. Пожалуйста, войдите снова.",
   "account_deactivated": "Ваш аккаунт был деактивирован.",
-
   "admin_protected": "Админ (защищён)",
-
   "moderation_tab_history": "История",
   "moderation_history_empty": "Истории модерации пока нет",
   "moderation_history_action_approve": "Одобрено",
@@ -323,7 +299,6 @@
   "moderation_history_clear_all": "Очистить всю историю",
   "moderation_history_filter_placeholder": "Фильтр по ID рецепта...",
   "moderation_history_filter_btn": "Применить",
-
   "my_favorites_link": "Избранное",
   "favorites_title": "Моё избранное",
   "favorite_btn": "В избранное",
@@ -335,13 +310,11 @@
   "favorite_toast_added": "Добавлено в избранное",
   "favorite_toast_removed": "Убрано из избранного",
   "favorite_toast_error": "Не удалось обновить избранное",
-
   "sort_label": "Сортировка",
   "sort_newest": "Свежие",
   "sort_popular": "Популярные",
   "sort_top_rated": "По рейтингу",
   "sort_most_favorited": "По избранному",
-
   "rating_label": "Оценить рецепт",
   "rating_your": "Ваша оценка",
   "rating_remove": "Убрать оценку",
@@ -351,7 +324,6 @@
   "rating_login_required": "Войдите, чтобы оценивать рецепты",
   "ratings_count": "{{count}} оценок",
   "ratings_count_one": "1 оценка",
-
   "comment_placeholder": "Напишите комментарий…",
   "comment_reply_placeholder": "Напишите ответ…",
   "comment_submit": "Отправить",
@@ -372,9 +344,7 @@
   "comment_toast_reported": "Жалоба отправлена",
   "comment_toast_error": "Не удалось опубликовать комментарий",
   "comment_already_reported": "Вы уже жаловались на этот комментарий",
-
   "filter_has_comments": "Только с комментариями",
-
   "moderation_tab_comments": "Жалобы",
   "moderation_reported_comment_title": "Жалоба на комментарий",
   "moderation_report_reasons": "Причины жалоб:",
@@ -384,27 +354,22 @@
   "moderation_comment_deleted": "Комментарий удалён",
   "moderation_dismiss_reports": "Отклонить жалобы",
   "deleted_user": "Удалённый пользователь",
-
   "similar_recipes_error": "Не удалось загрузить похожие рецепты.",
   "category_shelves_error": "Не удалось загрузить категории рецептов.",
-
   "sending": "Отправка...",
   "loading": "Загрузка...",
   "back_to_profile": "Вернуться в профиль",
   "back_to_login": "Войти",
-
   "email_not_verified_banner": "Email не подтверждён",
   "email_not_verified_desc": "Подтвердите адрес, чтобы получать уведомления на почту.",
   "send_verification_email_btn": "Подтвердить",
   "verification_email_sent": "Письмо отправлено! Проверьте вашу почту.",
   "verification_email_rate_limited": "Письмо уже отправлено. Подождите немного перед повторной отправкой.",
-
   "email_verifying": "Проверяем ссылку...",
   "email_verified_success": "Email успешно подтверждён!",
   "email_verify_redirect": "Вы будете перенаправлены в профиль...",
   "email_verify_link_invalid": "Ссылка недействительна или устарела",
   "email_verify_link_hint": "Запросите новое письмо в настройках профиля.",
-
   "forgot_password_link": "Забыли пароль?",
   "forgot_password_title": "Сброс пароля",
   "forgot_password_subtitle": "Введите email вашего аккаунта и мы отправим ссылку для сброса пароля.",
@@ -413,7 +378,6 @@
   "forgot_password_sent_title": "Письмо отправлено",
   "forgot_password_sent_desc": "Если аккаунт с таким email существует, вы получите инструкции по сбросу пароля.",
   "forgot_password_google_user": "Этот аккаунт создан через Google. Войдите через Google.",
-
   "reset_password_title": "Новый пароль",
   "reset_password_subtitle": "Введите новый пароль для вашего аккаунта.",
   "reset_password_btn": "Сохранить пароль",
@@ -421,10 +385,8 @@
   "reset_password_success": "Пароль успешно изменён. Войдите с новым паролем.",
   "reset_password_invalid_token": "Ссылка недействительна или уже использована.",
   "reset_password_expired": "Ссылка устарела. Запросите новую.",
-
   "email_prefs_title": "Email-уведомления",
   "email_prefs_desc": "Выберите, о каких событиях вы хотите получать письма.",
-
   "email_pref_new_comment": "Новый комментарий к рецепту",
   "email_pref_comment_reply": "Ответ на мой комментарий",
   "email_pref_comment_reported": "Жалоба на комментарий (модерация)",
@@ -434,9 +396,7 @@
   "email_pref_draft_approved": "Изменения одобрены",
   "email_pref_draft_rejected": "Изменения отклонены",
   "email_pref_recipe_deleted": "Рецепт удалён",
-
   "pending_email_notice": "Письмо с подтверждением отправлено на {{email}}. Перейдите по ссылке в письме, чтобы сменить адрес.",
-
   "follow_btn": "Подписаться",
   "unfollow_btn": "Отписаться",
   "followed_toast": "Вы подписались",
@@ -449,22 +409,22 @@
   "following_page_title": "Подписки",
   "followers_empty": "Пока нет подписчиков",
   "following_empty": "Пока нет подписок",
-
   "email_pref_user_followed": "Новый подписчик на мой профиль",
   "email_pref_followed_user_published": "Новый рецепт от автора, на которого я подписан",
-
   "notif_type_user_followed": "Новый подписчик",
   "notif_body_user_followed": "@{{username}} подписался на вас",
   "notif_type_followed_user_published": "Новый рецепт",
   "notif_body_followed_user_published": "{{author}} опубликовал(а) новый рецепт: {{title}}",
-
   "profile_language_label": "Язык писем",
-
   "recaptcha_notice": "Этот сайт защищён reCAPTCHA. Применяются Политика конфиденциальности и Условия использования Google.",
-
   "nav_home": "Главная",
   "nav_notifications": "Уведомления",
   "edit_profile_title": "Редактировать профиль",
   "edit_profile_btn": "Редактировать",
-  "profile_interface_language": "Язык интерфейса"
+  "profile_interface_language": "Язык интерфейса",
+  "role_admin": "Админ",
+  "role_moderator": "Модер",
+  "comment_recipe_author": "Автор",
+  "min_time_label": "от (мин)",
+  "max_time_label": "до (мин)"
 }

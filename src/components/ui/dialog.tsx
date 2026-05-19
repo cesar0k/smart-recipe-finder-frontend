@@ -38,6 +38,10 @@ function DialogOverlay({
       data-slot="dialog-overlay"
       className={cn(
         "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50",
+        // On Android Chrome the address bar hides on scroll, growing the viewport.
+        // fixed+inset-0 doesn't repaint instantly, leaving a gap at the bottom.
+        // min-h-[100lvh] (large viewport = no address bar) pre-covers that gap.
+        "min-h-[100lvh]",
         className
       )}
       {...props}
@@ -88,27 +92,46 @@ function DialogScrollContent({
   showCloseButton?: boolean
 }) {
   const { t } = useTranslation();
+  const anchorRef = React.useRef<HTMLInputElement>(null);
+  React.useEffect(() => {
+    const timer = setTimeout(() => anchorRef.current?.focus({ preventScroll: true }), 50);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <DialogPortal data-slot="dialog-portal">
+      {/* Overlay shown on all sizes — covers the page behind the modal */}
       <DialogOverlay />
       <DialogPrimitive.Content
         data-slot="dialog-content"
+        data-scroll-dialog
         className={cn(
           "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
-          "fixed z-50 top-0 left-0 w-full h-full outline-none",
-          "sm:top-[50%] sm:left-[50%] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:w-full sm:max-w-md sm:h-auto sm:max-h-[calc(100vh-5rem)] sm:rounded-[1.5rem] sm:border sm:border-gray-200 sm:shadow-2xl",
+          "fixed z-50 outline-none bg-white touch-none",
+          // h-[100lvh] = always covers the full screen even when address bar hides.
+          // pb-[calc(100lvh-100svh)] pulls the bottom of the flex layout back into
+          // the visible viewport (svh), so sticky children don't go off-screen.
+          "top-0 left-0 right-0 h-[100lvh] pb-[calc(100lvh-100svh)]",
+          "sm:inset-auto sm:top-[50%] sm:left-[50%] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:w-full sm:max-w-md sm:h-auto sm:max-h-[calc(100dvh-5rem)] sm:rounded-[1.5rem] sm:border sm:border-gray-200 sm:shadow-2xl",
           "flex flex-col duration-200",
           className
         )}
         {...props}
       >
-        <div className="flex-1 overflow-y-auto pt-4 px-5 pb-0 space-y-4 scrollbar-hidden">
+        <input
+          ref={anchorRef}
+          aria-hidden="true"
+          readOnly
+          tabIndex={-1}
+          style={{ position: "absolute", opacity: 0, width: 1, height: 1, pointerEvents: "none" }}
+        />
+        <div className="flex-1 overflow-y-auto pt-4 px-5 space-y-4 scrollbar-hidden overscroll-contain touch-pan-y touch-auto" style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
           {children}
         </div>
         {showCloseButton && (
           <DialogPrimitive.Close
             data-slot="dialog-close"
-            className="absolute top-4 right-4 z-10 p-1.5 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
+            className="absolute top-4 right-4 z-10 p-1.5 rounded-full bg-white/70 backdrop-blur-md text-gray-500 hover:bg-white/90 hover:text-gray-700 transition-colors focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
           >
             <XIcon className="size-4" />
             <span className="sr-only">{t("close_btn")}</span>

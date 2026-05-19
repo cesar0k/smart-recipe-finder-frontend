@@ -87,23 +87,19 @@
   "close_btn": "Close",
   "searching_for": "Searching for \"{{query}}\"...",
   "filtered_recipes": "Filtered Recipes",
-
   "filter_reset": "Reset all",
   "filter_cooking_time": "Cooking time",
   "filter_difficulty": "Difficulty",
   "filter_cuisine": "Cuisine",
   "filter_search_cuisine": "Search cuisines...",
   "filter_no_cuisines": "No cuisines found",
-
   "not_found_title": "Page not found",
   "not_found_desc": "The page you are looking for doesn't exist or has been moved.",
-
   "no_image": "No Image",
   "prev_slide": "Previous slide",
   "next_slide": "Next slide",
   "existing_image_alt": "Existing image {{index}}",
   "new_preview_alt": "New image preview",
-
   "validation_title_min": "Title must be at least 2 characters",
   "validation_title_max": "Title is too long (max 255 characters)",
   "validation_time_min": "Cooking time must be at least 1 minute",
@@ -114,7 +110,6 @@
   "validation_ingredients_max": "Too many ingredients (max 100)",
   "validation_max_files": "Max 5 files allowed",
   "validation_must_be_file": "Must be a file",
-
   "login_btn": "Sign In",
   "login_title": "Welcome back!",
   "login_subtitle": "Sign in to your account",
@@ -128,7 +123,6 @@
   "login_invalid_credentials": "Invalid email or password",
   "login_account_deactivated": "This account has been deactivated",
   "login_generic_error": "Sign in failed. Please try again.",
-
   "register_title": "Create an account",
   "register_subtitle": "Join to start sharing recipes",
   "register_display_name_label": "Name (optional)",
@@ -146,15 +140,12 @@
   "register_conflict": "Email or username is already taken",
   "register_validation_error": "Please check your input",
   "register_generic_error": "Registration failed. Please try again.",
-
   "logout_btn": "Log out",
   "moderation_link": "Moderation",
-
   "toast_created_pending": "Recipe submitted for moderation",
   "toast_updated_pending": "Changes submitted for moderation",
-
   "moderation_title": "Moderation",
-  "moderation_tab_recipes": "New Recipes",
+  "moderation_tab_recipes": "Recipes",
   "moderation_tab_drafts": "Edits",
   "moderation_no_pending_recipes": "No recipes pending moderation",
   "moderation_no_pending_drafts": "No edits pending moderation",
@@ -171,7 +162,6 @@
   "moderation_recipe_label": "Recipe",
   "moderation_author_label": "Author",
   "moderation_edit_for_recipe": "Edit for recipe",
-
   "admin_link": "Admin Panel",
   "admin_title": "User Management",
   "admin_no_users": "No users found",
@@ -189,13 +179,10 @@
   "admin_delete_title": "Delete user?",
   "admin_delete_desc": "This will permanently delete the user \"{{username}}\" ({{email}}). This action cannot be undone.",
   "admin_delete_confirm": "Delete",
-
   "error_title": "Something went wrong",
   "error_desc": "An unexpected error occurred. Please try reloading the page.",
   "error_reload": "Reload Page",
-
   "login_field_required": "This field is required",
-
   "register_invalid_email": "Enter a valid email address",
   "register_username_min": "Username must be at least 3 characters",
   "register_username_max": "Username is too long (max 100 characters)",
@@ -203,12 +190,10 @@
   "register_password_max": "Password is too long (max 128 characters)",
   "register_confirm_required": "Please confirm your password",
   "register_passwords_must_match": "Passwords do not match",
-
   "google_sign_in": "Continue with Google",
   "google_sign_up": "Sign up with Google",
   "google_auth_error": "Google authentication failed. Please try again.",
   "or_divider": "or",
-
   "notifications_title": "Notifications",
   "notifications_empty": "No notifications yet",
   "notifications_mark_all_read": "Mark all as read",
@@ -219,7 +204,6 @@
   "notification_recipe_approved": "Recipe approved",
   "notification_recipe_rejected": "Recipe rejected",
   "notification_new_pending": "New recipe pending",
-
   "notif_type_new_pending": "New recipe for moderation",
   "notif_body_new_pending": "Recipe \"{{title}}\" is awaiting review",
   "notif_type_recipe_approved": "Recipe approved",
@@ -234,14 +218,12 @@
   "notif_type_draft_rejected": "Edit rejected",
   "notif_body_draft_rejected": "Your edits to \"{{title}}\" have been rejected",
   "notif_body_draft_rejected_reason": "Your edits to \"{{title}}\" have been rejected. Reason: {{reason}}",
-
   "notif_type_new_comment": "New comment",
   "notif_body_new_comment": "Someone commented on your recipe \"{{title}}\"",
   "notif_type_comment_reply": "New reply",
   "notif_body_comment_reply": "Someone replied to your comment on \"{{title}}\"",
   "notif_type_comment_reported": "Comment reported",
   "notif_body_comment_reported": "A comment on \"{{title}}\" was reported",
-
   "user_joined": "Joined {{date}}",
   "user_recipe_count": "{{count}} recipes",
   "user_not_found": "User not found",
@@ -255,7 +237,6 @@
   "my_recipes_title": "My Recipes",
   "my_recipes_empty": "You haven't created any recipes yet",
   "recipe_author_you": "(you)",
-
   "recipe_status_pending": "Pending",
   "recipe_status_rejected": "Rejected",
   "recipe_status_approved": "Approved",
@@ -264,10 +245,8 @@
   "recipe_rejected_banner_title": "This recipe was rejected by a moderator",
   "similar_recipes_title": "Similar recipes",
   "similar_recipes_desc": "Recipes you might also like",
-
   "my_recipes_fix_and_resubmit": "Fix & resubmit",
   "toast_resubmitted": "Recipe resubmitted for moderation",
-
   "profile_link": "Profile Settings",
   "profile_title": "Profile Settings",
   "profile_display_name_label": "Display name",
@@ -303,12 +282,9 @@
   "profile_password_changed": "Password changed successfully",
   "profile_password_error": "Failed to change password",
   "profile_password_google": "Password change is not available for Google accounts",
-
   "session_expired": "Session expired. Please sign in again.",
   "account_deactivated": "Your account has been deactivated.",
-
   "admin_protected": "Admin (protected)",
-
   "moderation_tab_history": "History",
   "moderation_history_empty": "No moderation history yet",
   "moderation_history_action_approve": "Approved",
@@ -323,7 +299,6 @@
   "moderation_history_clear_all": "Clear all history",
   "moderation_history_filter_placeholder": "Filter by recipe ID...",
   "moderation_history_filter_btn": "Filter",
-
   "my_favorites_link": "My Favorites",
   "favorites_title": "My Favorites",
   "favorite_btn": "Add to favorites",
@@ -335,13 +310,11 @@
   "favorite_toast_added": "Added to favorites",
   "favorite_toast_removed": "Removed from favorites",
   "favorite_toast_error": "Couldn't update favorites",
-
   "sort_label": "Sort",
   "sort_newest": "Newest",
   "sort_popular": "Popular",
   "sort_top_rated": "Top Rated",
   "sort_most_favorited": "Most Favorited",
-
   "rating_label": "Rate this recipe",
   "rating_your": "Your rating",
   "rating_remove": "Remove rating",
@@ -351,7 +324,6 @@
   "rating_login_required": "Sign in to rate recipes",
   "ratings_count": "{{count}} ratings",
   "ratings_count_one": "1 rating",
-
   "comment_placeholder": "Write a comment…",
   "comment_reply_placeholder": "Write a reply…",
   "comment_submit": "Post",
@@ -372,9 +344,7 @@
   "comment_toast_reported": "Report submitted",
   "comment_toast_error": "Couldn't post comment",
   "comment_already_reported": "You've already reported this comment",
-
   "filter_has_comments": "With comments only",
-
   "moderation_tab_comments": "Reports",
   "moderation_reported_comment_title": "Reported comment",
   "moderation_report_reasons": "Report reasons:",
@@ -384,27 +354,22 @@
   "moderation_comment_deleted": "Comment deleted",
   "moderation_dismiss_reports": "Dismiss reports",
   "deleted_user": "Deleted user",
-
   "similar_recipes_error": "Couldn't load similar recipes.",
   "category_shelves_error": "Couldn't load recipe categories.",
-
   "sending": "Sending...",
   "loading": "Loading...",
   "back_to_profile": "Back to profile",
   "back_to_login": "Back to login",
-
   "email_not_verified_banner": "Email not verified",
   "email_not_verified_desc": "Verify your email address to receive email notifications.",
   "send_verification_email_btn": "Verify email",
   "verification_email_sent": "Verification email sent! Check your inbox.",
   "verification_email_rate_limited": "Email already sent. Please wait before requesting another.",
-
   "email_verifying": "Verifying link...",
   "email_verified_success": "Email successfully verified!",
   "email_verify_redirect": "Redirecting to your profile...",
   "email_verify_link_invalid": "Link is invalid or has expired",
   "email_verify_link_hint": "Request a new verification email from your profile settings.",
-
   "forgot_password_link": "Forgot password?",
   "forgot_password_title": "Reset password",
   "forgot_password_subtitle": "Enter your account email and we'll send you a reset link.",
@@ -413,7 +378,6 @@
   "forgot_password_sent_title": "Email sent",
   "forgot_password_sent_desc": "If an account with this email exists, you'll receive password reset instructions.",
   "forgot_password_google_user": "This account was created with Google. Please sign in using Google.",
-
   "reset_password_title": "New password",
   "reset_password_subtitle": "Enter a new password for your account.",
   "reset_password_btn": "Save password",
@@ -421,10 +385,8 @@
   "reset_password_success": "Password changed successfully. You can now log in.",
   "reset_password_invalid_token": "Link is invalid or already used.",
   "reset_password_expired": "Link has expired. Please request a new one.",
-
   "email_prefs_title": "Email notifications",
   "email_prefs_desc": "Choose which events you want to receive emails for.",
-
   "email_pref_new_comment": "New comment on my recipe",
   "email_pref_comment_reply": "Reply to my comment",
   "email_pref_comment_reported": "Comment reported (moderation)",
@@ -434,9 +396,7 @@
   "email_pref_draft_approved": "Changes approved",
   "email_pref_draft_rejected": "Changes rejected",
   "email_pref_recipe_deleted": "Recipe deleted",
-
   "pending_email_notice": "A confirmation link has been sent to {{email}}. Click it to apply the new address.",
-
   "follow_btn": "Follow",
   "unfollow_btn": "Unfollow",
   "followed_toast": "Subscribed",
@@ -449,22 +409,22 @@
   "following_page_title": "Following",
   "followers_empty": "No followers yet",
   "following_empty": "Not following anyone yet",
-
   "email_pref_user_followed": "New follower on my profile",
   "email_pref_followed_user_published": "New recipe from an author I follow",
-
   "notif_type_user_followed": "New follower",
   "notif_body_user_followed": "@{{username}} followed you",
   "notif_type_followed_user_published": "New recipe",
   "notif_body_followed_user_published": "{{author}} published: {{title}}",
-
   "profile_language_label": "Email language",
-
   "recaptcha_notice": "This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply.",
-
   "nav_home": "Home",
   "nav_notifications": "Notifications",
   "edit_profile_title": "Edit profile",
   "edit_profile_btn": "Edit profile",
-  "profile_interface_language": "Interface language"
+  "profile_interface_language": "Interface language",
+  "role_admin": "Admin",
+  "role_moderator": "Mod",
+  "comment_recipe_author": "Author",
+  "min_time_label": "from (min)",
+  "max_time_label": "to (min)"
 }

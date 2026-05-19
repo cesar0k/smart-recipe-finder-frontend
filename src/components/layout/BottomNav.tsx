@@ -3,6 +3,7 @@ import { Home, Heart, Bell, User, LogIn } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/lib/auth/auth-context";
 import { useGetUnreadCount } from "@/api/notifications/notifications";
+import { useState, useEffect } from "react";
 
 // Pages where bottom nav should not appear
 const HIDDEN_PATHS = ["/login", "/register", "/forgot-password", "/reset-password", "/verify-email"];
@@ -11,6 +12,16 @@ export function BottomNav() {
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const { isAuthenticated, user } = useAuth();
+
+  // Detect when any Radix modal is open to disable nav interaction
+  const [modalOpen, setModalOpen] = useState(false);
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setModalOpen(document.body.hasAttribute("data-scroll-locked"));
+    });
+    observer.observe(document.body, { attributes: true, attributeFilter: ["data-scroll-locked"] });
+    return () => observer.disconnect();
+  }, []);
 
   // Must be called unconditionally before any early returns (Rules of Hooks)
   const { data: unreadData } = useGetUnreadCount({
@@ -25,7 +36,7 @@ export function BottomNav() {
 
   if (!isAuthenticated) {
     return (
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-md border-t border-gray-300">
+      <nav data-bottom-nav className={`md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-md border-t border-gray-300 ${modalOpen ? "pointer-events-none" : ""}`}>
         <div className="flex items-center justify-around h-16 px-2">
           <NavItem to="/" icon={<Home className="w-5 h-5" />} label={t("nav_home")} active={isActive("/")} />
           <NavItem to="/login" icon={<LogIn className="w-5 h-5" />} label={t("login_btn")} active={isActive("/login")} />
@@ -35,7 +46,7 @@ export function BottomNav() {
   }
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-md border-t border-gray-300">
+    <nav data-bottom-nav className={`md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-md border-t border-gray-300 ${modalOpen ? "pointer-events-none" : ""}`}>
       <div className="flex items-center justify-around h-16 px-2">
         <NavItem to="/" icon={<Home className="w-5 h-5" />} label={t("nav_home")} active={isActive("/")} />
         <NavItem

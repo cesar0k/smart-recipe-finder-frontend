@@ -175,7 +175,7 @@ export function RecipeForm({
                   <button
                     type="button"
                     onClick={() => setAsCoverExisting(url)}
-                    className={`absolute top-1 left-1 p-1.5 rounded-full shadow-sm transition-all z-20 
+                    className={`absolute top-1 left-1 p-1.5 rounded-full shadow-sm transition-all z-[1] 
                       ${
                         isCover
                           ? "bg-yellow-400 text-white opacity-100"
@@ -195,7 +195,7 @@ export function RecipeForm({
                   <button
                     type="button"
                     onClick={() => removeExistingUrl(url)}
-                    className="absolute top-1 right-1 bg-white text-black rounded-full p-1.5 shadow-md hover:bg-red-50 hover:text-red-500 transition-colors z-20 opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+                    className="absolute top-1 right-1 bg-white text-black rounded-full p-1.5 shadow-md hover:bg-red-50 hover:text-red-500 transition-colors z-[1] opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
                     aria-label={t("form_remove_existing_image_label")}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -218,7 +218,7 @@ export function RecipeForm({
                   <button
                     type="button"
                     onClick={() => setNewFileAsCover(index)}
-                    className={`absolute top-1 left-1 p-1.5 rounded-full shadow-sm transition-all z-20
+                    className={`absolute top-1 left-1 p-1.5 rounded-full shadow-sm transition-all z-[1]
                       ${
                         isCover
                           ? "bg-yellow-400 text-white opacity-100"
@@ -238,7 +238,7 @@ export function RecipeForm({
                   <button
                     type="button"
                     onClick={() => removeNewFile(index)}
-                    className="absolute top-1 right-1 bg-white text-black rounded-full p-1.5 shadow-md hover:bg-red-50 hover:text-red-500 transition-colors z-20 opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+                    className="absolute top-1 right-1 bg-white text-black rounded-full p-1.5 shadow-md hover:bg-red-50 hover:text-red-500 transition-colors z-[1] opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
                     aria-label={t("form_remove_new_file_label")}
                   >
                     <X className="w-3.5 h-3.5" />
@@ -417,7 +417,7 @@ export function RecipeForm({
           )}
         />
 
-        <div className="sticky bottom-0 pt-6 pb-5 bg-gradient-to-t from-white from-70% to-transparent">
+        <div className="sticky bottom-0 pt-4" style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}>
           <Button
             type="submit"
             className="w-full rounded-full h-12 text-base font-semibold bg-black hover:bg-gray-800 shadow-lg shadow-gray-200 transition-all hover:scale-[1.01]"

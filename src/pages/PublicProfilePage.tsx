@@ -16,6 +16,7 @@ import { toast } from "sonner";
 
 import { Header } from "@/components/layout/Header";
 import { RecipeCard } from "@/features/recipes/components/RecipeCard";
+import { FavoriteButton } from "@/features/recipes/components/FavoriteButton";
 import { RecipeCardSkeleton } from "@/components/skeletons/RecipeCardSkeleton";
 import { ProfileHeaderSkeleton } from "@/components/skeletons/ProfileHeaderSkeleton";
 import { Spinner } from "@/components/ui/spinner";
@@ -296,12 +297,24 @@ export function PublicProfilePage() {
                         difficulty={recipe.difficulty}
                         image={recipe.image_urls?.[0] || ""}
                         thumbnail={recipe.thumbnail_urls?.[0]}
+                        ownerUsername={recipe.owner_username}
+                        averageRating={recipe.average_rating}
+                        favoritesCount={recipe.favorites_count}
                         status={canViewStatus ? recipe.status : undefined}
                         hasPendingDraft={
                           canViewStatus ? recipe.has_pending_draft : undefined
                         }
                         rejectionReason={
                           canViewStatus ? recipe.rejection_reason : undefined
+                        }
+                        imageOverlay={
+                          recipe.status === "approved" ? (
+                            <FavoriteButton
+                              recipeId={recipe.id}
+                              isFavorited={recipe.is_favorited ?? false}
+                              compact
+                            />
+                          ) : undefined
                         }
                         onResubmit={
                           isOwnProfile && recipe.status === "rejected"

@@ -40,7 +40,7 @@ function useNotificationLink() {
         if (n.recipe_id && n.comment_id) return `/recipe/${n.recipe_id}#comment-${n.comment_id}`;
         return n.recipe_id ? `/recipe/${n.recipe_id}#comments` : null;
       case "comment_reported": return "/moderation";
-      case "user_followed": return profilePath;
+      case "user_followed": return n.from_user_id ? `/user/${n.from_user_id}` : profilePath;
       case "followed_user_published":
         return n.recipe_id ? `/recipe/${n.recipe_id}` : null;
       default: return null;

@@ -41,6 +41,7 @@ export type RecipeTab = "similar" | "comments";
 
 function RecipeBottomTabs({
   recipeId,
+  recipeOwnerId,
   commentsCount,
   activeTab,
   onTabChange,
@@ -48,6 +49,7 @@ function RecipeBottomTabs({
   onShowComments,
 }: {
   recipeId: number;
+  recipeOwnerId?: number;
   commentsCount: number;
   activeTab: RecipeTab;
   onTabChange: (tab: RecipeTab) => void;
@@ -153,7 +155,7 @@ function RecipeBottomTabs({
               transition={{ duration: 0.15 }}
               className="max-w-3xl mx-auto"
             >
-              {commentsEverShown && <RecipeComments recipeId={recipeId} />}
+              {commentsEverShown && <RecipeComments recipeId={recipeId} recipeOwnerId={recipeOwnerId} />}
             </motion.div>
           )}
         </AnimatePresence>
@@ -352,6 +354,7 @@ export function RecipePage() {
         {recipe.status === "approved" && (
           <RecipeBottomTabs
             recipeId={recipe.id}
+            recipeOwnerId={recipe.owner_id ?? undefined}
             commentsCount={recipe.comments_count ?? 0}
             activeTab={activeTab}
             onTabChange={setActiveTab}

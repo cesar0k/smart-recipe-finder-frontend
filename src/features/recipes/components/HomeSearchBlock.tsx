@@ -77,7 +77,7 @@ export const HomeSearchBlock = memo(function HomeSearchBlock({
 
   return (
     <div className="max-w-4xl mx-auto text-center mb-12 space-y-6">
-      <h1 className="text-2xl md:text-5xl font-extrabold text-gray-900 tracking-tight w-full md:line-clamp-1 break-words">
+      <h1 className="text-2xl md:text-5xl font-extrabold text-gray-900 tracking-tight w-full text-center text-balance md:line-clamp-1">
         {heading}
       </h1>
 

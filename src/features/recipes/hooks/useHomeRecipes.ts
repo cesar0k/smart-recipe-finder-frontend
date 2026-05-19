@@ -43,7 +43,8 @@ export function useHomeRecipes() {
     maxTimeFromUrl !== undefined ||
     difficultyFromUrl.length > 0 ||
     cuisineFromUrl.length > 0 ||
-    !!mealTypeFromUrl;
+    !!mealTypeFromUrl ||
+    hasCommentsFromUrl;
 
   const includeParam =
     includeFromUrl.length > 0 ? includeFromUrl.join(",") : undefined;
@@ -74,6 +75,7 @@ export function useHomeRecipes() {
         difficultyParam,
         cuisineParam,
         mealTypeFromUrl,
+        hasCommentsFromUrl,
         sort: sortFromUrl,
       },
     ] as const,

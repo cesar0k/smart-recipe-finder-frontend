@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Shield, ShieldCheck, Trash2, Ban, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
@@ -141,9 +142,12 @@ export function AdminPage() {
                   {/* User info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="font-semibold text-gray-900 truncate">
+                      <Link
+                        to={`/user/${u.id}`}
+                        className="font-semibold text-gray-900 hover:underline truncate"
+                      >
                         {u.username}
-                      </span>
+                      </Link>
                       <Badge
                         variant="outline"
                         className={`text-xs gap-1 ${ROLE_BADGE_COLORS[u.role] || ROLE_BADGE_COLORS.user}`}

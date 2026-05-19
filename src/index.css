@@ -147,6 +147,27 @@
   }
 }
 
+/* When a modal is open on mobile: freeze viewport height so Android system
+   navigation bar cannot resize the viewport during scroll inside the modal.
+   Must be outside @layer base (Tailwind v4 does not allow @media inside @layer). */
+@media (max-width: 767px) {
+  body[data-scroll-locked] nav[data-bottom-nav] {
+    display: none !important;
+  }
+  html:has(body[data-scroll-locked]),
+  body[data-scroll-locked] {
+    height: 100vh !important;
+    max-height: 100vh !important;
+    overflow: hidden !important;
+  }
+  /* JS (AndroidScrollLock) sets top: -scrollY; position: fixed on #root.
+     The CSS here just ensures overflow is clipped so nothing bleeds. */
+  body[data-scroll-locked] #root {
+    overflow: hidden !important;
+    width: 100% !important;
+  }
+}
+
 [data-sonner-toast] {
   border-radius: var(--radius-3xl) !important;
 }
@@ -158,13 +179,23 @@
 [data-slot="dialog-overlay"],
 [data-slot="sheet-overlay"] {
   right: calc(-1 * var(--removed-body-scroll-bar-size, 0px)) !important;
+  pointer-events: auto !important;
 }
 
 /* The scrollbar gutter area is painted by the <html> element background.
-   Darken it when a modal is open so it blends with the overlay. */
-body[data-scroll-locked] ~ * { }
-html:has(body[data-scroll-locked]) {
-  background-color: black;
+   Darken it when a modal is open so it blends with the overlay.
+   Desktop only — on mobile there's no scrollbar gutter to cover. */
+/* Desktop: darken scrollbar gutter when modal open */
+@media (min-width: 768px) {
+  html:has(body[data-scroll-locked]) {
+    background-color: black;
+  }
+}
+/* Mobile: white background on html so Android Chrome viewport-resize gap is white, not transparent */
+@media (max-width: 767px) {
+  html:has(body[data-scroll-locked]) {
+    background-color: white;
+  }
 }
 
 /* Reply indent + L-shaped connector */
