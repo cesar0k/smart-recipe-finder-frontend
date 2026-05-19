@@ -463,5 +463,8 @@
   "recaptcha_notice": "This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply.",
 
   "nav_home": "Home",
-  "nav_notifications": "Notifications"
+  "nav_notifications": "Notifications",
+  "edit_profile_title": "Edit profile",
+  "edit_profile_btn": "Edit profile",
+  "profile_interface_language": "Interface language"
 }

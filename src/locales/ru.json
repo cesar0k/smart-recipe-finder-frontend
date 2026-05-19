@@ -463,5 +463,8 @@
   "recaptcha_notice": "Этот сайт защищён reCAPTCHA. Применяются Политика конфиденциальности и Условия использования Google.",
 
   "nav_home": "Главная",
-  "nav_notifications": "Уведомления"
+  "nav_notifications": "Уведомления",
+  "edit_profile_title": "Редактировать профиль",
+  "edit_profile_btn": "Редактировать",
+  "profile_interface_language": "Язык интерфейса"
 }
