@@ -466,5 +466,8 @@
   "nav_notifications": "Уведомления",
   "edit_profile_title": "Редактировать профиль",
   "edit_profile_btn": "Редактировать",
-  "profile_interface_language": "Язык интерфейса"
+  "profile_interface_language": "Язык интерфейса",
+  "role_admin": "Админ",
+  "role_moderator": "Модер",
+  "comment_recipe_author": "Автор"
 }

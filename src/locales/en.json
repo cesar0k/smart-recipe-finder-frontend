@@ -154,7 +154,7 @@
   "toast_updated_pending": "Changes submitted for moderation",
 
   "moderation_title": "Moderation",
-  "moderation_tab_recipes": "New Recipes",
+  "moderation_tab_recipes": "Recipes",
   "moderation_tab_drafts": "Edits",
   "moderation_no_pending_recipes": "No recipes pending moderation",
   "moderation_no_pending_drafts": "No edits pending moderation",
@@ -466,5 +466,8 @@
   "nav_notifications": "Notifications",
   "edit_profile_title": "Edit profile",
   "edit_profile_btn": "Edit profile",
-  "profile_interface_language": "Interface language"
+  "profile_interface_language": "Interface language",
+  "role_admin": "Admin",
+  "role_moderator": "Mod",
+  "comment_recipe_author": "Author"
 }

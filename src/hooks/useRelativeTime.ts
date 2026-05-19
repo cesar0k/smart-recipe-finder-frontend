@@ -8,9 +8,14 @@ export function useRelativeTime() {
   const { i18n } = useTranslation();
 
   return (dateStr: string) => {
-    const date = new Date(dateStr);
+    if (!dateStr) return "";
+    // Ensure UTC parsing — append Z if no timezone suffix present
+    const utcStr = /[Zz]$|[+-]\d{2}:\d{2}$/.test(dateStr) ? dateStr : dateStr + "Z";
+    const date = new Date(utcStr);
+    if (isNaN(date.getTime())) return "";
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
+    if (!isFinite(diffMs)) return "";
     const diffSec = Math.floor(diffMs / 1000);
 
     const rtf = new Intl.RelativeTimeFormat(i18n.language, { numeric: "auto" });

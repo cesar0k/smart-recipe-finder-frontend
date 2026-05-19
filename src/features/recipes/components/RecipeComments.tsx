@@ -108,11 +108,12 @@ function CommentForm({
 interface CommentItemProps {
   comment: CommentResponse;
   recipeId: number;
+  recipeOwnerId?: number;
   depth?: number;
   onDeleted: () => void;
 }
 
-function CommentItem({ comment, recipeId, depth = 0, onDeleted }: CommentItemProps) {
+function CommentItem({ comment, recipeId, recipeOwnerId, depth = 0, onDeleted }: CommentItemProps) {
   const { t, i18n } = useTranslation();
   const { user, hasRole } = useAuth();
   const [replyOpen, setReplyOpen] = useState(false);
@@ -129,7 +130,12 @@ function CommentItem({ comment, recipeId, depth = 0, onDeleted }: CommentItemPro
   const canReport = !!user && !isOwn && !alreadyReported;
 
   const timeAgo = (() => {
-    const diffMs = Date.now() - new Date(comment.created_at).getTime();
+    const raw = comment.created_at;
+    if (!raw) return "";
+    const utcStr = /[Zz]$|[+-]\d{2}:\d{2}$/.test(raw) ? raw : raw + "Z";
+    const ts = new Date(utcStr).getTime();
+    if (!isFinite(ts)) return "";
+    const diffMs = Date.now() - ts;
     const diffSec = Math.floor(diffMs / 1000);
     const rtf = new Intl.RelativeTimeFormat(i18n.language, { numeric: "auto" });
     if (diffSec < 60) return rtf.format(-diffSec, "second");
@@ -197,13 +203,30 @@ function CommentItem({ comment, recipeId, depth = 0, onDeleted }: CommentItemPro
           size="sm"
         />
         <div className="flex-1 min-w-0">
-          <div className="flex items-baseline gap-2 flex-wrap">
+          <div className="flex items-center gap-1.5 flex-wrap">
             <Link
               to={`/user/${comment.user_id}`}
               className="text-sm font-semibold text-gray-900 hover:underline"
             >
               {comment.author_username ?? `User #${comment.user_id}`}
             </Link>
+            {/* Role badge */}
+            {comment.author_role === "admin" && (
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-red-100 text-red-700">
+                {t("role_admin")}
+              </span>
+            )}
+            {comment.author_role === "moderator" && (
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-700">
+                {t("role_moderator")}
+              </span>
+            )}
+            {/* Recipe author badge */}
+            {recipeOwnerId && comment.user_id === recipeOwnerId && (
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-gray-900 text-white">
+                {t("comment_recipe_author")}
+              </span>
+            )}
             <span className="text-xs text-gray-400">{timeAgo}</span>
           </div>
 
@@ -331,6 +354,7 @@ function CommentItem({ comment, recipeId, depth = 0, onDeleted }: CommentItemPro
               key={reply.id}
               comment={reply}
               recipeId={recipeId}
+              recipeOwnerId={recipeOwnerId}
               depth={1}
               onDeleted={onDeleted}
             />
@@ -345,9 +369,10 @@ function CommentItem({ comment, recipeId, depth = 0, onDeleted }: CommentItemPro
 
 interface RecipeCommentsProps {
   recipeId: number;
+  recipeOwnerId?: number;
 }
 
-export function RecipeComments({ recipeId }: RecipeCommentsProps) {
+export function RecipeComments({ recipeId, recipeOwnerId }: RecipeCommentsProps) {
   const { t } = useTranslation();
   const LIMIT = 20;
 
@@ -439,6 +464,7 @@ export function RecipeComments({ recipeId }: RecipeCommentsProps) {
               key={comment.id}
               comment={comment}
               recipeId={recipeId}
+              recipeOwnerId={recipeOwnerId}
               onDeleted={handleMutation}
             />
           ))}

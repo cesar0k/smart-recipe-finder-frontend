@@ -16,5 +16,6 @@ export interface NotificationResponse {
   is_read: boolean;
   recipe_id?: NotificationResponseRecipeId;
   comment_id?: NotificationResponseCommentId;
+  from_user_id?: number | null;
   created_at: string;
 }
