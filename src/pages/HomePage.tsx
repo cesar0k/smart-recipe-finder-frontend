@@ -161,6 +161,15 @@ export function HomePage() {
           </div>
         )}
 
+        {/* Empty database — no search, no filters, but the server returned 0 recipes */}
+        {isEmpty && !isSearchView && !hasActiveFilters && (
+          <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">
+            <ChefHat className="w-12 h-12 text-gray-300" />
+            <p className="text-lg font-semibold text-gray-700">{t("no_recipes_yet_title")}</p>
+            <p className="text-sm text-gray-400 max-w-sm">{t("no_recipes_yet_desc")}</p>
+          </div>
+        )}
+
         {/* Default feed — 6 preview cards + link to /recipes */}
         {!isSearchView && !hasActiveFilters && !isLoading && !isError && recipes && recipes.length > 0 && (
           <>

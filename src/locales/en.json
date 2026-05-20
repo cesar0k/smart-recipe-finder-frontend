@@ -22,6 +22,8 @@
   "search_results_for": "Results for \"{{query}}\"",
   "no_recipes_found": "No recipes found for \"{{search}}\"",
   "no_recipes_filters": "No recipes found matching your filters",
+  "no_recipes_yet_title": "No recipes yet",
+  "no_recipes_yet_desc": "Be the first — create a recipe and share it with the community.",
   "show_all": "Show all recipes",
   "all_recipes": "All recipes",
   "all_recipes_btn": "View all recipes",
