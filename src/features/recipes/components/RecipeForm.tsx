@@ -444,7 +444,7 @@ export function RecipeForm({
             className="w-full rounded-full h-12 text-base font-semibold bg-black hover:bg-gray-800 shadow-lg shadow-gray-200 transition-all hover:scale-[1.01]"
             disabled={isSubmitting}
           >
-            {isSubmitting ? t("form_saving_btn") : t("form_save_btn")}
+            {t("form_save_btn")}
           </Button>
         </div>
       </form>

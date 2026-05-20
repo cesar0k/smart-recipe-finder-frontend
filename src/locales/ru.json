@@ -72,6 +72,8 @@
   "toast_created": "Рецепт успешно создан",
   "toast_updated": "Рецепт обновлен",
   "toast_deleted": "Рецепт удален",
+  "toast_creating": "Создаём рецепт…",
+  "toast_saving": "Сохраняем рецепт…",
   "toast_error_create": "Ошибка при создании",
   "toast_error_update": "Ошибка при обновлении",
   "toast_error_delete": "Ошибка при удалении",

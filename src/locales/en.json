@@ -72,6 +72,8 @@
   "toast_created": "Recipe created successfully",
   "toast_updated": "Recipe updated successfully",
   "toast_deleted": "Recipe deleted successfully",
+  "toast_creating": "Creating recipe…",
+  "toast_saving": "Saving recipe…",
   "toast_error_create": "Failed to create recipe",
   "toast_error_update": "Failed to update recipe",
   "toast_error_delete": "Failed to delete recipe",
