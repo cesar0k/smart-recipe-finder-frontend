@@ -119,6 +119,23 @@
   right: -186px !important; /* prevent badge from causing horizontal overflow */
 }
 
+/* Safari shows a key icon for password autofill that overlaps with our own
+   show/hide eye button. Hide it. */
+input::-webkit-credentials-auto-fill-button,
+input::-webkit-contacts-auto-fill-button {
+  visibility: hidden;
+  display: none !important;
+  pointer-events: none;
+  height: 0;
+  width: 0;
+  margin: 0;
+}
+
+/* Same on Safari's strong-password autofill UI */
+input::-webkit-strong-password-auto-fill-button {
+  display: none !important;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

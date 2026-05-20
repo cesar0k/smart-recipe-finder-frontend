@@ -89,7 +89,7 @@ export function CategoryShelves() {
             opts={{ align: "start", containScroll: "trimSnaps" }}
             className="w-full"
           >
-            <CarouselContent className="-ml-4">
+            <CarouselContent className="-ml-4" outerClassName="-m-2 p-2">
               {cat.recipes.map((recipe) => (
                 <CarouselItem
                   key={recipe.id}
