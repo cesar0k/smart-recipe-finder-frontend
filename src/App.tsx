@@ -8,6 +8,7 @@ import {
 } from "./components/RouteTransitionIndicator";
 import { BottomNav } from "./components/layout/BottomNav";
 import { ScrollToTop } from "./components/ui/scroll-to-top";
+import { AndroidScrollLock } from "./components/ui/android-scroll-lock";
 
 const HomePage = lazy(() =>
   import("./pages/HomePage").then((m) => ({ default: m.HomePage }))
@@ -202,6 +203,7 @@ function App() {
       </Suspense>
       <BottomNav />
       <ScrollToTop />
+      <AndroidScrollLock />
       <Toaster />
     </>
   );

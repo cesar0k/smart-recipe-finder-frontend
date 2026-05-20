@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Smart Recipe Finder</title>
     <!--
       Cold-start splash. Paints on the first browser frame so the user
@@ -56,6 +56,8 @@
         color: #111827; /* tailwind gray-900 */
         font-size: 2.5rem; /* ~text-4xl */
         line-height: 1.1;
+        text-align: center;
+        max-width: 80vw;
         /* When the spinner appears (after 2s) the logo nudges up so
            logo + spinner sit centered together. */
         transform: translateY(0);
