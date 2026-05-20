@@ -30,6 +30,7 @@ import { useDeleteRecipeLogic } from "../features/recipes/hooks/useDeleteRecipeL
 import { RecipeHeaderInfo } from "@/features/recipes/components/RecipeHeaderInfo";
 import { RecipeGallery } from "@/features/recipes/components/RecipeGallery";
 import { SimilarRecipesSection } from "@/features/recipes/components/SimilarRecipesSection";
+import { useSimilarRecipes } from "@/features/recipes/hooks/useSimilarRecipes";
 import { RecipeComments } from "@/features/recipes/components/RecipeComments";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/lib/auth/auth-context";
@@ -58,6 +59,20 @@ function RecipeBottomTabs({
   onShowComments: () => void;
 }) {
   const { t } = useTranslation();
+  const { similar, isLoading: isSimilarLoading, isError: isSimilarError } = useSimilarRecipes(recipeId);
+  // Hide the "Similar" tab when there genuinely are no similar recipes
+  // (request succeeded with an empty list). Keep it while loading or on error
+  // so the user still sees a status message in that case.
+  const hasSimilar = isSimilarLoading || isSimilarError || similar.length > 0;
+
+  // If the active tab is "similar" but there are none — force-switch to comments.
+  useEffect(() => {
+    if (!hasSimilar && activeTab === "similar") {
+      onTabChange("comments");
+      onShowComments();
+    }
+  }, [hasSimilar, activeTab, onTabChange, onShowComments]);
+
   const tab = activeTab;
 
   const [panelMinHeight, setPanelMinHeight] = useState<number | undefined>(undefined);
@@ -89,7 +104,9 @@ function RecipeBottomTabs({
   };
 
   const tabs = [
-    { id: "similar" as const, label: t("similar_recipes_title") },
+    ...(hasSimilar
+      ? [{ id: "similar" as const, label: t("similar_recipes_title") }]
+      : []),
     {
       id: "comments" as const,
       label: commentsCount > 0
