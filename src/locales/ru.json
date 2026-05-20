@@ -442,6 +442,6 @@
   "role_admin": "Админ",
   "role_moderator": "Модер",
   "comment_recipe_author": "Автор",
-  "min_time_label": "от (мин)",
-  "max_time_label": "до (мин)"
+  "min_time_label": "от (минут)",
+  "max_time_label": "до (минут)"
 }

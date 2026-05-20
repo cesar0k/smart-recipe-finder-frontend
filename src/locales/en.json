@@ -442,6 +442,6 @@
   "role_admin": "Admin",
   "role_moderator": "Mod",
   "comment_recipe_author": "Author",
-  "min_time_label": "from (min)",
-  "max_time_label": "to (min)"
+  "min_time_label": "from (minutes)",
+  "max_time_label": "to (minutes)"
 }

@@ -130,6 +130,19 @@
   body {
     @apply bg-background text-foreground;
   }
+  /* Tailwind v4 sets cursor: default on buttons by default — restore the
+     pointer for all interactive elements that the user can click. */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  a[href],
+  label[for],
+  summary,
+  select:not(:disabled),
+  [role="tab"]:not([aria-disabled="true"]),
+  [role="menuitem"]:not([aria-disabled="true"]),
+  [role="option"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
   /* Prevent iOS/Android from zooming in when focusing inputs.
      Browsers zoom when font-size < 16px — set it globally on mobile. */
   @media (max-width: 767px) {
