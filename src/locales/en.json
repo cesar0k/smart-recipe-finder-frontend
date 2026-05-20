@@ -145,6 +145,8 @@
   "login_account_deactivated": "This account has been deactivated",
   "login_generic_error": "Sign in failed. Please try again.",
   "recaptcha_error": "Couldn't verify you're not a bot. Check your connection and try again.",
+  "recaptcha_v2_title": "Confirm you're human",
+  "recaptcha_v2_desc": "Automatic verification failed. Please complete the check below.",
   "register_title": "Create an account",
   "register_subtitle": "Join to start sharing recipes",
   "register_display_name_label": "Name (optional)",

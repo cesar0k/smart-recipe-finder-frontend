@@ -11,6 +11,7 @@ import { useForgotPassword } from "@/api/auth/auth";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
 import { useRecaptcha } from "@/hooks/useRecaptcha";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
+import { Recaptcha2Dialog } from "@/components/Recaptcha2Dialog";
 
 export function ForgotPasswordPage() {
   useDismissSplash();
@@ -22,21 +23,18 @@ export function ForgotPasswordPage() {
 
   const { mutate: forgotPassword, isPending } = useForgotPassword();
   const executeRecaptcha = useRecaptcha("forgot_password");
+  const [showV2, setShowV2] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-
-    let recaptchaToken = "";
-    try {
-      recaptchaToken = await executeRecaptcha();
-    } catch {
-      setError(t("recaptcha_error"));
-      return;
-    }
-
+  const submitWithToken = (token: string, type: "v2" | "v3") => {
     forgotPassword(
-      { data: { email, recaptcha_token: recaptchaToken || undefined } },
+      {
+        data: {
+          email,
+          recaptcha_token: token || undefined,
+          // Backend schema accepts recaptcha_type (v2/v3) but types aren't regenerated yet.
+          recaptcha_type: type,
+        } as Parameters<typeof forgotPassword>[0]["data"] & { recaptcha_type?: "v2" | "v3" },
+      },
       {
         onSuccess: () => setSent(true),
         onError: (err) => {
@@ -52,6 +50,27 @@ export function ForgotPasswordPage() {
         },
       }
     );
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    let recaptchaToken = "";
+    try {
+      recaptchaToken = await executeRecaptcha();
+    } catch {
+      // v3 failed — fall back to v2 checkbox
+      setShowV2(true);
+      return;
+    }
+
+    submitWithToken(recaptchaToken, "v3");
+  };
+
+  const handleV2Verify = (v2Token: string) => {
+    setShowV2(false);
+    submitWithToken(v2Token, "v2");
   };
 
   if (sent) {
@@ -72,6 +91,12 @@ export function ForgotPasswordPage() {
   }
 
   return (
+    <>
+    <Recaptcha2Dialog
+      open={showV2}
+      onOpenChange={setShowV2}
+      onVerify={handleV2Verify}
+    />
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-sm">
         <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
@@ -142,5 +167,6 @@ export function ForgotPasswordPage() {
         </p>
       </div>
     </div>
+    </>
   );
 }

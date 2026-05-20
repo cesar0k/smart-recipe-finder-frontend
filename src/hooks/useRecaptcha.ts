@@ -4,12 +4,16 @@ import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 const HAS_SITE_KEY = !!import.meta.env.VITE_RECAPTCHA_SITE_KEY;
 // Per-attempt timeout. Safari sometimes hangs inside grecaptcha.execute()
 // when its Private Access Token endpoint returns 401 and the JS fails to
-// fall back — when that happens, no amount of waiting helps, so we retry.
-const EXECUTE_TIMEOUT_MS = 8_000;
+// fall back — when that happens waiting longer doesn't help, so we bail
+// fast and let the caller show the v2 checkbox fallback. On a healthy
+// network v3 resolves in well under a second, so 2.5s is plenty.
+const EXECUTE_TIMEOUT_MS = 2_500;
 // How long to wait for `executeRecaptcha` to become defined (script load).
-const READY_TIMEOUT_MS = 10_000;
-// Total number of execute() attempts (1 initial + N retries).
-const MAX_ATTEMPTS = 3;
+const READY_TIMEOUT_MS = 4_000;
+// Total number of execute() attempts (1 initial + N retries). One quick
+// retry covers a transient hiccup; more than that just delays the v2
+// fallback for the Safari users who are already stuck.
+const MAX_ATTEMPTS = 2;
 
 /**
  * Returns an `execute` function that fetches a fresh reCAPTCHA v3 token.
@@ -66,7 +70,7 @@ export function useRecaptcha(action: string) {
       }
       // Brief pause before retrying so Google's internal state can reset.
       if (attempt < MAX_ATTEMPTS) {
-        await new Promise((r) => setTimeout(r, 400));
+        await new Promise((r) => setTimeout(r, 200));
       }
     }
 

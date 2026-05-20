@@ -23,6 +23,7 @@ import { useTranslation } from "react-i18next";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
 import { useRecaptcha } from "@/hooks/useRecaptcha";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
+import { Recaptcha2Dialog } from "@/components/Recaptcha2Dialog";
 
 function createLoginSchema(t: (key: string) => string) {
   return z.object({
@@ -60,19 +61,17 @@ export function LoginPage() {
     defaultValues: { username: "", password: "" },
   });
 
-  const onSubmit = async (data: LoginFormValues) => {
-    setError(null);
-    setIsSubmitting(true);
-    let recaptchaToken = "";
+  // Pending credentials saved while we wait for the user to pass v2 captcha.
+  const [pendingCreds, setPendingCreds] = useState<LoginFormValues | null>(null);
+  const [showV2, setShowV2] = useState(false);
+
+  const performLogin = async (
+    creds: LoginFormValues,
+    token: string,
+    type: "v2" | "v3",
+  ) => {
     try {
-      recaptchaToken = await executeRecaptcha();
-    } catch {
-      setError(t("recaptcha_error"));
-      setIsSubmitting(false);
-      return;
-    }
-    try {
-      await login(data.username, data.password, recaptchaToken);
+      await login(creds.username, creds.password, token, type);
       navigate(from, { replace: true });
     } catch (err) {
       if (axios.isAxiosError(err)) {
@@ -92,6 +91,31 @@ export function LoginPage() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const onSubmit = async (data: LoginFormValues) => {
+    setError(null);
+    setIsSubmitting(true);
+    let recaptchaToken = "";
+    try {
+      recaptchaToken = await executeRecaptcha();
+    } catch {
+      // v3 failed — open the v2 checkbox fallback and save the credentials
+      // so we can retry once the user passes the manual challenge.
+      setPendingCreds(data);
+      setShowV2(true);
+      setIsSubmitting(false);
+      return;
+    }
+    await performLogin(data, recaptchaToken, "v3");
+  };
+
+  const handleV2Verify = async (v2Token: string) => {
+    setShowV2(false);
+    if (!pendingCreds) return;
+    setIsSubmitting(true);
+    await performLogin(pendingCreds, v2Token, "v2");
+    setPendingCreds(null);
   };
 
   const googleLogin = useGoogleLogin({
@@ -114,6 +138,15 @@ export function LoginPage() {
   });
 
   return (
+    <>
+    <Recaptcha2Dialog
+      open={showV2}
+      onOpenChange={(open) => {
+        setShowV2(open);
+        if (!open) setPendingCreds(null);
+      }}
+      onVerify={handleV2Verify}
+    />
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-sm">
         {/* Card */}
@@ -258,5 +291,6 @@ export function LoginPage() {
         </p>
       </div>
     </div>
+    </>
   );
 }

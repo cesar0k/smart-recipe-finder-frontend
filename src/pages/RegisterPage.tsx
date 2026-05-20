@@ -23,6 +23,7 @@ import { useTranslation } from "react-i18next";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
 import { useRecaptcha } from "@/hooks/useRecaptcha";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
+import { Recaptcha2Dialog } from "@/components/Recaptcha2Dialog";
 
 function createRegisterSchema(t: (key: string) => string) {
   return z
@@ -93,22 +94,27 @@ export function RegisterPage() {
     defaultValues: { email: "", username: "", displayName: "", password: "", confirmPassword: "" },
   });
 
-  const onSubmit = async (data: RegisterFormValues) => {
-    setError(null);
-    setIsSubmitting(true);
-    let recaptchaToken = "";
-    let loginRecaptchaToken = "";
+  const [pendingFormData, setPendingFormData] = useState<RegisterFormValues | null>(null);
+  const [showV2, setShowV2] = useState(false);
+
+  const performRegister = async (
+    data: RegisterFormValues,
+    token: string,
+    loginToken: string,
+    type: "v2" | "v3",
+    loginType: "v2" | "v3",
+  ) => {
     try {
-      recaptchaToken = await executeRecaptcha();
-      // Get a separate token for the auto-login that follows registration
-      loginRecaptchaToken = await executeLoginRecaptcha();
-    } catch {
-      setError(t("recaptcha_error"));
-      setIsSubmitting(false);
-      return;
-    }
-    try {
-      await registerUser(data.email, data.username, data.password, data.displayName, recaptchaToken, loginRecaptchaToken);
+      await registerUser(
+        data.email,
+        data.username,
+        data.password,
+        data.displayName,
+        token,
+        loginToken,
+        type,
+        loginType,
+      );
       navigate(from, { replace: true });
     } catch (err) {
       if (axios.isAxiosError(err)) {
@@ -130,7 +136,45 @@ export function RegisterPage() {
     }
   };
 
+  const onSubmit = async (data: RegisterFormValues) => {
+    setError(null);
+    setIsSubmitting(true);
+    let recaptchaToken = "";
+    let loginRecaptchaToken = "";
+    try {
+      recaptchaToken = await executeRecaptcha();
+      loginRecaptchaToken = await executeLoginRecaptcha();
+    } catch {
+      // v3 failed — offer v2 checkbox fallback
+      setPendingFormData(data);
+      setShowV2(true);
+      setIsSubmitting(false);
+      return;
+    }
+    await performRegister(data, recaptchaToken, loginRecaptchaToken, "v3", "v3");
+  };
+
+  const handleV2Verify = async (v2Token: string) => {
+    setShowV2(false);
+    if (!pendingFormData) return;
+    setIsSubmitting(true);
+    // Use the same v2 token for both register and the auto-login that follows.
+    // Tokens are one-shot, but Google allows immediate verification for both
+    // since they're separate API calls. If that fails the user retries.
+    await performRegister(pendingFormData, v2Token, v2Token, "v2", "v2");
+    setPendingFormData(null);
+  };
+
   return (
+    <>
+    <Recaptcha2Dialog
+      open={showV2}
+      onOpenChange={(open) => {
+        setShowV2(open);
+        if (!open) setPendingFormData(null);
+      }}
+      onVerify={handleV2Verify}
+    />
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-8">
       <div className="w-full max-w-sm">
         {/* Card */}
@@ -323,5 +367,6 @@ export function RegisterPage() {
         </p>
       </div>
     </div>
+    </>
   );
 }

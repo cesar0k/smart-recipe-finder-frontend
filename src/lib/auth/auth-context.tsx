@@ -19,9 +19,9 @@ interface AuthContextValue {
   user: UserResponse | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (username: string, password: string, recaptchaToken?: string) => Promise<void>;
+  login: (username: string, password: string, recaptchaToken?: string, recaptchaType?: "v2" | "v3") => Promise<void>;
   loginWithGoogle: (code: string) => Promise<void>;
-  register: (email: string, username: string, password: string, displayName?: string, recaptchaToken?: string, loginRecaptchaToken?: string) => Promise<void>;
+  register: (email: string, username: string, password: string, displayName?: string, recaptchaToken?: string, loginRecaptchaToken?: string, recaptchaType?: "v2" | "v3", loginRecaptchaType?: "v2" | "v3") => Promise<void>;
   logout: () => Promise<void>;
   /** Re-fetch current user data (e.g. after avatar/profile update) */
   refetchUser: () => Promise<void>;
@@ -76,14 +76,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback(
-    async (username: string, password: string, recaptchaToken?: string) => {
+    async (
+      username: string,
+      password: string,
+      recaptchaToken?: string,
+      recaptchaType: "v2" | "v3" = "v3",
+    ) => {
+      const headers: Record<string, string> = {};
+      if (recaptchaToken) {
+        headers["x-recaptcha-token"] = recaptchaToken;
+        if (recaptchaType === "v2") headers["x-recaptcha-type"] = "v2";
+      }
       const tokens = await loginUser(
         { username, password },
         // Merge headers rather than replacing — loginUser sets Content-Type: form-urlencoded
         // and customInstance spreads options on top, so we must nest under `headers` only.
-        recaptchaToken
-          ? { headers: { "x-recaptcha-token": recaptchaToken } }
-          : undefined,
+        Object.keys(headers).length > 0 ? { headers } : undefined,
       );
       tokenStorage.setTokens(tokens.access_token, tokens.refresh_token);
       await fetchUser();
@@ -109,6 +117,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       displayName?: string,
       recaptchaToken?: string,
       loginRecaptchaToken?: string,
+      recaptchaType: "v2" | "v3" = "v3",
+      loginRecaptchaType: "v2" | "v3" = "v3",
     ) => {
       // Pass detected browser language so emails arrive in the right language immediately
       const detectedLang = i18n.language?.startsWith("ru") ? "ru" : "en";
@@ -119,9 +129,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         password,
         language: detectedLang,
         recaptcha_token: recaptchaToken || undefined,
-      });
+        // recaptcha_type field exists on the backend schema (v2/v3 fallback)
+        // but isn't yet in the generated TS types until next `gen:api` run.
+        recaptcha_type: recaptchaType,
+      } as Parameters<typeof registerUser>[0] & { recaptcha_type?: "v2" | "v3" });
       // Auto-login after registration — use a fresh recaptcha token
-      await login(username, password, loginRecaptchaToken);
+      await login(username, password, loginRecaptchaToken, loginRecaptchaType);
     },
     [login]
   );
