@@ -63,8 +63,15 @@ export function LoginPage() {
   const onSubmit = async (data: LoginFormValues) => {
     setError(null);
     setIsSubmitting(true);
+    let recaptchaToken = "";
     try {
-      const recaptchaToken = await executeRecaptcha();
+      recaptchaToken = await executeRecaptcha();
+    } catch {
+      setError(t("recaptcha_error"));
+      setIsSubmitting(false);
+      return;
+    }
+    try {
       await login(data.username, data.password, recaptchaToken);
       navigate(from, { replace: true });
     } catch (err) {
@@ -74,6 +81,8 @@ export function LoginPage() {
           setError(t("login_invalid_credentials"));
         } else if (status === 403) {
           setError(t("login_account_deactivated"));
+        } else if (status === 400 && /recaptcha/i.test(JSON.stringify(err.response?.data ?? ""))) {
+          setError(t("recaptcha_error"));
         } else {
           setError(t("login_generic_error"));
         }

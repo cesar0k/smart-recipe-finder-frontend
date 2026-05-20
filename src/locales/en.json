@@ -144,6 +144,7 @@
   "login_invalid_credentials": "Invalid email or password",
   "login_account_deactivated": "This account has been deactivated",
   "login_generic_error": "Sign in failed. Please try again.",
+  "recaptcha_error": "Couldn't verify you're not a bot. Check your connection and try again.",
   "register_title": "Create an account",
   "register_subtitle": "Join to start sharing recipes",
   "register_display_name_label": "Name (optional)",

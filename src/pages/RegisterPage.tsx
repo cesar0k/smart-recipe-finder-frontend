@@ -96,10 +96,18 @@ export function RegisterPage() {
   const onSubmit = async (data: RegisterFormValues) => {
     setError(null);
     setIsSubmitting(true);
+    let recaptchaToken = "";
+    let loginRecaptchaToken = "";
     try {
-      const recaptchaToken = await executeRecaptcha();
+      recaptchaToken = await executeRecaptcha();
       // Get a separate token for the auto-login that follows registration
-      const loginRecaptchaToken = await executeLoginRecaptcha();
+      loginRecaptchaToken = await executeLoginRecaptcha();
+    } catch {
+      setError(t("recaptcha_error"));
+      setIsSubmitting(false);
+      return;
+    }
+    try {
       await registerUser(data.email, data.username, data.password, data.displayName, recaptchaToken, loginRecaptchaToken);
       navigate(from, { replace: true });
     } catch (err) {
@@ -109,6 +117,8 @@ export function RegisterPage() {
           setError(t("register_conflict"));
         } else if (status === 422) {
           setError(t("register_validation_error"));
+        } else if (status === 400 && /recaptcha/i.test(JSON.stringify(err.response?.data ?? ""))) {
+          setError(t("recaptcha_error"));
         } else {
           setError(t("register_generic_error"));
         }

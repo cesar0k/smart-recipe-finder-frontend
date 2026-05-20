@@ -27,7 +27,13 @@ export function ForgotPasswordPage() {
     e.preventDefault();
     setError(null);
 
-    const recaptchaToken = await executeRecaptcha();
+    let recaptchaToken = "";
+    try {
+      recaptchaToken = await executeRecaptcha();
+    } catch {
+      setError(t("recaptcha_error"));
+      return;
+    }
 
     forgotPassword(
       { data: { email, recaptcha_token: recaptchaToken || undefined } },

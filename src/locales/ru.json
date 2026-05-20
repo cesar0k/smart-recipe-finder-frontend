@@ -144,6 +144,7 @@
   "login_invalid_credentials": "Неверный email или пароль",
   "login_account_deactivated": "Этот аккаунт деактивирован",
   "login_generic_error": "Ошибка входа. Попробуйте ещё раз.",
+  "recaptcha_error": "Не удалось проверить, что вы не робот. Проверьте подключение и попробуйте снова.",
   "register_title": "Создать аккаунт",
   "register_subtitle": "Присоединяйтесь, чтобы делиться рецептами",
   "register_display_name_label": "Имя (необязательно)",
