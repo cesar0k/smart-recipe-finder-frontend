@@ -227,7 +227,7 @@ export function ProfilePage() {
               disabled={isSaving}
               className="w-full rounded-full h-9 bg-black hover:bg-gray-800 text-sm"
             >
-              {isSaving ? t("profile_saving_btn") : t("profile_save_btn")}
+              {t("profile_save_btn")}
             </Button>
           </div>
 
@@ -319,7 +319,7 @@ export function ProfilePage() {
                 disabled={isChanging}
                 className="w-full rounded-full h-9 bg-black hover:bg-gray-800 text-sm"
               >
-                {isChanging ? t("profile_changing_btn") : t("profile_change_btn")}
+                {t("profile_change_btn")}
               </Button>
             </div>
           )}

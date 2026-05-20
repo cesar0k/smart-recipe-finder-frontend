@@ -120,7 +120,7 @@ export function ForgotPasswordPage() {
                 disabled={isPending || !email.trim()}
                 className="w-full rounded-full h-12 text-base font-semibold bg-black hover:bg-gray-800"
               >
-                {isPending ? t("forgot_password_sending") : t("forgot_password_btn")}
+                {t("forgot_password_btn")}
               </Button>
               <p className="text-center text-[11px] text-gray-400">
                 {t("recaptcha_notice")}

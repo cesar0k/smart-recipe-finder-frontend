@@ -291,7 +291,7 @@ export function RegisterPage() {
                 className="w-full rounded-full h-12 text-base font-semibold bg-black hover:bg-gray-800"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? t("register_loading") : t("register_btn")}
+                {t("register_btn")}
               </Button>
               <p className="text-center text-[11px] text-gray-400">
                 {t("recaptcha_notice")}

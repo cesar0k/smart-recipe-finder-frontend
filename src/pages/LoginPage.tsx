@@ -217,7 +217,7 @@ export function LoginPage() {
                 className="w-full rounded-full h-12 text-base font-semibold bg-black hover:bg-gray-800"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? t("login_loading") : t("login_btn")}
+                {t("login_btn")}
               </Button>
 
               <p className="text-center text-[11px] text-gray-400">

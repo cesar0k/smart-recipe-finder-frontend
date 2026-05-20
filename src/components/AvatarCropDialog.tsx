@@ -172,7 +172,7 @@ export function AvatarCropDialog({
             onClick={handleSave}
             disabled={isSaving}
           >
-            {isSaving ? t("profile_saving_btn") : t("profile_save_btn")}
+            {t("profile_save_btn")}
           </Button>
         </DialogFooter>
       </DialogContent>

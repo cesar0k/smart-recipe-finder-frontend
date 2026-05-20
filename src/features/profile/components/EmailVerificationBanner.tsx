@@ -52,7 +52,7 @@ export function EmailVerificationBanner({ onSent }: EmailVerificationBannerProps
         onClick={handleSend}
         disabled={isPending}
       >
-        {isPending ? t("sending") : t("send_verification_email_btn")}
+        {t("send_verification_email_btn")}
       </Button>
     </div>
   );

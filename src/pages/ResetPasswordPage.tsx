@@ -133,7 +133,7 @@ export function ResetPasswordPage() {
                 disabled={isPending || !newPassword || !confirmPassword}
                 className="w-full rounded-full h-12 text-base font-semibold bg-black hover:bg-gray-800"
               >
-                {isPending ? t("reset_password_saving") : t("reset_password_btn")}
+                {t("reset_password_btn")}
               </Button>
             </form>
           </div>
