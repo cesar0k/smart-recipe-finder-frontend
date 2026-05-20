@@ -33,7 +33,7 @@ export function useRecipeCategories(
   return useQuery<RecipeCategory[]>({
     queryKey: getRecipeCategoriesQueryKey(limitPer),
     queryFn: ({ signal }) => readRecipeCategories(limitPer, signal),
-    staleTime: 0, // always revalidate on focus/mount so stats (rating, favorites) stay fresh
+    staleTime: 2 * 60 * 1000, // 2 minutes — category shelf recipes change infrequently
     ...options,
   });
 }

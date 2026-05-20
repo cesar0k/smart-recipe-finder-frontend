@@ -145,6 +145,10 @@
     margin-right: 0 !important;
     padding-right: 0 !important;
   }
+  /* Hide BottomNav when any Radix modal is open — fixes Android Chrome z-index bug */
+  body[data-scroll-locked] nav.md\\:hidden {
+    display: none !important;
+  }
 }
 
 /* When a modal is open on mobile: freeze viewport height so Android system
