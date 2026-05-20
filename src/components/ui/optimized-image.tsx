@@ -43,6 +43,13 @@ export function OptimizedImage({
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(isEmpty);
 
+  // When `src` changes (e.g. user removed all images from a recipe),
+  // reset internal state so the fallback shows immediately for the new value.
+  useEffect(() => {
+    setIsLoaded(false);
+    setHasError(isEmpty);
+  }, [src, isEmpty]);
+
   // Progressive loading: thumbnail loaded first, then full replaces it
   const hasThumb = !!thumbnailSrc && thumbnailSrc !== src;
   const thumbCached = hasThumb && imageCache.has(thumbnailSrc);
