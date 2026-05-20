@@ -23,6 +23,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Badge } from "@/components/ui/badge";
 import { CreateRecipeSheet } from "@/features/recipes/components/CreateRecipeSheet";
 import { EditRecipeSheet } from "@/features/recipes/components/EditRecipeSheet";
+import { RecipeLightbox } from "@/features/recipes/components/RecipeLightbox";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -134,6 +135,7 @@ export function PublicProfilePage() {
   const [editProfileOpen, setEditProfileOpen] = useState(false);
   const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
   const [deletingRecipe, setDeletingRecipe] = useState<Recipe | null>(null);
+  const [avatarLightboxOpen, setAvatarLightboxOpen] = useState(false);
   const { mutateAsync: deleteRecipe, isPending: isDeleting } =
     useDeleteRecipe();
 
@@ -198,13 +200,20 @@ export function PublicProfilePage() {
           <>
             {/* Profile header */}
             <div className="flex flex-col items-center text-center mb-6 space-y-2">
-              {/* Avatar */}
+              {/* Avatar — clickable to open in a lightbox */}
               {profile.avatar_url ? (
-                <img
-                  src={profile.avatar_url}
-                  alt={profile.username}
-                  className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
-                />
+                <button
+                  type="button"
+                  onClick={() => setAvatarLightboxOpen(true)}
+                  className="cursor-zoom-in rounded-full focus:outline-none focus:ring-2 focus:ring-gray-300"
+                  aria-label={profile.username}
+                >
+                  <img
+                    src={profile.avatar_url}
+                    alt={profile.username}
+                    className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
+                  />
+                </button>
               ) : (
                 <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center">
                   <User className="w-9 h-9 text-gray-400" />
@@ -409,6 +418,16 @@ export function PublicProfilePage() {
         open={editProfileOpen}
         onOpenChange={setEditProfileOpen}
       />
+
+      {/* Avatar lightbox — reuses RecipeLightbox for a single image */}
+      {profile?.avatar_url && (
+        <RecipeLightbox
+          images={[profile.avatar_url]}
+          initialIndex={0}
+          open={avatarLightboxOpen}
+          onOpenChange={setAvatarLightboxOpen}
+        />
+      )}
     </div>
   );
 }
