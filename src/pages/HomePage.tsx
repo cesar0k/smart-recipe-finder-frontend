@@ -17,10 +17,12 @@ import { Header } from "@/components/layout/Header";
 import { Spinner } from "@/components/ui/spinner";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/lib/auth/auth-context";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 export function HomePage() {
   const { t } = useTranslation();
   const { isAuthenticated } = useAuth();
+  useDocumentTitle(t("page_title_home"));
   const {
     recipes,
     isLoading,

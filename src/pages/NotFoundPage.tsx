@@ -2,10 +2,12 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 export function NotFoundPage() {
   useDismissSplash();
   const { t } = useTranslation();
+  useDocumentTitle(t("page_title_not_found"));
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white gap-6 px-4">

@@ -10,10 +10,12 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { useResetPassword } from "@/api/auth/auth";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 export function ResetPasswordPage() {
   useDismissSplash();
   const { t } = useTranslation();
+  useDocumentTitle(t("page_title_reset_password"));
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token") ?? "";

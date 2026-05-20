@@ -46,6 +46,7 @@ import { useAuth } from "@/lib/auth/auth-context";
 import type { Recipe } from "@/api/model";
 import { FollowButton } from "@/features/users/components/FollowButton";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 const PAGE_SIZE = 12;
 
@@ -82,6 +83,8 @@ export function PublicProfilePage() {
   const { data: profile, isLoading: profileLoading } = useGetUserProfile(uid, {
     query: { enabled: uid > 0 },
   });
+
+  useDocumentTitle(profile?.username ? t("page_title_user", { username: profile.username }) : null);
 
   // Own profile uses /my/ (sees pending/rejected/drafts), others use /user/:id (approved only).
   const {

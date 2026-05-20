@@ -29,6 +29,7 @@ import {
 } from "@/api/users/users";
 import { useAuth } from "@/lib/auth/auth-context";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 const PREF_DEBOUNCE_MS = 400;
 
@@ -85,6 +86,7 @@ const BACKEND_ERROR_MAP: Record<string, string> = {
 export function ProfilePage() {
   useDismissSplash();
   const { t, i18n } = useTranslation();
+  useDocumentTitle(t("page_title_profile"));
   const { user, refetchUser } = useAuth();
 
   const [email, setEmail] = useState(user?.email ?? "");

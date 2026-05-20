@@ -37,6 +37,7 @@ import type { UserResponse } from "@/api/model";
 import { useAuth } from "@/lib/auth/auth-context";
 import { useTranslation } from "react-i18next";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 const ROLE_BADGE_COLORS: Record<string, string> = {
   admin: "bg-red-100 text-red-700 border-red-200",
@@ -52,6 +53,7 @@ const ROLE_ICONS: Record<string, React.ReactNode> = {
 export function AdminPage() {
   useDismissSplash();
   const { t } = useTranslation();
+  useDocumentTitle(t("page_title_admin"));
   const { user: currentUser } = useAuth();
   const queryClient = useQueryClient();
 

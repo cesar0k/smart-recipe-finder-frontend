@@ -34,6 +34,7 @@ import { RecipeComments } from "@/features/recipes/components/RecipeComments";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/lib/auth/auth-context";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 // ── Bottom tabs: Similar | Comments ──────────────────────────────────────────
 
@@ -169,6 +170,7 @@ export function RecipePage() {
   const { recipe, isLoading, isError, isValidId, refetch } = useRecipeDetails();
   const { deleteRecipe, isDeleting } = useDeleteRecipeLogic();
   const { t } = useTranslation();
+  useDocumentTitle(recipe?.title || null);
   const { user, hasRole } = useAuth();
   const { hash } = useLocation();
   const isCommentsHash = hash === "#comments" || hash.startsWith("#comment-");

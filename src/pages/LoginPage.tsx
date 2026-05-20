@@ -22,6 +22,7 @@ import { useAuth } from "@/lib/auth/auth-context";
 import { useTranslation } from "react-i18next";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
 import { useRecaptcha } from "@/hooks/useRecaptcha";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 function createLoginSchema(t: (key: string) => string) {
   return z.object({
@@ -35,6 +36,7 @@ type LoginFormValues = z.infer<ReturnType<typeof createLoginSchema>>;
 export function LoginPage() {
   useDismissSplash();
   const { t } = useTranslation();
+  useDocumentTitle(t("page_title_login"));
   const { login, loginWithGoogle, isAuthenticated } = useAuth();
   const executeRecaptcha = useRecaptcha("login");
   const navigate = useNavigate();

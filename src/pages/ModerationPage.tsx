@@ -43,12 +43,14 @@ import { useDeleteRecipeComment } from "@/api/comments/comments";
 import type { Recipe, RecipeDraftResponse, ModerationLogResponse, ReportedCommentResponse } from "@/api/model";
 import { useTranslation } from "react-i18next";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 type Tab = "recipes" | "drafts" | "comments" | "history";
 
 export function ModerationPage() {
   useDismissSplash();
   const { t } = useTranslation();
+  useDocumentTitle(t("page_title_moderation"));
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
   const initialTab = (searchParams.get("tab") as Tab | null) ?? "recipes";

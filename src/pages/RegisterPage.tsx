@@ -22,6 +22,7 @@ import { useAuth } from "@/lib/auth/auth-context";
 import { useTranslation } from "react-i18next";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
 import { useRecaptcha } from "@/hooks/useRecaptcha";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 function createRegisterSchema(t: (key: string) => string) {
   return z
@@ -49,6 +50,7 @@ type RegisterFormValues = z.infer<ReturnType<typeof createRegisterSchema>>;
 export function RegisterPage() {
   useDismissSplash();
   const { t } = useTranslation();
+  useDocumentTitle(t("page_title_register"));
   const { register: registerUser, loginWithGoogle, isAuthenticated } = useAuth();
   const executeRecaptcha = useRecaptcha("register");
   const executeLoginRecaptcha = useRecaptcha("login");

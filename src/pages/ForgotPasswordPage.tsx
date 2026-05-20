@@ -10,10 +10,12 @@ import { Label } from "@/components/ui/label";
 import { useForgotPassword } from "@/api/auth/auth";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
 import { useRecaptcha } from "@/hooks/useRecaptcha";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 export function ForgotPasswordPage() {
   useDismissSplash();
   const { t } = useTranslation();
+  useDocumentTitle(t("page_title_forgot_password"));
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);

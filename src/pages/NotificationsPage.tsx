@@ -18,6 +18,7 @@ import {
 import type { NotificationResponse } from "@/api/model";
 import { useAuth } from "@/lib/auth/auth-context";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { useRelativeTime } from "@/hooks/useRelativeTime";
 
 const PAGE_SIZE = 20;
@@ -72,6 +73,7 @@ function useNotificationText() {
 export function NotificationsPage() {
   useDismissSplash();
   const { t } = useTranslation();
+  useDocumentTitle(t("page_title_notifications"));
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const getNotifText = useNotificationText();

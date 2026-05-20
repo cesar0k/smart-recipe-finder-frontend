@@ -12,8 +12,10 @@ import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { Spinner } from "@/components/ui/spinner";
 import { useTranslation } from "react-i18next";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 export function RecipesPage() {
   const { t } = useTranslation();
+  useDocumentTitle(t("page_title_recipes"));
   const {
     recipes,
     isLoading,
