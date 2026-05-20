@@ -10,17 +10,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { EditRecipeSheet } from "@/features/recipes/components/EditRecipeSheet";
+import { DeleteRecipeDialog } from "@/features/recipes/components/DeleteRecipeDialog";
 import { Header } from "@/components/layout/Header";
 import { BackButton } from "@/components/BackButton";
 import { RecipePageSkeleton } from "@/components/skeletons/RecipePageSkeleton";
@@ -393,32 +384,12 @@ export function RecipePage() {
         />
       )}
 
-      {/* Delete confirmation dialog */}
-      <AlertDialog
-        open={isDeleteDialogOpen}
+      <DeleteRecipeDialog
+        recipe={isDeleteDialogOpen ? { id: recipe.id, title: recipe.title ?? null } : null}
         onOpenChange={setIsDeleteDialogOpen}
-      >
-        <AlertDialogContent className="rounded-2xl">
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t("delete_dialog_title")}</AlertDialogTitle>
-            <AlertDialogDescription className="[word-break:break-word]">
-              {t("delete_dialog_desc", { title: recipe.title })}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="rounded-full">
-              {t("cancel_btn")}
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => deleteRecipe(recipe.id)}
-              className="bg-red-600 hover:bg-red-700 text-white border-none rounded-full"
-              disabled={isDeleting}
-            >
-              {isDeleting ? t("deleting") : t("delete_btn")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        onConfirm={(id: number) => deleteRecipe(id)}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 }

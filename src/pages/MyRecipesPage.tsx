@@ -11,16 +11,7 @@ import { RecipeCardSkeleton } from "@/components/skeletons/RecipeCardSkeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { CreateRecipeSheet } from "@/features/recipes/components/CreateRecipeSheet";
 import { EditRecipeSheet } from "@/features/recipes/components/EditRecipeSheet";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { DeleteRecipeDialog } from "@/features/recipes/components/DeleteRecipeDialog";
 
 import {
   readMyRecipes,
@@ -76,10 +67,9 @@ export function MyRecipesPage() {
   const [deletingRecipe, setDeletingRecipe] = useState<Recipe | null>(null);
   const { mutateAsync: deleteRecipe, isPending: isDeleting } = useDeleteRecipe();
 
-  const handleDelete = async () => {
-    if (!deletingRecipe) return;
+  const handleDelete = async (recipeId: number) => {
     try {
-      await deleteRecipe({ recipeId: deletingRecipe.id });
+      await deleteRecipe({ recipeId });
       toast.success(t("toast_deleted"));
       setDeletingRecipe(null);
       // Defer the refetch until after the AlertDialog's exit animation
@@ -183,34 +173,14 @@ export function MyRecipesPage() {
         />
       )}
 
-      {/* Delete confirmation dialog */}
-      <AlertDialog
-        open={!!deletingRecipe}
+      <DeleteRecipeDialog
+        recipe={deletingRecipe}
         onOpenChange={(open) => {
           if (!open) setDeletingRecipe(null);
         }}
-      >
-        <AlertDialogContent className="rounded-2xl">
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t("delete_dialog_title")}</AlertDialogTitle>
-            <AlertDialogDescription className="[word-break:break-word]">
-              {t("delete_dialog_desc", { title: deletingRecipe?.title })}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="rounded-full">
-              {t("cancel_btn")}
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-red-600 hover:bg-red-700 text-white border-none rounded-full"
-              disabled={isDeleting}
-            >
-              {isDeleting ? t("deleting") : t("delete_btn")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        onConfirm={handleDelete}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 }

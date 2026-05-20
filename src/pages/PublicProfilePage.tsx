@@ -24,16 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { CreateRecipeSheet } from "@/features/recipes/components/CreateRecipeSheet";
 import { EditRecipeSheet } from "@/features/recipes/components/EditRecipeSheet";
 import { RecipeLightbox } from "@/features/recipes/components/RecipeLightbox";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { DeleteRecipeDialog } from "@/features/recipes/components/DeleteRecipeDialog";
 
 import { useGetUserProfile } from "@/api/users/users";
 import {
@@ -149,10 +140,9 @@ export function PublicProfilePage() {
     }
   };
 
-  const handleDelete = async () => {
-    if (!deletingRecipe) return;
+  const handleDelete = async (recipeId: number) => {
     try {
-      await deleteRecipe({ recipeId: deletingRecipe.id });
+      await deleteRecipe({ recipeId });
       toast.success(t("toast_deleted"));
       setDeletingRecipe(null);
       // Deferred so the AlertDialog can finish its exit animation.
@@ -385,34 +375,14 @@ export function PublicProfilePage() {
         />
       )}
 
-      {/* Delete confirmation dialog */}
-      <AlertDialog
-        open={!!deletingRecipe}
+      <DeleteRecipeDialog
+        recipe={deletingRecipe}
         onOpenChange={(open) => {
           if (!open) setDeletingRecipe(null);
         }}
-      >
-        <AlertDialogContent className="rounded-2xl">
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t("delete_dialog_title")}</AlertDialogTitle>
-            <AlertDialogDescription className="[word-break:break-word]">
-              {t("delete_dialog_desc", { title: deletingRecipe?.title })}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="rounded-full">
-              {t("cancel_btn")}
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-red-600 hover:bg-red-700 text-white border-none rounded-full"
-              disabled={isDeleting}
-            >
-              {isDeleting ? t("deleting") : t("delete_btn")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        onConfirm={handleDelete}
+        isDeleting={isDeleting}
+      />
 
       <EditProfileDialog
         open={editProfileOpen}
