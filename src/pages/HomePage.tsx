@@ -26,6 +26,7 @@ export function HomePage() {
   const {
     recipes,
     isLoading,
+    isFetching,
     isError,
     error,
     isEmpty,
@@ -97,6 +98,7 @@ export function HomePage() {
           selectedDifficulty={selectedDifficulty}
           selectedCuisine={selectedCuisine}
           hasComments={hasComments}
+          isFetching={isFetching}
           applyAllFilters={applyAllFilters}
           onSearch={stableHandleSearch}
           onClear={stableHandleClear}

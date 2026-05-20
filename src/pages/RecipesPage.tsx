@@ -19,6 +19,7 @@ export function RecipesPage() {
   const {
     recipes,
     isLoading,
+    isFetching,
     isError,
     error,
     isEmpty,
@@ -60,6 +61,7 @@ export function RecipesPage() {
               selectedDifficulty={selectedDifficulty}
               selectedCuisine={selectedCuisine}
               hasComments={hasComments}
+              isLoading={isFetching}
               onApply={applyAllFilters}
             />
             <AnimatedWidth open>
