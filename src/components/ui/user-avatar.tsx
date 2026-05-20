@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { User } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -22,7 +22,12 @@ const ICON_SIZE = {
   lg: "w-9 h-9",
 } as const;
 
-/** Unified user avatar with fallback to a generic user icon on load failure. */
+/**
+ * Unified user avatar with:
+ *   - fallback to a generic user icon on load failure / when src is empty
+ *   - shimmer skeleton while the image is loading (replaces the raw browser
+ *     "broken image" placeholder)
+ */
 export function UserAvatar({
   src,
   username,
@@ -31,16 +36,36 @@ export function UserAvatar({
 }: UserAvatarProps) {
   const base = cn("rounded-full shrink-0", CONTAINER_SIZE[size], className);
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  const [loaded, setLoaded] = useState(false);
+
+  // Reset loaded state when src changes so the skeleton shows for the new image.
+  useEffect(() => {
+    setLoaded(false);
+  }, [src]);
 
   if (src && failedSrc !== src) {
     return (
-      <img
-        src={src}
-        alt={username ?? ""}
-        referrerPolicy="no-referrer"
-        onError={() => setFailedSrc(src)}
-        className={cn(base, "object-cover border border-gray-100")}
-      />
+      <div className={cn(base, "relative overflow-hidden")}>
+        {!loaded && (
+          // Shimmer skeleton overlay — visible until the <img> reports load.
+          // Uses the global [data-slot="skeleton"] animation defined in index.css.
+          <div
+            data-slot="skeleton"
+            className={cn("absolute inset-0 rounded-full")}
+          />
+        )}
+        <img
+          src={src}
+          alt={username ?? ""}
+          referrerPolicy="no-referrer"
+          onLoad={() => setLoaded(true)}
+          onError={() => setFailedSrc(src)}
+          className={cn(
+            "w-full h-full object-cover rounded-full border border-gray-100 transition-opacity duration-150",
+            loaded ? "opacity-100" : "opacity-0",
+          )}
+        />
+      </div>
     );
   }
 
