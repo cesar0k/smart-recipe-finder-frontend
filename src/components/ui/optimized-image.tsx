@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
-import { ImageIcon } from "lucide-react";
+import { ImageIcon, Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from "react-i18next";
 import { imageCache } from "@/lib/image-cache";
@@ -13,6 +13,11 @@ interface OptimizedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> 
   useObjectContain?: boolean;
   /** Low-res thumbnail shown instantly while the full image loads in the background */
   thumbnailSrc?: string;
+  /**
+   * Lightbox mode — skip the grey Skeleton (which looks bad on a dark backdrop).
+   * Falls back to a blurred thumbnail (if available) or a centred spinner.
+   */
+  lightbox?: boolean;
   /** Called with the HTMLImageElement once the image has loaded successfully */
   onImageLoad?: (img: HTMLImageElement) => void;
 }
@@ -24,6 +29,7 @@ export function OptimizedImage({
   imgClassName,
   useObjectContain = false,
   thumbnailSrc,
+  lightbox = false,
   onImageLoad,
   ...props
 }: OptimizedImageProps) {
@@ -131,12 +137,20 @@ export function OptimizedImage({
 
     return (
       <div className={wrapperClass}>
-        {/* Skeleton while neither thumb nor full is ready */}
+        {/* Placeholder while neither thumb nor full is ready.
+            Lightbox uses a spinner on its dark backdrop instead of a grey skeleton. */}
         {!thumbLoaded && !showFull && !hasError && (
-          <Skeleton className="absolute inset-0 w-full h-full rounded-none" />
+          lightbox ? (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Loader2 className="w-8 h-8 text-white/60 animate-spin" />
+            </div>
+          ) : (
+            <Skeleton className="absolute inset-0 w-full h-full rounded-none" />
+          )
         )}
 
-        {/* Thumbnail layer — visible until full loads */}
+        {/* Thumbnail layer — visible until full loads. In lightbox mode we
+            blur it so the low-res image doesn't look pixelated full-screen. */}
         <img
           src={thumbnailSrc}
           alt={alt}
@@ -150,6 +164,7 @@ export function OptimizedImage({
           className={cn(
             "absolute inset-0 transition-opacity duration-300",
             baseImgClass,
+            lightbox && !showFull && "blur-xl scale-110",
             thumbLoaded && !showFull ? "opacity-100" : !showFull ? "opacity-0" : "opacity-0",
             hasError && "hidden",
           )}
@@ -189,7 +204,13 @@ export function OptimizedImage({
     <div className={wrapperClass}>
 
       {!isLoaded && !hasError && (
-        <Skeleton className="absolute inset-0 w-full h-full rounded-none" />
+        lightbox ? (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Loader2 className="w-8 h-8 text-white/60 animate-spin" />
+          </div>
+        ) : (
+          <Skeleton className="absolute inset-0 w-full h-full rounded-none" />
+        )
       )}
 
       <img

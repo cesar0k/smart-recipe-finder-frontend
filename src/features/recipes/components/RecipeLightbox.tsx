@@ -16,6 +16,7 @@ import { useTranslation } from "react-i18next";
 
 interface RecipeLightboxProps {
   images: string[];
+  thumbnails?: string[];
   initialIndex: number;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -23,6 +24,7 @@ interface RecipeLightboxProps {
 
 export function RecipeLightbox({
   images,
+  thumbnails,
   initialIndex,
   open,
   onOpenChange,
@@ -85,6 +87,8 @@ export function RecipeLightbox({
                   >
                     <OptimizedImage
                       src={url}
+                      thumbnailSrc={thumbnails?.[index]}
+                      lightbox
                       alt={t("fullscreen_image_alt", { index: index + 1 })}
                       className="flex items-center justify-center w-full h-full bg-transparent pointer-events-none"
                       imgClassName="max-w-full max-h-screen w-auto h-auto object-contain shadow-2xl pointer-events-auto cursor-grab active:cursor-grabbing"
