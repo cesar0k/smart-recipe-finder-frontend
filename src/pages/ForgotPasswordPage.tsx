@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { ChefHat, MailCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -9,9 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useForgotPassword } from "@/api/auth/auth";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
-import { useRecaptcha } from "@/hooks/useRecaptcha";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
-import { Recaptcha2Dialog } from "@/components/Recaptcha2Dialog";
+import { CaptchaWidget, type CaptchaWidgetHandle } from "@/components/CaptchaWidget";
 
 export function ForgotPasswordPage() {
   useDismissSplash();
@@ -20,20 +19,17 @@ export function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const captchaRef = useRef<CaptchaWidgetHandle>(null);
 
   const { mutate: forgotPassword, isPending } = useForgotPassword();
-  const executeRecaptcha = useRecaptcha("forgot_password");
-  const [showV2, setShowV2] = useState(false);
 
-  const submitWithToken = (token: string, type: "v2" | "v3") => {
+  const submitWithToken = (token: string) => {
     forgotPassword(
       {
         data: {
           email,
-          recaptcha_token: token || undefined,
-          // Backend schema accepts recaptcha_type (v2/v3) but types aren't regenerated yet.
-          recaptcha_type: type,
-        } as Parameters<typeof forgotPassword>[0]["data"] & { recaptcha_type?: "v2" | "v3" },
+          captcha_token: token || undefined,
+        },
       },
       {
         onSuccess: () => setSent(true),
@@ -52,25 +48,10 @@ export function ForgotPasswordPage() {
     );
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
-    let recaptchaToken = "";
-    try {
-      recaptchaToken = await executeRecaptcha();
-    } catch {
-      // v3 failed — fall back to v2 checkbox
-      setShowV2(true);
-      return;
-    }
-
-    submitWithToken(recaptchaToken, "v3");
-  };
-
-  const handleV2Verify = (v2Token: string) => {
-    setShowV2(false);
-    submitWithToken(v2Token, "v2");
+    captchaRef.current?.execute();
   };
 
   if (sent) {
@@ -92,10 +73,11 @@ export function ForgotPasswordPage() {
 
   return (
     <>
-    <Recaptcha2Dialog
-      open={showV2}
-      onOpenChange={setShowV2}
-      onVerify={handleV2Verify}
+    <CaptchaWidget
+      ref={captchaRef}
+      onVerify={submitWithToken}
+      onError={() => setError(t("captcha_error"))}
+      action="forgot_password"
     />
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-sm">
@@ -154,7 +136,7 @@ export function ForgotPasswordPage() {
                 {t("forgot_password_btn")}
               </Button>
               <p className="text-center text-[11px] text-gray-400">
-                {t("recaptcha_notice")}
+                {t("captcha_notice")}
               </p>
             </form>
           </div>

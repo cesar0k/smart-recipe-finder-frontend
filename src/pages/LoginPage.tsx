@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,9 +21,8 @@ import {
 import { useAuth } from "@/lib/auth/auth-context";
 import { useTranslation } from "react-i18next";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
-import { useRecaptcha } from "@/hooks/useRecaptcha";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
-import { Recaptcha2Dialog } from "@/components/Recaptcha2Dialog";
+import { CaptchaWidget, type CaptchaWidgetHandle } from "@/components/CaptchaWidget";
 
 function createLoginSchema(t: (key: string) => string) {
   return z.object({
@@ -39,7 +38,6 @@ export function LoginPage() {
   const { t } = useTranslation();
   useDocumentTitle(t("page_title_login"));
   const { login, loginWithGoogle, isAuthenticated } = useAuth();
-  const executeRecaptcha = useRecaptcha("login");
   const navigate = useNavigate();
   const location = useLocation();
   const [error, setError] = useState<string | null>(null);
@@ -61,17 +59,13 @@ export function LoginPage() {
     defaultValues: { username: "", password: "" },
   });
 
-  // Pending credentials saved while we wait for the user to pass v2 captcha.
-  const [pendingCreds, setPendingCreds] = useState<LoginFormValues | null>(null);
-  const [showV2, setShowV2] = useState(false);
+  // Credentials stashed while we wait for the captcha widget to issue a token.
+  const pendingCredsRef = useRef<LoginFormValues | null>(null);
+  const captchaRef = useRef<CaptchaWidgetHandle>(null);
 
-  const performLogin = async (
-    creds: LoginFormValues,
-    token: string,
-    type: "v2" | "v3",
-  ) => {
+  const performLogin = async (creds: LoginFormValues, token: string) => {
     try {
-      await login(creds.username, creds.password, token, type);
+      await login(creds.username, creds.password, token);
       navigate(from, { replace: true });
     } catch (err) {
       if (axios.isAxiosError(err)) {
@@ -80,8 +74,8 @@ export function LoginPage() {
           setError(t("login_invalid_credentials"));
         } else if (status === 403) {
           setError(t("login_account_deactivated"));
-        } else if (status === 400 && /recaptcha/i.test(JSON.stringify(err.response?.data ?? ""))) {
-          setError(t("recaptcha_error"));
+        } else if (status === 400 && /captcha/i.test(JSON.stringify(err.response?.data ?? ""))) {
+          setError(t("captcha_error"));
         } else {
           setError(t("login_generic_error"));
         }
@@ -96,26 +90,29 @@ export function LoginPage() {
   const onSubmit = async (data: LoginFormValues) => {
     setError(null);
     setIsSubmitting(true);
-    let recaptchaToken = "";
-    try {
-      recaptchaToken = await executeRecaptcha();
-    } catch {
-      // v3 failed — open the v2 checkbox fallback and save the credentials
-      // so we can retry once the user passes the manual challenge.
-      setPendingCreds(data);
-      setShowV2(true);
-      setIsSubmitting(false);
-      return;
-    }
-    await performLogin(data, recaptchaToken, "v3");
+    pendingCredsRef.current = data;
+    // execute() resolves silently for most users (no UI) or shows a Turnstile
+    // challenge when Cloudflare decides one is needed. If captcha is disabled,
+    // it calls onVerify with an empty token immediately.
+    captchaRef.current?.execute();
   };
 
-  const handleV2Verify = async (v2Token: string) => {
-    setShowV2(false);
-    if (!pendingCreds) return;
-    setIsSubmitting(true);
-    await performLogin(pendingCreds, v2Token, "v2");
-    setPendingCreds(null);
+  const handleCaptchaVerify = async (token: string) => {
+    const creds = pendingCredsRef.current;
+    pendingCredsRef.current = null;
+    if (!creds) return;
+    await performLogin(creds, token);
+  };
+
+  const handleCaptchaError = () => {
+    pendingCredsRef.current = null;
+    setIsSubmitting(false);
+    setError(t("captcha_error"));
+  };
+
+  const handleCaptchaCancel = () => {
+    pendingCredsRef.current = null;
+    setIsSubmitting(false);
   };
 
   const googleLogin = useGoogleLogin({
@@ -139,13 +136,12 @@ export function LoginPage() {
 
   return (
     <>
-    <Recaptcha2Dialog
-      open={showV2}
-      onOpenChange={(open) => {
-        setShowV2(open);
-        if (!open) setPendingCreds(null);
-      }}
-      onVerify={handleV2Verify}
+    <CaptchaWidget
+      ref={captchaRef}
+      onVerify={handleCaptchaVerify}
+      onError={handleCaptchaError}
+      onCancel={handleCaptchaCancel}
+      action="login"
     />
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-sm">
@@ -263,7 +259,7 @@ export function LoginPage() {
               </Button>
 
               <p className="text-center text-[11px] text-gray-400">
-                {t("recaptcha_notice")}
+                {t("captcha_notice")}
               </p>
 
               <div className="text-center">

@@ -6,6 +6,7 @@
  */
 import type { NotificationResponseRecipeId } from './notificationResponseRecipeId';
 import type { NotificationResponseCommentId } from './notificationResponseCommentId';
+import type { NotificationResponseFromUserId } from './notificationResponseFromUserId';
 
 export interface NotificationResponse {
   id: number;
@@ -16,6 +17,6 @@ export interface NotificationResponse {
   is_read: boolean;
   recipe_id?: NotificationResponseRecipeId;
   comment_id?: NotificationResponseCommentId;
-  from_user_id?: number | null;
+  from_user_id?: NotificationResponseFromUserId;
   created_at: string;
 }

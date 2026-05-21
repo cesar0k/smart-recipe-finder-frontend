@@ -11,7 +11,6 @@ import App from "./App.tsx";
 import { ErrorBoundary } from "./components/ErrorBoundary.tsx";
 import { AuthProvider } from "./lib/auth/auth-context.tsx";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import { GoogleReCaptchaProvider } from "react-google-recaptcha-v3";
 import "./lib/i18n.ts";
 
 // ── Preconnect to API origin ──────────────────────────────────────────────────
@@ -41,17 +40,15 @@ const queryClient = new QueryClient({
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ErrorBoundary>
-      <GoogleReCaptchaProvider reCaptchaKey={import.meta.env.VITE_RECAPTCHA_SITE_KEY || ""}>
-        <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ""}>
-          <QueryClientProvider client={queryClient}>
-            <BrowserRouter>
-              <AuthProvider>
-                <App />
-              </AuthProvider>
-            </BrowserRouter>
-          </QueryClientProvider>
-        </GoogleOAuthProvider>
-      </GoogleReCaptchaProvider>
+      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ""}>
+        <QueryClientProvider client={queryClient}>
+          <BrowserRouter>
+            <AuthProvider>
+              <App />
+            </AuthProvider>
+          </BrowserRouter>
+        </QueryClientProvider>
+      </GoogleOAuthProvider>
     </ErrorBoundary>
   </StrictMode>
 );
