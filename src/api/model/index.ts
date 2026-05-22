@@ -114,6 +114,8 @@ export * from './recipeDraftResponse';
 export * from './recipeDraftResponseCuisine';
 export * from './recipeDraftResponseDescription';
 export * from './recipeDraftResponseRejectionReason';
+export * from './recipeOwnerAvatarUrl';
+export * from './recipeOwnerDisplayName';
 export * from './recipeOwnerId';
 export * from './recipeOwnerUsername';
 export * from './recipeRejectionReason';

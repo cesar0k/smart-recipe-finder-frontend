@@ -1,6 +1,7 @@
-import { AlertTriangle, ChefHat, Clock, MessageCircle, User } from "lucide-react";
+import { AlertTriangle, ChefHat, Clock, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import { type Recipe } from "@/api/model/recipe";
 import { useTranslation } from "react-i18next";
 import { getDifficultyKey } from "@/lib/utils";
@@ -62,27 +63,71 @@ export function RecipeHeaderInfo({
         {recipe.title}
       </h1>
 
-      {/* Author */}
+      {/* Author — when display_name is set, show it as the primary label and
+          @username as a smaller secondary handle. Without display_name we
+          just show @username at primary size. The avatar (md = 40px) is
+          tall enough to flank both lines without dominating the header. */}
       {recipe.owner_username && (
-        <div className="flex items-center gap-2 text-gray-500">
-          <User className="w-4 h-4 text-gray-400" />
+        <div className="flex items-center gap-3">
           {recipe.owner_id ? (
-            <Link
-              to={`/user/${recipe.owner_id}`}
-              className="text-sm font-medium text-gray-700 hover:underline"
-            >
-              {recipe.owner_username}
+            <Link to={`/user/${recipe.owner_id}`} className="shrink-0">
+              <UserAvatar
+                src={recipe.owner_avatar_url ?? undefined}
+                username={recipe.owner_username}
+                size="md"
+              />
             </Link>
           ) : (
-            <span className="text-sm font-medium text-gray-700">
-              {recipe.owner_username}
-            </span>
+            <UserAvatar
+              src={recipe.owner_avatar_url ?? undefined}
+              username={recipe.owner_username}
+              size="md"
+            />
           )}
-          {isOwnRecipe && (
-            <span className="text-xs text-gray-400">
-              {t("recipe_author_you")}
-            </span>
-          )}
+          <div className="flex flex-col leading-tight min-w-0">
+            {recipe.owner_display_name ? (
+              <>
+                {recipe.owner_id ? (
+                  <Link
+                    to={`/user/${recipe.owner_id}`}
+                    className="text-base font-semibold text-gray-900 hover:underline truncate"
+                  >
+                    {recipe.owner_display_name}
+                  </Link>
+                ) : (
+                  <span className="text-base font-semibold text-gray-900 truncate">
+                    {recipe.owner_display_name}
+                  </span>
+                )}
+                <span className="text-xs text-gray-400 truncate">
+                  @{recipe.owner_username}
+                  {isOwnRecipe && (
+                    <span className="ml-2">{t("recipe_author_you")}</span>
+                  )}
+                </span>
+              </>
+            ) : (
+              <div className="flex items-center gap-2">
+                {recipe.owner_id ? (
+                  <Link
+                    to={`/user/${recipe.owner_id}`}
+                    className="text-sm font-medium text-gray-700 hover:underline"
+                  >
+                    @{recipe.owner_username}
+                  </Link>
+                ) : (
+                  <span className="text-sm font-medium text-gray-700">
+                    @{recipe.owner_username}
+                  </span>
+                )}
+                {isOwnRecipe && (
+                  <span className="text-xs text-gray-400">
+                    {t("recipe_author_you")}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       )}
 
