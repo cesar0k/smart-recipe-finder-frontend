@@ -84,21 +84,10 @@ export function CategoryShelves() {
             <ShowAllLink mealType={cat.meal_type} label={cat.label} />
           </div>
 
-          {/* ── Embla carousel ─────────────────────────────
-              The carousel is widened by 48px (24px each side) via -mx-6 px-6
-              on the OUTER bleed-bg wrapper — this gives the inner Carousel
-              an extra 24px gutter on each side. Combined with the 32px slide
-              gap (pl-8 / -ml-8), edge cards' hover shadow + scale-[1.02]
-              can physically extend into that 24px gutter and be visible,
-              while neighbor slides remain on the far side of the 32px gap
-              (so the inner overflow-x:hidden still clips them).
-
-              The outer wrapper has overflow:hidden on the horizontal axis
-              so anything that overshoots the 24px gutter is hard-cut. */}
-          {/* overflow-x-clip (not overflow-x-hidden) — `hidden` on one axis
-              forces the other axis to `auto` per CSS spec, which here caused
-              an unwanted vertical scrollbar. `clip` doesn't have that side-
-              effect and clips just as hard. */}
+          {/* Wrapper extends the carousel 24px to each side (32px slide gap
+              gives edge cards room for hover shadow + scale-[1.02]).
+              overflow-x-clip — `hidden` on one axis would force the other to
+              `auto` and add an unwanted vertical scrollbar; `clip` doesn't. */}
           <div className="-mx-6 px-6 overflow-x-clip">
           <Carousel
             opts={{ align: "start", containScroll: "trimSnaps" }}

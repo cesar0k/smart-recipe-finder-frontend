@@ -297,11 +297,10 @@ input::-webkit-strong-password-auto-fill-button {
    on all four sides. overflow: clip + overflow-clip-margin is the only way
    to combine "clip the scroll" with "let shadows escape" without breaking
    embla's measurement. Supported in Chrome 90+, Safari 16+, Firefox 102+. */
-/* Carousel content: fully visible. Off-screen slides and edge hover bleed
-   are clipped by the OUTER wrapper instead, which is 24px wider on each
-   side than the carousel itself — that 24px gutter is where hover shadows
-   and scale-[1.02] become visible. -my-6 py-6 reserves vertical room so
-   shadows aren't cut top/bottom. */
+/* Carousel content: fully visible. The outer wrapper (24px wider on each
+   side) clips off-screen slides; that gutter is where hover shadow +
+   scale-[1.02] on edge cards stays visible. -my-6 py-6 on the carousel
+   handles vertical bleed. */
 .carousel-shadow-bleed {
   overflow: visible !important;
   height: 100%;
