@@ -292,6 +292,21 @@ input::-webkit-strong-password-auto-fill-button {
   display: none;
 }
 
+/* Carousel: still clip so embla's transform-based scroll works, but allow
+   shadow-xl + scale-[1.02] on RecipeCard hover to bleed ~24px past the box
+   on all four sides. overflow: clip + overflow-clip-margin is the only way
+   to combine "clip the scroll" with "let shadows escape" without breaking
+   embla's measurement. Supported in Chrome 90+, Safari 16+, Firefox 102+. */
+/* Carousel content: fully visible. Off-screen slides and edge hover bleed
+   are clipped by the OUTER wrapper instead, which is 24px wider on each
+   side than the carousel itself — that 24px gutter is where hover shadows
+   and scale-[1.02] become visible. -my-6 py-6 reserves vertical room so
+   shadows aren't cut top/bottom. */
+.carousel-shadow-bleed {
+  overflow: visible !important;
+  height: 100%;
+}
+
 [data-slot="skeleton"] {
   animation: shimmer 2s ease-in-out infinite;
   background: linear-gradient(

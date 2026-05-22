@@ -138,10 +138,19 @@ function CarouselContent({
 }: React.ComponentProps<"div"> & { outerClassName?: string }) {
   const { carouselRef, orientation } = useCarousel()
 
+  // Embla needs overflow-hidden on its scroll axis, but the cross-axis can
+  // stay visible so card hover shadows aren't clipped by the carousel box.
+  // outerClassName comes last in cn() so callers can still override either axis.
   return (
     <div
       ref={carouselRef}
-      className={cn("overflow-hidden h-full", outerClassName)}
+      className={cn(
+        "h-full",
+        orientation === "horizontal"
+          ? "overflow-x-hidden overflow-y-visible"
+          : "overflow-x-visible overflow-y-hidden",
+        outerClassName,
+      )}
       data-slot="carousel-content"
     >
       <div

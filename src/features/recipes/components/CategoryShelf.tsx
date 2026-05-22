@@ -84,16 +84,34 @@ export function CategoryShelves() {
             <ShowAllLink mealType={cat.meal_type} label={cat.label} />
           </div>
 
-          {/* ── Embla carousel ───────────────────────────── */}
+          {/* ── Embla carousel ─────────────────────────────
+              The carousel is widened by 48px (24px each side) via -mx-6 px-6
+              on the OUTER bleed-bg wrapper — this gives the inner Carousel
+              an extra 24px gutter on each side. Combined with the 32px slide
+              gap (pl-8 / -ml-8), edge cards' hover shadow + scale-[1.02]
+              can physically extend into that 24px gutter and be visible,
+              while neighbor slides remain on the far side of the 32px gap
+              (so the inner overflow-x:hidden still clips them).
+
+              The outer wrapper has overflow:hidden on the horizontal axis
+              so anything that overshoots the 24px gutter is hard-cut. */}
+          {/* overflow-x-clip (not overflow-x-hidden) — `hidden` on one axis
+              forces the other axis to `auto` per CSS spec, which here caused
+              an unwanted vertical scrollbar. `clip` doesn't have that side-
+              effect and clips just as hard. */}
+          <div className="-mx-6 px-6 overflow-x-clip">
           <Carousel
             opts={{ align: "start", containScroll: "trimSnaps" }}
             className="w-full"
           >
-            <CarouselContent className="-ml-4" outerClassName="-m-2 p-2">
+            <CarouselContent
+              className="-ml-8"
+              outerClassName="carousel-shadow-bleed -my-6 py-6"
+            >
               {cat.recipes.map((recipe) => (
                 <CarouselItem
                   key={recipe.id}
-                  className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
+                  className="pl-8 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
                 >
                   <Link to={`/recipe/${recipe.id}`} className="block h-full">
                     <RecipeCard
@@ -118,7 +136,7 @@ export function CategoryShelves() {
               ))}
 
               {/* "Show all" card at the end of the carousel */}
-              <CarouselItem className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+              <CarouselItem className="pl-8 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
                 <ShowAllCard mealType={cat.meal_type} label={cat.label} />
               </CarouselItem>
             </CarouselContent>
@@ -127,6 +145,7 @@ export function CategoryShelves() {
             <CarouselPrevious className="-left-4 shadow-md bg-white border-gray-200 hover:bg-gray-50" />
             <CarouselNext className="-right-4 shadow-md bg-white border-gray-200 hover:bg-gray-50" />
           </Carousel>
+          </div>
         </section>
       ))}
     </div>
@@ -182,11 +201,11 @@ export function CategoryShelfSkeleton({ isFirst = false }: { isFirst?: boolean }
 
       {/* Carousel placeholder: overflow-hidden row with the same basis breakpoints */}
       <div className="overflow-hidden">
-        <div className="flex -ml-4">
+        <div className="flex -ml-8">
           {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
-              className="pl-4 shrink-0 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
+              className="pl-8 shrink-0 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
             >
               <RecipeCardSkeleton />
             </div>
