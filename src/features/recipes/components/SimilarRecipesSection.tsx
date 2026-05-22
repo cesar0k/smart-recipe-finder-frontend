@@ -36,15 +36,23 @@ export function SimilarRecipesSection({ recipeId }: SimilarRecipesSectionProps) 
           ))}
         </div>
       ) : (
+        // Same shadow-bleed wrapper setup as CategoryShelf — see that file
+        // for the rationale (outer overflow-x-clip + 24px padding gutter +
+        // 32px slide gap so edge-card hover effects bleed visibly while
+        // off-screen neighbors remain clipped).
+        <div className="-mx-6 px-6 overflow-x-clip">
         <Carousel
           opts={{ align: "start", containScroll: "trimSnaps" }}
           className="w-full"
         >
-          <CarouselContent className="-ml-4">
+          <CarouselContent
+            className="-ml-8"
+            outerClassName="carousel-shadow-bleed -my-6 py-6"
+          >
             {similar.map((recipe) => (
               <CarouselItem
                 key={recipe.id}
-                className="pl-4 basis-full sm:basis-1/2 lg:basis-1/4"
+                className="pl-8 basis-full sm:basis-1/2 lg:basis-1/4"
               >
                 <Link to={`/recipe/${recipe.id}`} className="block h-full">
                   <RecipeCard
@@ -65,6 +73,7 @@ export function SimilarRecipesSection({ recipeId }: SimilarRecipesSectionProps) 
           <CarouselPrevious className="-left-4 shadow-md bg-white border-gray-200 hover:bg-gray-50" />
           <CarouselNext className="-right-4 shadow-md bg-white border-gray-200 hover:bg-gray-50" />
         </Carousel>
+        </div>
       )}
     </section>
   );
