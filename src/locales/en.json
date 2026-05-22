@@ -357,7 +357,7 @@
   "comment_report_placeholder": "Why are you reporting this comment?",
   "comment_report_submit": "Submit report",
   "comment_deleted": "Comment deleted",
-  "comment_login_required": "Sign in to comment",
+  "comment_login_required": "Sign in to leave a comment",
   "comment_load_more": "Load more comments",
   "comments_title": "Comments",
   "comments_count": "{{count}} comments",

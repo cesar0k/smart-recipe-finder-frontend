@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Flag, Reply, Trash2 } from "lucide-react";
+import { Flag, MessageSquare, Reply, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -61,9 +61,25 @@ function CommentForm({
 
   if (!isAuthenticated) {
     return (
-      <p className="text-sm text-gray-400 italic">
-        {t("comment_login_required")}
-      </p>
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <div className="shrink-0 w-9 h-9 rounded-full bg-white border border-gray-200 flex items-center justify-center">
+            <MessageSquare className="w-4 h-4 text-gray-500" />
+          </div>
+          <p className="text-sm text-gray-600">
+            {t("comment_login_required")}
+          </p>
+        </div>
+        <Link to="/login" className="sm:shrink-0">
+          <Button
+            type="button"
+            size="sm"
+            className="rounded-full bg-black hover:bg-gray-800 w-full sm:w-auto"
+          >
+            {t("login_btn")}
+          </Button>
+        </Link>
+      </div>
     );
   }
 

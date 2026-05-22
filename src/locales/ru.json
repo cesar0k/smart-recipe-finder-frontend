@@ -357,7 +357,7 @@
   "comment_report_placeholder": "Почему вы жалуетесь на этот комментарий?",
   "comment_report_submit": "Отправить жалобу",
   "comment_deleted": "Комментарий удалён",
-  "comment_login_required": "Войдите, чтобы оставлять комментарии",
+  "comment_login_required": "Войдите в аккаунт, чтобы оставить комментарий",
   "comment_load_more": "Загрузить ещё",
   "comments_title": "Комментарии",
   "comments_count": "{{count}} комментариев",
