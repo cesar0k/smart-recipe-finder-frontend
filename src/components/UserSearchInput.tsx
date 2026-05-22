@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useImperativeHandle, forwardRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, ChefHat } from "lucide-react";
+import { Search, ChefHat, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { UserAvatar } from "@/components/ui/user-avatar";
@@ -124,8 +124,27 @@ function UserSearchInput({ autoFocus = false, fullWidth = false }, ref) {
           onBlur={() => setIsFocused(false)}
           onKeyDown={handleKeyDown}
           autoFocus={autoFocus}
-          className="w-full h-8 pl-8 pr-3 text-xs rounded-full border-gray-300 bg-white transition-colors"
+          className="w-full h-8 pl-8 pr-7 text-xs rounded-full border-gray-300 bg-white transition-colors"
         />
+        {query.length > 0 && (
+          <button
+            type="button"
+            onMouseDown={(e) => {
+              // Prevent the input from losing focus before our handler runs
+              e.preventDefault();
+            }}
+            onClick={() => {
+              setQuery("");
+              setDebouncedQuery("");
+              setIsOpen(false);
+              inputRef.current?.focus();
+            }}
+            aria-label={t("close_btn")}
+            className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 rounded-full bg-gray-200 text-gray-500 hover:bg-gray-300 hover:text-gray-700 flex items-center justify-center transition-colors"
+          >
+            <X className="w-3 h-3" />
+          </button>
+        )}
       </motion.div>
 
       <AnimatePresence>

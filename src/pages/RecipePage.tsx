@@ -10,17 +10,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { EditRecipeSheet } from "@/features/recipes/components/EditRecipeSheet";
+import { DeleteRecipeDialog } from "@/features/recipes/components/DeleteRecipeDialog";
 import { Header } from "@/components/layout/Header";
 import { BackButton } from "@/components/BackButton";
 import { RecipePageSkeleton } from "@/components/skeletons/RecipePageSkeleton";
@@ -30,10 +21,12 @@ import { useDeleteRecipeLogic } from "../features/recipes/hooks/useDeleteRecipeL
 import { RecipeHeaderInfo } from "@/features/recipes/components/RecipeHeaderInfo";
 import { RecipeGallery } from "@/features/recipes/components/RecipeGallery";
 import { SimilarRecipesSection } from "@/features/recipes/components/SimilarRecipesSection";
+import { useSimilarRecipes } from "@/features/recipes/hooks/useSimilarRecipes";
 import { RecipeComments } from "@/features/recipes/components/RecipeComments";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/lib/auth/auth-context";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 // ── Bottom tabs: Similar | Comments ──────────────────────────────────────────
 
@@ -57,6 +50,20 @@ function RecipeBottomTabs({
   onShowComments: () => void;
 }) {
   const { t } = useTranslation();
+  const { similar, isLoading: isSimilarLoading, isError: isSimilarError } = useSimilarRecipes(recipeId);
+  // Hide the "Similar" tab when there genuinely are no similar recipes
+  // (request succeeded with an empty list). Keep it while loading or on error
+  // so the user still sees a status message in that case.
+  const hasSimilar = isSimilarLoading || isSimilarError || similar.length > 0;
+
+  // If the active tab is "similar" but there are none — force-switch to comments.
+  useEffect(() => {
+    if (!hasSimilar && activeTab === "similar") {
+      onTabChange("comments");
+      onShowComments();
+    }
+  }, [hasSimilar, activeTab, onTabChange, onShowComments]);
+
   const tab = activeTab;
 
   const [panelMinHeight, setPanelMinHeight] = useState<number | undefined>(undefined);
@@ -88,7 +95,9 @@ function RecipeBottomTabs({
   };
 
   const tabs = [
-    { id: "similar" as const, label: t("similar_recipes_title") },
+    ...(hasSimilar
+      ? [{ id: "similar" as const, label: t("similar_recipes_title") }]
+      : []),
     {
       id: "comments" as const,
       label: commentsCount > 0
@@ -169,6 +178,7 @@ export function RecipePage() {
   const { recipe, isLoading, isError, isValidId, refetch } = useRecipeDetails();
   const { deleteRecipe, isDeleting } = useDeleteRecipeLogic();
   const { t } = useTranslation();
+  useDocumentTitle(recipe?.title || null);
   const { user, hasRole } = useAuth();
   const { hash } = useLocation();
   const isCommentsHash = hash === "#comments" || hash.startsWith("#comment-");
@@ -374,32 +384,12 @@ export function RecipePage() {
         />
       )}
 
-      {/* Delete confirmation dialog */}
-      <AlertDialog
-        open={isDeleteDialogOpen}
+      <DeleteRecipeDialog
+        recipe={isDeleteDialogOpen ? { id: recipe.id, title: recipe.title ?? null } : null}
         onOpenChange={setIsDeleteDialogOpen}
-      >
-        <AlertDialogContent className="rounded-2xl">
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t("delete_dialog_title")}</AlertDialogTitle>
-            <AlertDialogDescription className="[word-break:break-word]">
-              {t("delete_dialog_desc", { title: recipe.title })}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="rounded-full">
-              {t("cancel_btn")}
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => deleteRecipe(recipe.id)}
-              className="bg-red-600 hover:bg-red-700 text-white border-none rounded-full"
-              disabled={isDeleting}
-            >
-              {isDeleting ? t("deleting") : t("delete_btn")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        onConfirm={(id: number) => deleteRecipe(id)}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 }

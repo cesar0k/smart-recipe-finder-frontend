@@ -13,6 +13,8 @@ import type { RecipeCuisine } from './recipeCuisine';
 import type { Ingredient } from './ingredient';
 import type { RecipeOwnerId } from './recipeOwnerId';
 import type { RecipeOwnerUsername } from './recipeOwnerUsername';
+import type { RecipeOwnerDisplayName } from './recipeOwnerDisplayName';
+import type { RecipeOwnerAvatarUrl } from './recipeOwnerAvatarUrl';
 import type { RecipeRejectionReason } from './recipeRejectionReason';
 import type { RecipeTags } from './recipeTags';
 import type { RecipeUserRating } from './recipeUserRating';
@@ -32,6 +34,8 @@ export interface Recipe {
   thumbnail_urls?: string[];
   owner_id?: RecipeOwnerId;
   owner_username?: RecipeOwnerUsername;
+  owner_display_name?: RecipeOwnerDisplayName;
+  owner_avatar_url?: RecipeOwnerAvatarUrl;
   status?: string;
   rejection_reason?: RecipeRejectionReason;
   has_pending_draft?: boolean;

@@ -71,14 +71,12 @@ export function RecipeCard({
   const showActions = !!onResubmit || !!onEdit || !!onDelete;
 
   return (
-    <Card className="group flex flex-col gap-0 rounded-[24px] border border-gray-100 bg-white shadow-sm hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-300 p-0">
-      {/* clip-path keeps the rounded corners during the inner img's
-          group-hover scale transform — overflow-hidden alone leaks them in Chrome. */}
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-100 [clip-path:inset(0_round_24px_24px_0_0)]">
+    <Card className="group flex flex-col gap-0 rounded-[24px] border border-gray-100 bg-white shadow-sm hover:shadow-xl hover:shadow-gray-200/60 hover:scale-[1.02] transition-all duration-300 p-0">
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-100 rounded-t-[24px]">
         <OptimizedImage
           src={thumbnail || image}
           alt={title}
-          className="absolute inset-0 w-full h-full !object-cover !object-center transition-transform duration-500 group-hover:scale-105"
+          className="absolute inset-0 w-full h-full !object-cover !object-center"
         />
         {statusKey && (
           <span

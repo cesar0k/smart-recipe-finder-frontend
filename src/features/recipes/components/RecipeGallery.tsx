@@ -127,6 +127,7 @@ export function RecipeGallery({ images, thumbnails, title }: RecipeGalleryProps)
 
         <RecipeLightbox
           images={images}
+          thumbnails={thumbnails}
           initialIndex={0}
           open={lightboxOpen}
           onOpenChange={setLightboxOpen}
@@ -179,6 +180,7 @@ export function RecipeGallery({ images, thumbnails, title }: RecipeGalleryProps)
 
       <RecipeLightbox
         images={images}
+        thumbnails={thumbnails}
         initialIndex={lightboxIndex}
         open={lightboxOpen}
         onOpenChange={setLightboxOpen}

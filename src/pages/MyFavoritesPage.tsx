@@ -10,10 +10,12 @@ import { Footer } from "@/components/layout/Footer";
 import { FavoriteButton } from "@/features/recipes/components/FavoriteButton";
 import { useMyFavorites } from "@/features/recipes/hooks/useMyFavorites";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 export function MyFavoritesPage() {
   useDismissSplash();
   const { t } = useTranslation();
+  useDocumentTitle(t("page_title_favorites"));
   const {
     recipes,
     isLoading,

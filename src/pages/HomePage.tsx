@@ -17,13 +17,16 @@ import { Header } from "@/components/layout/Header";
 import { Spinner } from "@/components/ui/spinner";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/lib/auth/auth-context";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 export function HomePage() {
   const { t } = useTranslation();
   const { isAuthenticated } = useAuth();
+  useDocumentTitle(t("page_title_home"));
   const {
     recipes,
     isLoading,
+    isFetching,
     isError,
     error,
     isEmpty,
@@ -95,6 +98,7 @@ export function HomePage() {
           selectedDifficulty={selectedDifficulty}
           selectedCuisine={selectedCuisine}
           hasComments={hasComments}
+          isFetching={isFetching}
           applyAllFilters={applyAllFilters}
           onSearch={stableHandleSearch}
           onClear={stableHandleClear}
@@ -154,6 +158,15 @@ export function HomePage() {
             >
               {t("show_all")}
             </Button>
+          </div>
+        )}
+
+        {/* Empty database — no search, no filters, but the server returned 0 recipes */}
+        {isEmpty && !isSearchView && !hasActiveFilters && (
+          <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">
+            <ChefHat className="w-12 h-12 text-gray-300" />
+            <p className="text-lg font-semibold text-gray-700">{t("no_recipes_yet_title")}</p>
+            <p className="text-sm text-gray-400 max-w-sm">{t("no_recipes_yet_desc")}</p>
           </div>
         )}
 

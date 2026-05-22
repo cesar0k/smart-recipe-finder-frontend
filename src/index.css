@@ -119,6 +119,23 @@
   right: -186px !important; /* prevent badge from causing horizontal overflow */
 }
 
+/* Safari shows a key icon for password autofill that overlaps with our own
+   show/hide eye button. Hide it. */
+input::-webkit-credentials-auto-fill-button,
+input::-webkit-contacts-auto-fill-button {
+  visibility: hidden;
+  display: none !important;
+  pointer-events: none;
+  height: 0;
+  width: 0;
+  margin: 0;
+}
+
+/* Same on Safari's strong-password autofill UI */
+input::-webkit-strong-password-auto-fill-button {
+  display: none !important;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -129,6 +146,19 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  /* Tailwind v4 sets cursor: default on buttons by default — restore the
+     pointer for all interactive elements that the user can click. */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  a[href],
+  label[for],
+  summary,
+  select:not(:disabled),
+  [role="tab"]:not([aria-disabled="true"]),
+  [role="menuitem"]:not([aria-disabled="true"]),
+  [role="option"]:not([aria-disabled="true"]) {
+    cursor: pointer;
   }
   /* Prevent iOS/Android from zooming in when focusing inputs.
      Browsers zoom when font-size < 16px — set it globally on mobile. */
@@ -260,6 +290,21 @@
 }
 .scrollbar-hidden::-webkit-scrollbar {
   display: none;
+}
+
+/* Carousel: still clip so embla's transform-based scroll works, but allow
+   shadow-xl + scale-[1.02] on RecipeCard hover to bleed ~24px past the box
+   on all four sides. overflow: clip + overflow-clip-margin is the only way
+   to combine "clip the scroll" with "let shadows escape" without breaking
+   embla's measurement. Supported in Chrome 90+, Safari 16+, Firefox 102+. */
+/* Carousel content: fully visible. Off-screen slides and edge hover bleed
+   are clipped by the OUTER wrapper instead, which is 24px wider on each
+   side than the carousel itself — that 24px gutter is where hover shadows
+   and scale-[1.02] become visible. -my-6 py-6 reserves vertical room so
+   shadows aren't cut top/bottom. */
+.carousel-shadow-bleed {
+  overflow: visible !important;
+  height: 100%;
 }
 
 [data-slot="skeleton"] {

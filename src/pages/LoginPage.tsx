@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,7 +21,8 @@ import {
 import { useAuth } from "@/lib/auth/auth-context";
 import { useTranslation } from "react-i18next";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
-import { useRecaptcha } from "@/hooks/useRecaptcha";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
+import { CaptchaWidget, type CaptchaWidgetHandle } from "@/components/CaptchaWidget";
 
 function createLoginSchema(t: (key: string) => string) {
   return z.object({
@@ -35,8 +36,8 @@ type LoginFormValues = z.infer<ReturnType<typeof createLoginSchema>>;
 export function LoginPage() {
   useDismissSplash();
   const { t } = useTranslation();
+  useDocumentTitle(t("page_title_login"));
   const { login, loginWithGoogle, isAuthenticated } = useAuth();
-  const executeRecaptcha = useRecaptcha("login");
   const navigate = useNavigate();
   const location = useLocation();
   const [error, setError] = useState<string | null>(null);
@@ -58,12 +59,13 @@ export function LoginPage() {
     defaultValues: { username: "", password: "" },
   });
 
-  const onSubmit = async (data: LoginFormValues) => {
-    setError(null);
-    setIsSubmitting(true);
+  // Credentials stashed while we wait for the captcha widget to issue a token.
+  const pendingCredsRef = useRef<LoginFormValues | null>(null);
+  const captchaRef = useRef<CaptchaWidgetHandle>(null);
+
+  const performLogin = async (creds: LoginFormValues, token: string) => {
     try {
-      const recaptchaToken = await executeRecaptcha();
-      await login(data.username, data.password, recaptchaToken);
+      await login(creds.username, creds.password, token);
       navigate(from, { replace: true });
     } catch (err) {
       if (axios.isAxiosError(err)) {
@@ -72,6 +74,8 @@ export function LoginPage() {
           setError(t("login_invalid_credentials"));
         } else if (status === 403) {
           setError(t("login_account_deactivated"));
+        } else if (status === 400 && /captcha/i.test(JSON.stringify(err.response?.data ?? ""))) {
+          setError(t("captcha_error"));
         } else {
           setError(t("login_generic_error"));
         }
@@ -81,6 +85,34 @@ export function LoginPage() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const onSubmit = async (data: LoginFormValues) => {
+    setError(null);
+    setIsSubmitting(true);
+    pendingCredsRef.current = data;
+    // execute() resolves silently for most users (no UI) or shows a Turnstile
+    // challenge when Cloudflare decides one is needed. If captcha is disabled,
+    // it calls onVerify with an empty token immediately.
+    captchaRef.current?.execute();
+  };
+
+  const handleCaptchaVerify = async (token: string) => {
+    const creds = pendingCredsRef.current;
+    pendingCredsRef.current = null;
+    if (!creds) return;
+    await performLogin(creds, token);
+  };
+
+  const handleCaptchaError = () => {
+    pendingCredsRef.current = null;
+    setIsSubmitting(false);
+    setError(t("captcha_error"));
+  };
+
+  const handleCaptchaCancel = () => {
+    pendingCredsRef.current = null;
+    setIsSubmitting(false);
   };
 
   const googleLogin = useGoogleLogin({
@@ -103,6 +135,14 @@ export function LoginPage() {
   });
 
   return (
+    <>
+    <CaptchaWidget
+      ref={captchaRef}
+      onVerify={handleCaptchaVerify}
+      onError={handleCaptchaError}
+      onCancel={handleCaptchaCancel}
+      action="login"
+    />
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-sm">
         {/* Card */}
@@ -215,11 +255,11 @@ export function LoginPage() {
                 className="w-full rounded-full h-12 text-base font-semibold bg-black hover:bg-gray-800"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? t("login_loading") : t("login_btn")}
+                {t("login_btn")}
               </Button>
 
               <p className="text-center text-[11px] text-gray-400">
-                {t("recaptcha_notice")}
+                {t("captcha_notice")}
               </p>
 
               <div className="text-center">
@@ -247,5 +287,6 @@ export function LoginPage() {
         </p>
       </div>
     </div>
+    </>
   );
 }

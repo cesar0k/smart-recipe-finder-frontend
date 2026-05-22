@@ -5,11 +5,13 @@ import { Header } from "@/components/layout/Header";
 import { BackButton } from "@/components/BackButton";
 import { UserCard } from "@/components/UserCard";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { Button } from "@/components/ui/button";
 
 export function FollowersPage() {
   useDismissSplash();
   const { t } = useTranslation();
+  useDocumentTitle(t("page_title_followers"));
   const { userId } = useParams<{ userId: string }>();
   const uid = parseInt(userId || "0", 10);
 

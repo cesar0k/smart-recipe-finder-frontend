@@ -1,6 +1,6 @@
 import { useCallback, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, keepPreviousData } from "@tanstack/react-query";
 import { readRecipes, useSearchRecipes } from "@/api/recipes/recipes";
 import { useTranslation } from "react-i18next";
 import type { Recipe } from "@/api/model";
@@ -59,6 +59,7 @@ export function useHomeRecipes() {
   const {
     data: infiniteData,
     isLoading: isLoadingAll,
+    isFetching: isFetchingAll,
     isError: isErrorAll,
     error: errorAll,
     fetchNextPage,
@@ -94,6 +95,9 @@ export function useHomeRecipes() {
         ...(hasCommentsFromUrl ? { has_comments: true } : {}),
       } as Parameters<typeof readRecipes>[0]),
     initialPageParam: 0,
+    // Keep showing previous results until the new query is fetched —
+    // prevents the UI from flashing back to categories while filters are being applied.
+    placeholderData: keepPreviousData,
     getNextPageParam: (lastPage, _allPages, lastPageParam) => {
       if (!lastPage || lastPage.length < PAGE_SIZE) return undefined;
       return lastPageParam + PAGE_SIZE;
@@ -104,6 +108,7 @@ export function useHomeRecipes() {
   const {
     data: searchResults,
     isLoading: isLoadingSearch,
+    isFetching: isFetchingSearch,
     isError: isErrorSearch,
     error: errorSearch,
   } = useSearchRecipes(
@@ -235,6 +240,7 @@ export function useHomeRecipes() {
   // VIEW MODEL
   const recipes = isSearching ? searchResults : allRecipes;
   const isLoading = isSearching ? isLoadingSearch : isLoadingAll;
+  const isFetching = isSearching ? isFetchingSearch : isFetchingAll;
   const isError = isSearching ? isErrorSearch : isErrorAll;
   const error = isSearching ? errorSearch : errorAll;
 
@@ -288,6 +294,7 @@ export function useHomeRecipes() {
 
     recipes,
     isLoading,
+    isFetching,
     isError,
     error,
     isEmpty: !isLoading && !isError && (!recipes || recipes.length === 0),

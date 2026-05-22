@@ -61,126 +61,136 @@ export function useRecipeMutations(onSuccess?: () => void) {
     toast.error(defaultMessage);
   };
 
-  const createRecipe = async (data: RecipeFormValues) => {
-    try {
-      const newRecipe = await createMutate({
-        data: {
-          title: data.title,
-          description: data.description || undefined,
-          cooking_time_in_minutes: data.cooking_time_in_minutes,
-          difficulty: data.difficulty,
-          cuisine: data.cuisine,
-          instructions: data.instructions,
-          ingredients: data.ingredients.map((i) => i.value),
-        },
-      });
+  /**
+   * Create a recipe in the background.
+   * The caller should call onSuccess() (i.e. close the modal) IMMEDIATELY
+   * after invoking this — the actual network work happens in the background
+   * with a loading toast, and the user can keep using the app.
+   */
+  const createRecipe = (data: RecipeFormValues) => {
+    onSuccess?.();
 
-      if (data.imageFiles && data.imageFiles.length > 0 && newRecipe.id) {
-        await uploadImagesMutate({
-          recipeId: newRecipe.id,
-          data: { files: data.imageFiles },
+    const toastId = toast.loading(t("toast_creating"));
+
+    void (async () => {
+      try {
+        const newRecipe = await createMutate({
+          data: {
+            title: data.title,
+            description: data.description || undefined,
+            cooking_time_in_minutes: data.cooking_time_in_minutes,
+            difficulty: data.difficulty,
+            cuisine: data.cuisine,
+            instructions: data.instructions,
+            ingredients: data.ingredients.map((i) => i.value),
+          },
         });
-      }
 
-      // Defer query invalidation until after the sheet's exit animation
-      // so the close transition doesn't get interrupted on slow devices
-      // (caused a brief re-flash of the modal).
-      const invalidate = () =>
-        queryClient.invalidateQueries({ queryKey: getReadRecipesQueryKey() });
+        if (data.imageFiles && data.imageFiles.length > 0 && newRecipe.id) {
+          await uploadImagesMutate({
+            recipeId: newRecipe.id,
+            data: { files: data.imageFiles },
+          });
+        }
 
-      if (newRecipe.status === "pending") {
-        toast.success(t("toast_created_pending"));
-        onSuccess?.();
-        setTimeout(invalidate, 200);
-      } else {
-        toast.success(t("toast_created"));
-        onSuccess?.();
-        setTimeout(invalidate, 200);
-        if (newRecipe?.id) navigate(`/recipe/${newRecipe.id}`);
+        const invalidate = () =>
+          queryClient.invalidateQueries({ queryKey: getReadRecipesQueryKey() });
+
+        if (newRecipe.status === "pending") {
+          toast.success(t("toast_created_pending"), { id: toastId });
+          setTimeout(invalidate, 200);
+        } else {
+          toast.success(t("toast_created"), { id: toastId });
+          setTimeout(invalidate, 200);
+          if (newRecipe?.id) navigate(`/recipe/${newRecipe.id}`);
+        }
+      } catch (error) {
+        toast.dismiss(toastId);
+        handleError(error, t("toast_error_create"));
       }
-    } catch (error) {
-      handleError(error, t("toast_error_create"));
-    }
+    })();
   };
 
-  const updateRecipe = async (id: number, data: RecipeFormValues) => {
-    try {
-      let orderedExistingUrls = data.image_urls || [];
-      if (data.coverExistingUrl && orderedExistingUrls.length > 0) {
-        const coverUrl = data.coverExistingUrl;
-        orderedExistingUrls = [
-          coverUrl,
-          ...orderedExistingUrls.filter((u) => u !== coverUrl),
-        ];
-      }
+  const updateRecipe = (id: number, data: RecipeFormValues) => {
+    onSuccess?.();
 
-      const updateResult = await updateMutate({
-        recipeId: id,
-        data: {
-          title: data.title,
-          description: data.description || undefined,
-          cooking_time_in_minutes: data.cooking_time_in_minutes,
-          difficulty: data.difficulty,
-          cuisine: data.cuisine,
-          instructions: data.instructions,
-          ingredients: data.ingredients.map((i) => i.value),
-          image_urls: orderedExistingUrls,
-        },
-      });
+    const toastId = toast.loading(t("toast_saving"));
 
-      // If result is a draft (regular user), show moderation toast and exit early
-      // RecipeDraftResponse has `recipe_id`; Recipe does not
-      if ("recipe_id" in updateResult) {
-        toast.success(t("toast_updated_pending"));
-        onSuccess?.();
-        return;
-      }
+    void (async () => {
+      try {
+        let orderedExistingUrls = data.image_urls || [];
+        if (data.coverExistingUrl && orderedExistingUrls.length > 0) {
+          const coverUrl = data.coverExistingUrl;
+          orderedExistingUrls = [
+            coverUrl,
+            ...orderedExistingUrls.filter((u) => u !== coverUrl),
+          ];
+        }
 
-      if (data.imageFiles && data.imageFiles.length > 0) {
-        const uploadedRecipe = await uploadImagesMutate({
+        const updateResult = await updateMutate({
           recipeId: id,
-          data: { files: data.imageFiles },
+          data: {
+            title: data.title,
+            description: data.description || undefined,
+            cooking_time_in_minutes: data.cooking_time_in_minutes,
+            difficulty: data.difficulty,
+            cuisine: data.cuisine,
+            instructions: data.instructions,
+            ingredients: data.ingredients.map((i) => i.value),
+            image_urls: orderedExistingUrls,
+          },
         });
 
-        if (
-          data.newCoverIndex != null &&
-          uploadedRecipe.image_urls
-        ) {
-          const existingCount = orderedExistingUrls.length;
-          const newImageIndex = existingCount + data.newCoverIndex;
-          const allUrls = uploadedRecipe.image_urls;
+        // If result is a draft (regular user), show moderation toast and exit early
+        if ("recipe_id" in updateResult) {
+          toast.success(t("toast_updated_pending"), { id: toastId });
+          return;
+        }
 
-          if (newImageIndex < allUrls.length) {
-            const coverUrl = allUrls[newImageIndex];
-            if (coverUrl) {
-              const reordered = [
-                coverUrl,
-                ...allUrls.filter((_, i) => i !== newImageIndex),
-              ];
-              await updateMutate({
-                recipeId: id,
-                data: { image_urls: reordered },
-              });
+        if (data.imageFiles && data.imageFiles.length > 0) {
+          const uploadedRecipe = await uploadImagesMutate({
+            recipeId: id,
+            data: { files: data.imageFiles },
+          });
+
+          if (data.newCoverIndex != null && uploadedRecipe.image_urls) {
+            const existingCount = orderedExistingUrls.length;
+            const newImageIndex = existingCount + data.newCoverIndex;
+            const allUrls = uploadedRecipe.image_urls;
+
+            if (newImageIndex < allUrls.length) {
+              const coverUrl = allUrls[newImageIndex];
+              if (coverUrl) {
+                const reordered = [
+                  coverUrl,
+                  ...allUrls.filter((_, i) => i !== newImageIndex),
+                ];
+                await updateMutate({
+                  recipeId: id,
+                  data: { image_urls: reordered },
+                });
+              }
             }
           }
         }
-      }
 
-      toast.success(t("toast_updated"));
-      onSuccess?.();
-      // Deferred — see note in createRecipe.
-      setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: getReadRecipesQueryKey() });
-        queryClient.invalidateQueries({ queryKey: getReadRecipeByIdQueryKey(id) });
-      }, 200);
-    } catch (error) {
-      handleError(error, t("toast_error_update"));
-    }
+        toast.success(t("toast_updated"), { id: toastId });
+        setTimeout(() => {
+          queryClient.invalidateQueries({ queryKey: getReadRecipesQueryKey() });
+          queryClient.invalidateQueries({ queryKey: getReadRecipeByIdQueryKey(id) });
+        }, 200);
+      } catch (error) {
+        toast.dismiss(toastId);
+        handleError(error, t("toast_error_update"));
+      }
+    })();
   };
 
   return {
     createRecipe,
     updateRecipe,
+    // Still expose isSubmitting for any UI that wants to disable a button
+    // immediately on click, though the modal closes right away now.
     isSubmitting: isCreating || isUpdating || isUploading,
   };
 }

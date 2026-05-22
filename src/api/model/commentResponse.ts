@@ -6,6 +6,7 @@
  */
 import type { CommentResponseAuthorUsername } from './commentResponseAuthorUsername';
 import type { CommentResponseAuthorAvatarUrl } from './commentResponseAuthorAvatarUrl';
+import type { CommentResponseAuthorRole } from './commentResponseAuthorRole';
 import type { CommentResponseParentCommentId } from './commentResponseParentCommentId';
 
 export interface CommentResponse {
@@ -14,7 +15,7 @@ export interface CommentResponse {
   user_id: number;
   author_username?: CommentResponseAuthorUsername;
   author_avatar_url?: CommentResponseAuthorAvatarUrl;
-  author_role?: string | null;
+  author_role?: CommentResponseAuthorRole;
   parent_comment_id?: CommentResponseParentCommentId;
   content: string;
   is_deleted: boolean;

@@ -20,12 +20,12 @@ export function CreateRecipeSheet() {
   const { t } = useTranslation();
   const handleOpenChange = useHistoryBack(open, setOpen);
 
-  const { createRecipe, isSubmitting } = useRecipeMutations(() =>
+  const { createRecipe } = useRecipeMutations(() =>
     handleOpenChange(false)
   );
 
-  const onSubmit = async (data: RecipeFormValues) => {
-    await createRecipe(data);
+  const onSubmit = (data: RecipeFormValues) => {
+    createRecipe(data);
   };
 
   return (
@@ -45,7 +45,7 @@ export function CreateRecipeSheet() {
           <p>{t("form_create_title")}</p>
         </VisuallyHidden>
 
-        <RecipeForm onSubmit={onSubmit} isSubmitting={isSubmitting} />
+        <RecipeForm onSubmit={onSubmit} />
       </DialogScrollContent>
     </Dialog>
   );

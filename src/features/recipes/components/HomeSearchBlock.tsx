@@ -22,6 +22,7 @@ interface HomeSearchBlockProps {
   selectedDifficulty: string[];
   selectedCuisine: string[];
   hasComments: boolean;
+  isFetching?: boolean;
   applyAllFilters: (filters: {
     include: string[];
     exclude: string[];
@@ -48,6 +49,7 @@ export const HomeSearchBlock = memo(function HomeSearchBlock({
   selectedDifficulty,
   selectedCuisine,
   hasComments,
+  isFetching = false,
   applyAllFilters,
   onSearch,
   onClear,
@@ -126,6 +128,7 @@ export const HomeSearchBlock = memo(function HomeSearchBlock({
               selectedDifficulty={selectedDifficulty}
               selectedCuisine={selectedCuisine}
               hasComments={hasComments}
+              isLoading={isFetching}
               onApply={applyAllFilters}
             />
             <AnimatedWidth open={isSearchView}>
@@ -158,6 +161,7 @@ export const HomeSearchBlock = memo(function HomeSearchBlock({
             selectedDifficulty={selectedDifficulty}
             selectedCuisine={selectedCuisine}
             hasComments={hasComments}
+            isLoading={isFetching}
             onApply={applyAllFilters}
           />
         </div>

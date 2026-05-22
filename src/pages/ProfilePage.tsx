@@ -29,6 +29,7 @@ import {
 } from "@/api/users/users";
 import { useAuth } from "@/lib/auth/auth-context";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 const PREF_DEBOUNCE_MS = 400;
 
@@ -85,6 +86,7 @@ const BACKEND_ERROR_MAP: Record<string, string> = {
 export function ProfilePage() {
   useDismissSplash();
   const { t, i18n } = useTranslation();
+  useDocumentTitle(t("page_title_profile"));
   const { user, refetchUser } = useAuth();
 
   const [email, setEmail] = useState(user?.email ?? "");
@@ -225,7 +227,7 @@ export function ProfilePage() {
               disabled={isSaving}
               className="w-full rounded-full h-9 bg-black hover:bg-gray-800 text-sm"
             >
-              {isSaving ? t("profile_saving_btn") : t("profile_save_btn")}
+              {t("profile_save_btn")}
             </Button>
           </div>
 
@@ -317,7 +319,7 @@ export function ProfilePage() {
                 disabled={isChanging}
                 className="w-full rounded-full h-9 bg-black hover:bg-gray-800 text-sm"
               >
-                {isChanging ? t("profile_changing_btn") : t("profile_change_btn")}
+                {t("profile_change_btn")}
               </Button>
             </div>
           )}

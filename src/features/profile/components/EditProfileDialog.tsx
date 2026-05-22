@@ -177,7 +177,7 @@ export function EditProfileDialog({ open, onOpenChange }: EditProfileDialogProps
               onClick={handleSave}
               disabled={isPending}
             >
-              {isSaving ? t("form_saving_btn") : t("profile_save_btn")}
+              {t("profile_save_btn")}
             </Button>
           </div>
         </DialogContent>

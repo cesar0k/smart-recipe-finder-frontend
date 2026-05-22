@@ -5,7 +5,7 @@
  * OpenAPI spec version: 2.0.0
  */
 import type { UserCreateDisplayName } from './userCreateDisplayName';
-import type { UserCreateRecaptchaToken } from './userCreateRecaptchaToken';
+import type { UserCreateCaptchaToken } from './userCreateCaptchaToken';
 
 export interface UserCreate {
   email: string;
@@ -22,5 +22,5 @@ export interface UserCreate {
   password: string;
   /** @pattern ^(ru|en)$ */
   language?: string;
-  recaptcha_token?: UserCreateRecaptchaToken;
+  captcha_token?: UserCreateCaptchaToken;
 }

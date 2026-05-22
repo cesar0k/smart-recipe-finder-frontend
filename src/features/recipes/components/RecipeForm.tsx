@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useFieldArray, useForm, type DefaultValues, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Trash2, Image as ImageIcon, X, Star } from "lucide-react";
@@ -22,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { OptimizedImage } from "@/components/ui/optimized-image";
+import { RecipeLightbox } from "./RecipeLightbox";
 
 import {
   createRecipeFormSchema,
@@ -94,6 +96,11 @@ export function RecipeForm({
     disabled: totalImages >= 5,
   });
 
+  // Lightbox for previewing photos already added to the form.
+  // All images are merged into one array, with `existingUrls` first then `newPreviews`.
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const lightboxImages = [...existingUrls, ...newPreviews];
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 pt-0">
@@ -164,11 +171,18 @@ export function RecipeForm({
                   key={url}
                   className="relative aspect-square rounded-2xl overflow-hidden border border-gray-200 bg-gray-50 group"
                 >
-                  <OptimizedImage
-                    src={url}
-                    alt={t("existing_image_alt", { index: index + 1 })}
-                    className="w-full h-full object-cover"
-                  />
+                  <button
+                    type="button"
+                    onClick={() => setLightboxIndex(index)}
+                    className="absolute inset-0 w-full h-full cursor-zoom-in"
+                    aria-label={t("existing_image_alt", { index: index + 1 })}
+                  >
+                    <OptimizedImage
+                      src={url}
+                      alt={t("existing_image_alt", { index: index + 1 })}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
 
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors pointer-events-none" />
 
@@ -213,7 +227,14 @@ export function RecipeForm({
                   key={index}
                   className="relative aspect-square rounded-2xl overflow-hidden border border-gray-200 group"
                 >
-                  <OptimizedImage src={url} alt={t("new_preview_alt")} />
+                  <button
+                    type="button"
+                    onClick={() => setLightboxIndex(existingUrls.length + index)}
+                    className="absolute inset-0 w-full h-full cursor-zoom-in"
+                    aria-label={t("new_preview_alt")}
+                  >
+                    <OptimizedImage src={url} alt={t("new_preview_alt")} />
+                  </button>
 
                   <button
                     type="button"
@@ -423,10 +444,21 @@ export function RecipeForm({
             className="w-full rounded-full h-12 text-base font-semibold bg-black hover:bg-gray-800 shadow-lg shadow-gray-200 transition-all hover:scale-[1.01]"
             disabled={isSubmitting}
           >
-            {isSubmitting ? t("form_saving_btn") : t("form_save_btn")}
+            {t("form_save_btn")}
           </Button>
         </div>
       </form>
+
+      {lightboxIndex !== null && lightboxImages.length > 0 && (
+        <RecipeLightbox
+          images={lightboxImages}
+          initialIndex={lightboxIndex}
+          open={lightboxIndex !== null}
+          onOpenChange={(open) => {
+            if (!open) setLightboxIndex(null);
+          }}
+        />
+      )}
     </Form>
   );
 }

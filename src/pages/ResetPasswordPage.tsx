@@ -10,10 +10,12 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { useResetPassword } from "@/api/auth/auth";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 export function ResetPasswordPage() {
   useDismissSplash();
   const { t } = useTranslation();
+  useDocumentTitle(t("page_title_reset_password"));
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token") ?? "";
@@ -131,7 +133,7 @@ export function ResetPasswordPage() {
                 disabled={isPending || !newPassword || !confirmPassword}
                 className="w-full rounded-full h-12 text-base font-semibold bg-black hover:bg-gray-800"
               >
-                {isPending ? t("reset_password_saving") : t("reset_password_btn")}
+                {t("reset_password_btn")}
               </Button>
             </form>
           </div>

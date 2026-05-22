@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { ChefHat, MailCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -9,26 +9,28 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useForgotPassword } from "@/api/auth/auth";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
-import { useRecaptcha } from "@/hooks/useRecaptcha";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
+import { CaptchaWidget, type CaptchaWidgetHandle } from "@/components/CaptchaWidget";
 
 export function ForgotPasswordPage() {
   useDismissSplash();
   const { t } = useTranslation();
+  useDocumentTitle(t("page_title_forgot_password"));
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const captchaRef = useRef<CaptchaWidgetHandle>(null);
 
   const { mutate: forgotPassword, isPending } = useForgotPassword();
-  const executeRecaptcha = useRecaptcha("forgot_password");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-
-    const recaptchaToken = await executeRecaptcha();
-
+  const submitWithToken = (token: string) => {
     forgotPassword(
-      { data: { email, recaptcha_token: recaptchaToken || undefined } },
+      {
+        data: {
+          email,
+          captcha_token: token || undefined,
+        },
+      },
       {
         onSuccess: () => setSent(true),
         onError: (err) => {
@@ -44,6 +46,12 @@ export function ForgotPasswordPage() {
         },
       }
     );
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    captchaRef.current?.execute();
   };
 
   if (sent) {
@@ -64,6 +72,13 @@ export function ForgotPasswordPage() {
   }
 
   return (
+    <>
+    <CaptchaWidget
+      ref={captchaRef}
+      onVerify={submitWithToken}
+      onError={() => setError(t("captcha_error"))}
+      action="forgot_password"
+    />
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-sm">
         <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
@@ -118,10 +133,10 @@ export function ForgotPasswordPage() {
                 disabled={isPending || !email.trim()}
                 className="w-full rounded-full h-12 text-base font-semibold bg-black hover:bg-gray-800"
               >
-                {isPending ? t("forgot_password_sending") : t("forgot_password_btn")}
+                {t("forgot_password_btn")}
               </Button>
               <p className="text-center text-[11px] text-gray-400">
-                {t("recaptcha_notice")}
+                {t("captcha_notice")}
               </p>
             </form>
           </div>
@@ -134,5 +149,6 @@ export function ForgotPasswordPage() {
         </p>
       </div>
     </div>
+    </>
   );
 }

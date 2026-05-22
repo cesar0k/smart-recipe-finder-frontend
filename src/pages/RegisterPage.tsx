@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,7 +21,8 @@ import {
 import { useAuth } from "@/lib/auth/auth-context";
 import { useTranslation } from "react-i18next";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
-import { useRecaptcha } from "@/hooks/useRecaptcha";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
+import { CaptchaWidget, type CaptchaWidgetHandle } from "@/components/CaptchaWidget";
 
 function createRegisterSchema(t: (key: string) => string) {
   return z
@@ -46,12 +47,15 @@ function createRegisterSchema(t: (key: string) => string) {
 
 type RegisterFormValues = z.infer<ReturnType<typeof createRegisterSchema>>;
 
+// Two-step captcha: first token verifies registration, second token verifies the
+// follow-up auto-login. Turnstile tokens are single-use, so we have to ask twice.
+type CaptchaStage = "register" | "login";
+
 export function RegisterPage() {
   useDismissSplash();
   const { t } = useTranslation();
+  useDocumentTitle(t("page_title_register"));
   const { register: registerUser, loginWithGoogle, isAuthenticated } = useAuth();
-  const executeRecaptcha = useRecaptcha("register");
-  const executeLoginRecaptcha = useRecaptcha("login");
   const navigate = useNavigate();
   const location = useLocation();
   const [error, setError] = useState<string | null>(null);
@@ -91,14 +95,27 @@ export function RegisterPage() {
     defaultValues: { email: "", username: "", displayName: "", password: "", confirmPassword: "" },
   });
 
-  const onSubmit = async (data: RegisterFormValues) => {
-    setError(null);
-    setIsSubmitting(true);
+  // Two-token captcha flow state. Refs avoid stale closures inside
+  // handleCaptchaVerify when we re-execute the widget for the second token.
+  const captchaRef = useRef<CaptchaWidgetHandle>(null);
+  const pendingFormDataRef = useRef<RegisterFormValues | null>(null);
+  const captchaStageRef = useRef<CaptchaStage>("register");
+  const registerTokenRef = useRef<string>("");
+
+  const performRegister = async (
+    data: RegisterFormValues,
+    token: string,
+    loginToken: string,
+  ) => {
     try {
-      const recaptchaToken = await executeRecaptcha();
-      // Get a separate token for the auto-login that follows registration
-      const loginRecaptchaToken = await executeLoginRecaptcha();
-      await registerUser(data.email, data.username, data.password, data.displayName, recaptchaToken, loginRecaptchaToken);
+      await registerUser(
+        data.email,
+        data.username,
+        data.password,
+        data.displayName,
+        token,
+        loginToken,
+      );
       navigate(from, { replace: true });
     } catch (err) {
       if (axios.isAxiosError(err)) {
@@ -107,6 +124,8 @@ export function RegisterPage() {
           setError(t("register_conflict"));
         } else if (status === 422) {
           setError(t("register_validation_error"));
+        } else if (status === 400 && /captcha/i.test(JSON.stringify(err.response?.data ?? ""))) {
+          setError(t("captcha_error"));
         } else {
           setError(t("register_generic_error"));
         }
@@ -115,10 +134,59 @@ export function RegisterPage() {
       }
     } finally {
       setIsSubmitting(false);
+      pendingFormDataRef.current = null;
+      registerTokenRef.current = "";
     }
   };
 
+  const onSubmit = async (data: RegisterFormValues) => {
+    setError(null);
+    setIsSubmitting(true);
+    pendingFormDataRef.current = data;
+    captchaStageRef.current = "register";
+    captchaRef.current?.execute();
+  };
+
+  const handleCaptchaVerify = async (token: string) => {
+    const data = pendingFormDataRef.current;
+    if (!data) return;
+
+    if (captchaStageRef.current === "register") {
+      // Got the registration token — now request a second token for the
+      // follow-up auto-login. Turnstile tokens are single-use.
+      registerTokenRef.current = token;
+      captchaStageRef.current = "login";
+      // Small delay lets Turnstile finish reset before the next execute().
+      setTimeout(() => captchaRef.current?.execute(), 50);
+      return;
+    }
+
+    // Stage "login" — we now have both tokens, submit.
+    await performRegister(data, registerTokenRef.current, token);
+  };
+
+  const handleCaptchaError = () => {
+    pendingFormDataRef.current = null;
+    registerTokenRef.current = "";
+    setIsSubmitting(false);
+    setError(t("captcha_error"));
+  };
+
+  const handleCaptchaCancel = () => {
+    pendingFormDataRef.current = null;
+    registerTokenRef.current = "";
+    setIsSubmitting(false);
+  };
+
   return (
+    <>
+    <CaptchaWidget
+      ref={captchaRef}
+      onVerify={handleCaptchaVerify}
+      onError={handleCaptchaError}
+      onCancel={handleCaptchaCancel}
+      action={captchaStageRef.current}
+    />
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-8">
       <div className="w-full max-w-sm">
         {/* Card */}
@@ -289,10 +357,10 @@ export function RegisterPage() {
                 className="w-full rounded-full h-12 text-base font-semibold bg-black hover:bg-gray-800"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? t("register_loading") : t("register_btn")}
+                {t("register_btn")}
               </Button>
               <p className="text-center text-[11px] text-gray-400">
-                {t("recaptcha_notice")}
+                {t("captcha_notice")}
               </p>
             </form>
           </Form>
@@ -311,5 +379,6 @@ export function RegisterPage() {
         </p>
       </div>
     </div>
+    </>
   );
 }

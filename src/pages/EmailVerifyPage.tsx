@@ -7,10 +7,12 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useVerifyEmail } from "@/api/auth/auth";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 export function EmailVerifyPage() {
   useDismissSplash();
   const { t } = useTranslation();
+  useDocumentTitle(t("page_title_verify_email"));
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token") ?? "";

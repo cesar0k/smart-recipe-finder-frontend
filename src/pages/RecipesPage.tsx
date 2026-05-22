@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { ChefHat } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RecipeCard } from "@/features/recipes/components/RecipeCard";
 import { FavoriteButton } from "@/features/recipes/components/FavoriteButton";
@@ -12,11 +13,14 @@ import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { Spinner } from "@/components/ui/spinner";
 import { useTranslation } from "react-i18next";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 export function RecipesPage() {
   const { t } = useTranslation();
+  useDocumentTitle(t("page_title_recipes"));
   const {
     recipes,
     isLoading,
+    isFetching,
     isError,
     error,
     isEmpty,
@@ -58,6 +62,7 @@ export function RecipesPage() {
               selectedDifficulty={selectedDifficulty}
               selectedCuisine={selectedCuisine}
               hasComments={hasComments}
+              isLoading={isFetching}
               onApply={applyAllFilters}
             />
             <AnimatedWidth open>
@@ -91,6 +96,15 @@ export function RecipesPage() {
             <Button variant="outline" onClick={handleClear} className="rounded-full">
               {t("show_all")}
             </Button>
+          </div>
+        )}
+
+        {/* Empty database — no filters and no recipes at all */}
+        {isEmpty && !hasActiveFilters && (
+          <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">
+            <ChefHat className="w-12 h-12 text-gray-300" />
+            <p className="text-lg font-semibold text-gray-700">{t("no_recipes_yet_title")}</p>
+            <p className="text-sm text-gray-400 max-w-sm">{t("no_recipes_yet_desc")}</p>
           </div>
         )}
 

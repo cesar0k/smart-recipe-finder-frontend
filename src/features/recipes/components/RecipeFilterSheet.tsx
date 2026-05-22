@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { SlidersHorizontal, X as XIcon, Check } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { SlidersHorizontal, X as XIcon, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -39,6 +39,8 @@ interface RecipeFilterSheetProps {
   selectedDifficulty: string[];
   selectedCuisine: string[];
   hasComments?: boolean;
+  /** When true, the trigger button shows a spinner instead of the active-count badge */
+  isLoading?: boolean;
   /** Called once with all filter values when the dialog closes */
   onApply: (filters: FilterState) => void;
 }
@@ -78,10 +80,16 @@ export function RecipeFilterSheet({
   selectedDifficulty,
   selectedCuisine,
   hasComments = false,
+  isLoading = false,
   onApply,
 }: RecipeFilterSheetProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+  // Local pending flag — turns true the instant the modal closes with changes,
+  // turns false when the parent's isLoading goes back to false. This way the
+  // spinner is visible during the 300ms close-delay too, and never blinks for
+  // sub-frame fetches.
+  const [localPending, setLocalPending] = useState(false);
   const handleOpenChange = useHistoryBack(open, (nextOpen) => {
     setOpen(nextOpen);
     if (!nextOpen && open && filtersDiffer(draft, {
@@ -89,10 +97,32 @@ export function RecipeFilterSheet({
       difficulty: selectedDifficulty, cuisine: selectedCuisine, hasComments,
     })) {
       const snapshot = draft;
+      setLocalPending(true);
       setTimeout(() => onApply(snapshot), 300);
     }
   });
   const [cuisineSearch, setCuisineSearch] = useState("");
+
+  // Clear pending once the parent reports a fetch cycle has happened.
+  // Tracks whether isLoading has gone true since we started pending.
+  // If isLoading goes true then back to false → fetch done → clear pending.
+  // If isLoading never goes true within 1500ms (cache hit / no fetch) → clear anyway.
+  const sawLoadingRef = useRef(false);
+  useEffect(() => {
+    if (!localPending) {
+      sawLoadingRef.current = false;
+      return;
+    }
+    if (isLoading) {
+      sawLoadingRef.current = true;
+      return;
+    }
+    // isLoading is false — either we saw it go true (fetch finished),
+    // or it never went true (fast cache hit).
+    const delay = sawLoadingRef.current ? 0 : 1500;
+    const timer = setTimeout(() => setLocalPending(false), delay);
+    return () => clearTimeout(timer);
+  }, [localPending, isLoading]);
 
   // --- Local draft state (only applied on close) ---
   const [draft, setDraft] = useState<FilterState>({
@@ -172,10 +202,17 @@ export function RecipeFilterSheet({
           className="rounded-full relative bg-white border-gray-200 hover:bg-gray-100 h-11 w-11"
         >
           <SlidersHorizontal className="w-5 h-5 text-gray-600" />
-          {activeCount > 0 && (
-            <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-black text-white text-[10px] flex items-center justify-center rounded-full border border-white">
-              {activeCount}
+          {localPending || isLoading ? (
+            // Spinner badge in the same spot as the count — same dimensions to avoid layout shift
+            <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-black text-white flex items-center justify-center rounded-full border border-white">
+              <Loader2 className="w-2.5 h-2.5 animate-spin" />
             </span>
+          ) : (
+            activeCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-black text-white text-[10px] flex items-center justify-center rounded-full border border-white">
+                {activeCount}
+              </span>
+            )
           )}
         </Button>
       </DialogTrigger>

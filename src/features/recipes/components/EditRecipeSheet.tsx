@@ -34,41 +34,42 @@ export function EditRecipeSheet({
   const { t } = useTranslation();
   const handleOpenChange = useHistoryBack(open, onOpenChange);
 
-  const { updateRecipe, isSubmitting: isUpdating } = useRecipeMutations(() => {
+  const { updateRecipe } = useRecipeMutations(() => {
     handleOpenChange(false);
     // Defer invalidations / refetches until after Radix's exit animation
     // so the sheet doesn't briefly re-flash on slow devices.
     setTimeout(onSuccess, 200);
   });
 
-  const { mutateAsync: resubmit, isPending: isResubmitting } =
-    useResubmitRecipe();
+  const { mutateAsync: resubmit } = useResubmitRecipe();
 
-  const isSubmitting = isUpdating || isResubmitting;
-
-  const onSubmit = async (data: RecipeFormValues) => {
+  const onSubmit = (data: RecipeFormValues) => {
     if (resubmitMode) {
-      try {
-        await resubmit({
-          recipeId: recipe.id,
-          data: {
-            title: data.title,
-            instructions: data.instructions,
-            cooking_time_in_minutes: data.cooking_time_in_minutes,
-            difficulty: data.difficulty,
-            cuisine: data.cuisine || undefined,
-            ingredients: data.ingredients.map((i) => i.value),
-          },
-        });
-        toast.success(t("toast_resubmitted"));
-        handleOpenChange(false);
-        // See note in updateRecipe's onSuccess above.
-        setTimeout(onSuccess, 200);
-      } catch {
-        toast.error(t("moderation_error"));
-      }
+      // Close immediately, run resubmit in background with loading toast
+      handleOpenChange(false);
+      const toastId = toast.loading(t("toast_saving"));
+      void (async () => {
+        try {
+          await resubmit({
+            recipeId: recipe.id,
+            data: {
+              title: data.title,
+              instructions: data.instructions,
+              cooking_time_in_minutes: data.cooking_time_in_minutes,
+              difficulty: data.difficulty,
+              cuisine: data.cuisine || undefined,
+              ingredients: data.ingredients.map((i) => i.value),
+            },
+          });
+          toast.success(t("toast_resubmitted"), { id: toastId });
+          setTimeout(onSuccess, 200);
+        } catch {
+          toast.dismiss(toastId);
+          toast.error(t("moderation_error"));
+        }
+      })();
     } else {
-      await updateRecipe(recipe.id, data);
+      updateRecipe(recipe.id, data);
     }
   };
 
@@ -89,7 +90,6 @@ export function EditRecipeSheet({
         <RecipeForm
           defaultValues={defaultValues}
           onSubmit={onSubmit}
-          isSubmitting={isSubmitting}
         />
       </DialogScrollContent>
     </Dialog>

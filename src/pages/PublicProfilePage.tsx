@@ -23,16 +23,8 @@ import { Spinner } from "@/components/ui/spinner";
 import { Badge } from "@/components/ui/badge";
 import { CreateRecipeSheet } from "@/features/recipes/components/CreateRecipeSheet";
 import { EditRecipeSheet } from "@/features/recipes/components/EditRecipeSheet";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { RecipeLightbox } from "@/features/recipes/components/RecipeLightbox";
+import { DeleteRecipeDialog } from "@/features/recipes/components/DeleteRecipeDialog";
 
 import { useGetUserProfile } from "@/api/users/users";
 import {
@@ -46,6 +38,7 @@ import { useAuth } from "@/lib/auth/auth-context";
 import type { Recipe } from "@/api/model";
 import { FollowButton } from "@/features/users/components/FollowButton";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 
 const PAGE_SIZE = 12;
 
@@ -82,6 +75,8 @@ export function PublicProfilePage() {
   const { data: profile, isLoading: profileLoading } = useGetUserProfile(uid, {
     query: { enabled: uid > 0 },
   });
+
+  useDocumentTitle(profile?.username ? t("page_title_user", { username: profile.username }) : null);
 
   // Own profile uses /my/ (sees pending/rejected/drafts), others use /user/:id (approved only).
   const {
@@ -131,6 +126,7 @@ export function PublicProfilePage() {
   const [editProfileOpen, setEditProfileOpen] = useState(false);
   const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
   const [deletingRecipe, setDeletingRecipe] = useState<Recipe | null>(null);
+  const [avatarLightboxOpen, setAvatarLightboxOpen] = useState(false);
   const { mutateAsync: deleteRecipe, isPending: isDeleting } =
     useDeleteRecipe();
 
@@ -144,10 +140,9 @@ export function PublicProfilePage() {
     }
   };
 
-  const handleDelete = async () => {
-    if (!deletingRecipe) return;
+  const handleDelete = async (recipeId: number) => {
     try {
-      await deleteRecipe({ recipeId: deletingRecipe.id });
+      await deleteRecipe({ recipeId });
       toast.success(t("toast_deleted"));
       setDeletingRecipe(null);
       // Deferred so the AlertDialog can finish its exit animation.
@@ -195,13 +190,20 @@ export function PublicProfilePage() {
           <>
             {/* Profile header */}
             <div className="flex flex-col items-center text-center mb-6 space-y-2">
-              {/* Avatar */}
+              {/* Avatar — clickable to open in a lightbox */}
               {profile.avatar_url ? (
-                <img
-                  src={profile.avatar_url}
-                  alt={profile.username}
-                  className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
-                />
+                <button
+                  type="button"
+                  onClick={() => setAvatarLightboxOpen(true)}
+                  className="cursor-zoom-in rounded-full focus:outline-none focus:ring-2 focus:ring-gray-300"
+                  aria-label={profile.username}
+                >
+                  <img
+                    src={profile.avatar_url}
+                    alt={profile.username}
+                    className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
+                  />
+                </button>
               ) : (
                 <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center">
                   <User className="w-9 h-9 text-gray-400" />
@@ -373,39 +375,29 @@ export function PublicProfilePage() {
         />
       )}
 
-      {/* Delete confirmation dialog */}
-      <AlertDialog
-        open={!!deletingRecipe}
+      <DeleteRecipeDialog
+        recipe={deletingRecipe}
         onOpenChange={(open) => {
           if (!open) setDeletingRecipe(null);
         }}
-      >
-        <AlertDialogContent className="rounded-2xl">
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t("delete_dialog_title")}</AlertDialogTitle>
-            <AlertDialogDescription className="[word-break:break-word]">
-              {t("delete_dialog_desc", { title: deletingRecipe?.title })}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="rounded-full">
-              {t("cancel_btn")}
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-red-600 hover:bg-red-700 text-white border-none rounded-full"
-              disabled={isDeleting}
-            >
-              {isDeleting ? t("deleting") : t("delete_btn")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        onConfirm={handleDelete}
+        isDeleting={isDeleting}
+      />
 
       <EditProfileDialog
         open={editProfileOpen}
         onOpenChange={setEditProfileOpen}
       />
+
+      {/* Avatar lightbox — reuses RecipeLightbox for a single image */}
+      {profile?.avatar_url && (
+        <RecipeLightbox
+          images={[profile.avatar_url]}
+          initialIndex={0}
+          open={avatarLightboxOpen}
+          onOpenChange={setAvatarLightboxOpen}
+        />
+      )}
     </div>
   );
 }
