@@ -22,7 +22,12 @@ import type { CommentResponse } from "@/api/model";
 interface CommentFormProps {
   recipeId: number;
   parentCommentId?: number;
-  onSuccess?: () => void;
+  // Called on successful POST. Receives the freshly-created comment so the
+  // parent can splice it into the rendered list without round-tripping a
+  // refetch. When undefined (e.g. the form is used purely to close itself
+  // on submit), the parent has its own way of reacting to success.
+  onCreated?: (newComment: CommentResponse) => void;
+  onClose?: () => void;
   placeholder?: string;
   autoFocus?: boolean;
 }
@@ -30,7 +35,8 @@ interface CommentFormProps {
 function CommentForm({
   recipeId,
   parentCommentId,
-  onSuccess,
+  onCreated,
+  onClose,
   placeholder,
   autoFocus = false,
 }: CommentFormProps) {
@@ -49,10 +55,11 @@ function CommentForm({
         data: { content: content.trim(), parent_comment_id: parentCommentId ?? null },
       },
       {
-        onSuccess: () => {
+        onSuccess: (newComment) => {
           setContent("");
           toast.success(t("comment_toast_posted"));
-          onSuccess?.();
+          onCreated?.(newComment);
+          onClose?.();
         },
         onError: () => toast.error(t("comment_toast_error")),
       }
@@ -95,13 +102,13 @@ function CommentForm({
         className="resize-none rounded-2xl border-gray-300 bg-white text-sm"
       />
       <div className="flex justify-end gap-2">
-        {onSuccess && parentCommentId !== undefined && (
+        {onClose && parentCommentId !== undefined && (
           <Button
             type="button"
             variant="ghost"
             size="sm"
             className="rounded-full text-gray-500"
-            onClick={onSuccess}
+            onClick={onClose}
           >
             {t("close_btn")}
           </Button>
@@ -126,10 +133,21 @@ interface CommentItemProps {
   recipeId: number;
   recipeOwnerId?: number;
   depth?: number;
-  onDeleted: () => void;
+  // Called after a successful soft-delete on the server, so the parent can
+  // mark the comment as deleted in local state (no refetch). Receives the
+  // deleted comment's id — works for both top-level comments and replies.
+  onDeleted: (commentId: number) => void;
+  onReplyCreated: (parentId: number, newReply: CommentResponse) => void;
 }
 
-function CommentItem({ comment, recipeId, recipeOwnerId, depth = 0, onDeleted }: CommentItemProps) {
+function CommentItem({
+  comment,
+  recipeId,
+  recipeOwnerId,
+  depth = 0,
+  onDeleted,
+  onReplyCreated,
+}: CommentItemProps) {
   const { t, i18n } = useTranslation();
   const { user, hasRole } = useAuth();
   const [replyOpen, setReplyOpen] = useState(false);
@@ -168,7 +186,7 @@ function CommentItem({ comment, recipeId, recipeOwnerId, depth = 0, onDeleted }:
       {
         onSuccess: () => {
           toast.success(t("comment_toast_deleted"));
-          onDeleted();
+          onDeleted(comment.id);
         },
         onError: () => toast.error(t("comment_toast_error")),
       }
@@ -308,7 +326,8 @@ function CommentItem({ comment, recipeId, recipeOwnerId, depth = 0, onDeleted }:
                 parentCommentId={comment.id}
                 placeholder={t("comment_reply_placeholder")}
                 autoFocus={replyOpen}
-                onSuccess={() => setReplyOpen(false)}
+                onCreated={(newReply) => onReplyCreated(comment.id, newReply)}
+                onClose={() => setReplyOpen(false)}
               />
             </div>
           </motion.div>
@@ -373,6 +392,7 @@ function CommentItem({ comment, recipeId, recipeOwnerId, depth = 0, onDeleted }:
               recipeOwnerId={recipeOwnerId}
               depth={1}
               onDeleted={onDeleted}
+              onReplyCreated={onReplyCreated}
             />
           ))}
         </div>
@@ -400,7 +420,7 @@ export function RecipeComments({ recipeId, recipeOwnerId }: RecipeCommentsProps)
 
   // Fetch current last page
   const currentSkip = pages[pages.length - 1] ?? 0;
-  const { data: pageData, isLoading, refetch } = useListRecipeComments(recipeId, {
+  const { data: pageData, isLoading } = useListRecipeComments(recipeId, {
     skip: currentSkip,
     limit: LIMIT,
   });
@@ -439,23 +459,55 @@ export function RecipeComments({ recipeId, recipeOwnerId }: RecipeCommentsProps)
     return () => observer.disconnect();
   }, [loadMore]);
 
-  const handleMutation = () => {
-    // Clear accumulated comments immediately so stale data doesn't show
-    setAllComments([]);
-    setHasMore(true);
-    if (currentSkip === 0) {
-      // Already on first page — just refetch (bypass cache)
-      void refetch();
-    } else {
-      // Was on a later page — reset to page 0 (triggers new query)
-      setPages([0]);
-    }
+  // Splice a freshly-posted top-level comment into the head of the list so
+  // it appears instantly without a refetch round-trip. The server response
+  // contains the full CommentResponse (author info, timestamps, etc.) so
+  // nothing else needs to be loaded.
+  const handleCommentCreated = (newComment: CommentResponse) => {
+    setAllComments((prev) => [newComment, ...prev]);
+  };
+
+  // Same idea for replies: append to the parent's replies array. Backend
+  // only supports one level of nesting, so we match by parent id at the
+  // top level only.
+  const handleReplyCreated = (parentId: number, newReply: CommentResponse) => {
+    setAllComments((prev) =>
+      prev.map((c) =>
+        c.id === parentId
+          ? { ...c, replies: [...(c.replies ?? []), newReply] }
+          : c
+      )
+    );
+  };
+
+  // Backend soft-deletes (sets is_deleted=true, clears content) — replies are
+  // preserved. Mirror that locally so the UI updates instantly without the
+  // "comments disappear then come back" flicker the old refetch path had
+  // (refetch could return cached data with no new reference, so the useEffect
+  // that fills allComments wouldn't fire and the list stayed empty).
+  const handleCommentDeleted = (commentId: number) => {
+    setAllComments((prev) =>
+      prev.map((c) => {
+        if (c.id === commentId) {
+          return { ...c, is_deleted: true, content: "" };
+        }
+        if (c.replies && c.replies.some((r) => r.id === commentId)) {
+          return {
+            ...c,
+            replies: c.replies.map((r) =>
+              r.id === commentId ? { ...r, is_deleted: true, content: "" } : r
+            ),
+          };
+        }
+        return c;
+      })
+    );
   };
 
   return (
     <div className="space-y-6">
       {/* New comment form */}
-      <CommentForm recipeId={recipeId} onSuccess={handleMutation} />
+      <CommentForm recipeId={recipeId} onCreated={handleCommentCreated} />
 
       {/* Comment list */}
       {isLoading && allComments.length === 0 ? (
@@ -481,7 +533,8 @@ export function RecipeComments({ recipeId, recipeOwnerId }: RecipeCommentsProps)
               comment={comment}
               recipeId={recipeId}
               recipeOwnerId={recipeOwnerId}
-              onDeleted={handleMutation}
+              onDeleted={handleCommentDeleted}
+              onReplyCreated={handleReplyCreated}
             />
           ))}
         </div>
