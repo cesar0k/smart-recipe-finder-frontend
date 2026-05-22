@@ -63,10 +63,8 @@ export function RecipeHeaderInfo({
         {recipe.title}
       </h1>
 
-      {/* Author — when display_name is set, show it as the primary label and
-          @username as a smaller secondary handle. Without display_name we
-          just show @username at primary size. The avatar (md = 40px) is
-          tall enough to flank both lines without dominating the header. */}
+      {/* Author — display_name as primary, @username as secondary handle
+          underneath. Without display_name we just show @username. */}
       {recipe.owner_username && (
         <div className="flex items-center gap-3">
           {recipe.owner_id ? (

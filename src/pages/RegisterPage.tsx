@@ -153,10 +153,14 @@ export function RegisterPage() {
 
     if (captchaStageRef.current === "register") {
       // Got the registration token — now request a second token for the
-      // follow-up auto-login. Turnstile tokens are single-use.
+      // follow-up auto-login. Turnstile tokens are single-use, so we MUST
+      // reset() before the next execute() — otherwise Turnstile returns the
+      // same already-used token and the login call gets a 400 from the
+      // backend.
       registerTokenRef.current = token;
       captchaStageRef.current = "login";
-      // Small delay lets Turnstile finish reset before the next execute().
+      captchaRef.current?.reset();
+      // Small delay lets the reset settle before the next execute().
       setTimeout(() => captchaRef.current?.execute(), 50);
       return;
     }

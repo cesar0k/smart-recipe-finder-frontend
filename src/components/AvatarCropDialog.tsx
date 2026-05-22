@@ -38,15 +38,12 @@ export function AvatarCropDialog({
   const { t } = useTranslation();
   const cropperRef = useRef<ReactCropperElement>(null);
 
-  // Keep the Cropper mounted through the dialog's exit animation. The parent
-  // typically nulls imageSrc on close, which would otherwise unmount the
-  // cropper instantly. We track the rendered src as derived state so we can
-  // delay the unmount until the dialog finishes fading out.
+  // Keep the Cropper mounted through the dialog's exit animation: parent
+  // typically nulls imageSrc on close, which would otherwise unmount it
+  // instantly. We delay the local null by EXIT_ANIMATION_MS.
   const [renderedSrc, setRenderedSrc] = useState<string | null>(imageSrc);
   useEffect(() => {
     if (imageSrc) {
-      // Mirror the incoming prop into local state so we can keep the cropper
-      // mounted past the parent nulling imageSrc on close.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setRenderedSrc(imageSrc);
       return;
@@ -55,30 +52,24 @@ export function AvatarCropDialog({
     return () => clearTimeout(timer);
   }, [imageSrc]);
 
-  // Zoom range: minRatio..maxRatio mapped to slider 0..100. minRatio is the
-  // "fit fully inside crop box" ratio so the user can always zoom out to see
-  // the whole image regardless of aspect ratio.
+  // Zoom range: minRatio..maxRatio mapped to slider 0..100.
   const zoomRangeRef = useRef({ min: 1, max: 3 });
   const [sliderValue, setSliderValue] = useState(0);
 
-  // Convert slider 0..100 to actual zoom ratio
   const sliderToRatio = (val: number) => {
     const { min, max } = zoomRangeRef.current;
     return min + (val / 100) * (max - min);
   };
 
-  // Convert actual zoom ratio to slider 0..100
   const ratioToSlider = (ratio: number) => {
     const { min, max } = zoomRangeRef.current;
     if (max <= min) return 0;
     return Math.round(((ratio - min) / (max - min)) * 100);
   };
 
-  // Called once when cropper is ready — pick fit-cover as the minimum zoom
-  // (image's shorter side exactly covers the crop box, so zooming out further
-  // would leave the crop box partially empty — what viewMode=1 also enforces),
-  // and 4× of that as the max. This matches the standard "you can zoom out
-  // until the photo just reaches the crop frame, no further" UX.
+  // Pick fit-cover as min zoom (image's shorter side exactly covers the crop
+  // box) and 4× of that as max — standard "zoom out until photo just reaches
+  // the frame" UX. viewMode=1 below also enforces the lower bound.
   const handleReady = () => {
     const cropper = cropperRef.current?.cropper;
     if (!cropper) return;
@@ -87,10 +78,8 @@ export function AvatarCropDialog({
     const cropBoxData = cropper.getCropBoxData();
 
     const cropBoxSize = Math.min(cropBoxData.width, cropBoxData.height);
-    // Use the visibly-rendered dims (account for EXIF orientation). Convert
-    // the smaller rendered side back to a zoom ratio that makes it equal to
-    // cropBoxSize: currentRatio scales the rendered dim back to natural, then
-    // we re-derive the ratio that makes shortEdge == cropBoxSize.
+    // Use rendered dims (account for EXIF orientation): re-derive the ratio
+    // that makes shortEdge == cropBoxSize from the current rendering.
     const shortEdge = Math.min(imageData.width, imageData.height);
     const currentRatio = imageData.width / imageData.naturalWidth;
     const fitCoverRatio = (currentRatio * cropBoxSize) / shortEdge;
@@ -103,7 +92,6 @@ export function AvatarCropDialog({
     setSliderValue(0);
   };
 
-  // Sync slider when user scrolls the mouse wheel
   const handleZoom = useCallback(
     (e: Cropper.ZoomEvent<HTMLImageElement>) => {
       const newRatio = e.detail.ratio;
@@ -157,8 +145,8 @@ export function AvatarCropDialog({
           <DialogTitle>{t("profile_avatar_crop_title")}</DialogTitle>
         </DialogHeader>
 
-        {/* Cropper — edge to edge, no white borders. Rendered against the
-            locally retained source so it survives the exit animation. */}
+        {/* Cropper — edge to edge. Uses renderedSrc so it survives the
+            dialog exit animation. */}
         <div className="w-full bg-gray-900">
           {renderedSrc && (
             <Cropper
@@ -166,12 +154,8 @@ export function AvatarCropDialog({
               src={renderedSrc}
               style={{ height: 350, width: "100%" }}
               aspectRatio={1}
-              // viewMode=1: the image cannot be smaller than the crop box.
-              // We pick fit-cover ratio as the starting and minimum zoom in
-              // handleReady, so portrait/landscape photos always fully cover
-              // the crop frame at min zoom — "you can zoom out until the
-              // photo just reaches the frame, no further". This is the
-              // standard avatar-crop UX.
+              // viewMode=1: image cannot be smaller than the crop box;
+              // handleReady seeds zoom at fit-cover.
               viewMode={1}
               dragMode="move"
               cropBoxMovable={false}

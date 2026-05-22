@@ -22,10 +22,8 @@ import type { CommentResponse } from "@/api/model";
 interface CommentFormProps {
   recipeId: number;
   parentCommentId?: number;
-  // Called on successful POST. Receives the freshly-created comment so the
-  // parent can splice it into the rendered list without round-tripping a
-  // refetch. When undefined (e.g. the form is used purely to close itself
-  // on submit), the parent has its own way of reacting to success.
+  // Receives the freshly-created comment so the parent can splice it into the
+  // list without a refetch.
   onCreated?: (newComment: CommentResponse) => void;
   onClose?: () => void;
   placeholder?: string;
@@ -133,9 +131,8 @@ interface CommentItemProps {
   recipeId: number;
   recipeOwnerId?: number;
   depth?: number;
-  // Called after a successful soft-delete on the server, so the parent can
-  // mark the comment as deleted in local state (no refetch). Receives the
-  // deleted comment's id — works for both top-level comments and replies.
+  // Receives the deleted comment's id so the parent can mark it as deleted
+  // locally (works for both top-level and reply ids).
   onDeleted: (commentId: number) => void;
   onReplyCreated: (parentId: number, newReply: CommentResponse) => void;
 }
@@ -459,17 +456,14 @@ export function RecipeComments({ recipeId, recipeOwnerId }: RecipeCommentsProps)
     return () => observer.disconnect();
   }, [loadMore]);
 
-  // Splice a freshly-posted top-level comment into the head of the list so
-  // it appears instantly without a refetch round-trip. The server response
-  // contains the full CommentResponse (author info, timestamps, etc.) so
-  // nothing else needs to be loaded.
+  // Optimistically splice a new top-level comment in; the POST response
+  // already contains the full CommentResponse, no refetch needed.
   const handleCommentCreated = (newComment: CommentResponse) => {
     setAllComments((prev) => [newComment, ...prev]);
   };
 
-  // Same idea for replies: append to the parent's replies array. Backend
-  // only supports one level of nesting, so we match by parent id at the
-  // top level only.
+  // Same for replies — backend only nests one level, so we match parent id
+  // at the top level only.
   const handleReplyCreated = (parentId: number, newReply: CommentResponse) => {
     setAllComments((prev) =>
       prev.map((c) =>
@@ -480,11 +474,10 @@ export function RecipeComments({ recipeId, recipeOwnerId }: RecipeCommentsProps)
     );
   };
 
-  // Backend soft-deletes (sets is_deleted=true, clears content) — replies are
-  // preserved. Mirror that locally so the UI updates instantly without the
-  // "comments disappear then come back" flicker the old refetch path had
-  // (refetch could return cached data with no new reference, so the useEffect
-  // that fills allComments wouldn't fire and the list stayed empty).
+  // Mirror backend's soft-delete (is_deleted=true, content cleared) locally
+  // to avoid the "list disappears then reappears" flicker that an explicit
+  // refetch caused (cached pageData with same reference wouldn't re-trigger
+  // the accumulate effect).
   const handleCommentDeleted = (commentId: number) => {
     setAllComments((prev) =>
       prev.map((c) => {
