@@ -1,18 +1,14 @@
 type MessageHandler = (data: unknown) => void;
 
-// Pick ws:// for http pages and wss:// for https — avoids Mixed Content errors
-// when the page is served over HTTPS. If VITE_WS_URL hardcodes the wrong scheme
-// (e.g. ws:// on a prod build proxied behind HTTPS), force-upgrade it here.
+// VITE_WS_URL is required (enforced by scripts/check-env.mjs at predev/prebuild).
+// Still force-upgrade ws:// → wss:// when the page is served over HTTPS, to
+// avoid Mixed Content errors if the env value has the wrong scheme.
 const _isSecure = typeof window !== "undefined" && window.location.protocol === "https:";
 const _expectedScheme = _isSecure ? "wss:" : "ws:";
 
-function _normalizeWsUrl(raw: string): string {
-  return raw.replace(/^wss?:/, _expectedScheme);
-}
-
-const WS_BASE = _normalizeWsUrl(
-  (import.meta.env.VITE_WS_URL as string) ||
-    `${_expectedScheme}//${window.location.hostname}:8001`
+const WS_BASE = (import.meta.env.VITE_WS_URL as string).replace(
+  /^wss?:/,
+  _expectedScheme,
 );
 
 const HEARTBEAT_INTERVAL = 30_000; // 30s

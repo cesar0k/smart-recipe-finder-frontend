@@ -22,6 +22,12 @@ export function BottomNav() {
     observer.observe(document.body, { attributes: true, attributeFilter: ["data-scroll-locked"] });
     return () => observer.disconnect();
   }, []);
+  // Radix modal overlay (z-50, opacity 0 → 50% over ~150ms) covers the nav (z-40)
+  // the moment it mounts. With a symmetric 200ms transition on the nav, the
+  // overlay darkens it faster than it can slide away — looks like an abrupt
+  // disappear. Solution: race the overlay on open (100ms slide-out), use the
+  // longer 200ms only on close when there's no overlay to compete with.
+  const transitionDuration = modalOpen ? 100 : 200;
 
   // Must be called unconditionally before any early returns (Rules of Hooks)
   const { data: unreadData } = useGetUnreadCount({
@@ -42,7 +48,7 @@ export function BottomNav() {
           modalOpen ? "pointer-events-none" : ""
         }`}
         style={{
-          transition: "transform 200ms ease-out, opacity 200ms ease-out",
+          transition: `transform ${transitionDuration}ms ease-out, opacity ${transitionDuration}ms ease-out`,
           transform: modalOpen ? "translateY(100%)" : "translateY(0)",
           opacity: modalOpen ? 0 : 1,
         }}
