@@ -35,19 +35,28 @@ function showNotificationToast(notif: WSNotification): void {
 
   // Map notification type → i18n body key. `notif.message` is overloaded
   // depending on the type: for recipe-status events it's the moderator's
-  // reason; for `user_followed` it's the actor's username. Pass it under both
-  // i18n placeholders — keys only consume the one they reference.
+  // reason; for `user_followed` it's the follower's username; for
+  // `followed_user_published` it's the recipe author's display name.
+  // Pass it under every placeholder name — keys only consume the one they
+  // reference, so unused ones are ignored harmlessly.
   let body: string;
   const reason = notif.message || "";
   const username = notif.message || "";
+  const author = notif.message || "";
 
   if (reason && i18next.exists(`notif_body_${notif.type}_reason`)) {
-    body = t(`notif_body_${notif.type}_reason`, { title: recipeName, reason, username });
+    body = t(`notif_body_${notif.type}_reason`, {
+      title: recipeName,
+      reason,
+      username,
+      author,
+    });
   } else {
     body = t(`notif_body_${notif.type}`, {
       defaultValue: "",
       title: recipeName,
       username,
+      author,
     });
   }
 
