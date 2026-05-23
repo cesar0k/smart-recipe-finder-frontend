@@ -320,7 +320,7 @@ export function RecipePage() {
                     className="flex items-center gap-3 text-gray-700"
                   >
                     <div className="w-1.5 h-1.5 rounded-full bg-black shrink-0" />
-                    <span className="leading-relaxed text-lg font-medium break-words min-w-0">
+                    <span className="leading-relaxed text-lg font-medium [overflow-wrap:anywhere] min-w-0">
                       {typeof ingredient === "string"
                         ? ingredient
                         : ingredient.name}
@@ -352,7 +352,7 @@ export function RecipePage() {
               <h3 className="font-bold text-2xl text-gray-900">
                 {t("instructions")}
               </h3>
-              <div className="prose prose-gray max-w-none text-gray-600 space-y-6 text-lg leading-relaxed break-words">
+              <div className="prose prose-gray max-w-none text-gray-600 space-y-6 text-lg leading-relaxed [overflow-wrap:anywhere]">
                 {(recipe.instructions || "").split("\n").map((step, index) => (
                   <p key={index}>{step}</p>
                 ))}
