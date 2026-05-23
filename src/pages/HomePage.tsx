@@ -61,7 +61,7 @@ export function HomePage() {
   }, [isLoading]);
 
   return (
-    <div className="min-h-screen bg-white flex flex-col font-sans pb-16 md:pb-0">
+    <div className="min-h-screen bg-white flex flex-col font-sans pb-16 md:pb-0 overflow-x-clip">
       <Header
         leftContent={
           <Link

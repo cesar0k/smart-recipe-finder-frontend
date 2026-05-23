@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Shield, ShieldCheck, Trash2, Ban, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
@@ -62,6 +62,14 @@ export function AdminPage() {
   const { mutateAsync: deleteUser, isPending: isDeleting } = useDeleteUser();
 
   const [deleteTarget, setDeleteTarget] = useState<UserResponse | null>(null);
+  // Latched copy keeps username/email rendered through the AlertDialog exit
+  // animation (Radix unmounts after the animation; deleteTarget is cleared
+  // synchronously on close). Same pattern as DeleteRecipeDialog.
+  const [latchedDelete, setLatchedDelete] = useState<UserResponse | null>(null);
+  useEffect(() => {
+    if (deleteTarget) setLatchedDelete(deleteTarget);
+  }, [deleteTarget]);
+  const displayedDelete = deleteTarget ?? latchedDelete;
 
   const handleRoleChange = async (userId: number, newRole: string) => {
     try {
@@ -253,8 +261,8 @@ export function AdminPage() {
             <AlertDialogTitle>{t("admin_delete_title")}</AlertDialogTitle>
             <AlertDialogDescription>
               {t("admin_delete_desc", {
-                username: deleteTarget?.username,
-                email: deleteTarget?.email,
+                username: displayedDelete?.username,
+                email: displayedDelete?.email,
               })}
             </AlertDialogDescription>
           </AlertDialogHeader>
