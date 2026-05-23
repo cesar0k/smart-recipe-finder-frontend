@@ -11,9 +11,10 @@ export const createRecipeFormSchema = (t: TFunction) => {
   });
 
   return z.object({
+    // min/max mirror backend RecipeBase (min_length=3, max_length=255)
     title: z
       .string()
-      .min(2, t("validation_title_min"))
+      .min(3, t("validation_title_min"))
       .max(255, t("validation_title_max")),
     // Mirror backend limit (RecipeBase.description max_length=2000) so the
     // user sees the error in the field, not as a toast after submit.
@@ -21,9 +22,14 @@ export const createRecipeFormSchema = (t: TFunction) => {
       .string()
       .max(2000, t("validation_description_max"))
       .optional(),
+    // Backend stores as PG INTEGER (max 2_147_483_647). 1440 = 24h, plenty
+    // for any real recipe and protects against int32 overflow that surfaces
+    // as a 422 "exceeded maximum size".
     cooking_time_in_minutes: z.coerce
       .number()
-      .min(1, t("validation_time_min")),
+      .int(t("validation_time_int"))
+      .min(1, t("validation_time_min"))
+      .max(1440, t("validation_time_max")),
     difficulty: z.enum(DIFFICULTY_OPTIONS),
     cuisine: z
       .string()

@@ -85,6 +85,12 @@ export function RecipeForm({
     // zodResolver type mismatch due to z.coerce.number() in Zod v4
     resolver: zodResolver(recipeFormSchema) as Resolver<RecipeFormValues>,
     defaultValues: initialValues,
+    // Validate after first blur so the user sees client-side errors
+    // immediately (instead of only after pressing "Save" and waiting for
+    // a 422 round-trip). Re-validate on every change once a field has been
+    // touched so the message clears as soon as the input becomes valid.
+    mode: "onTouched",
+    reValidateMode: "onChange",
   });
 
   const { fields, append, remove } = useFieldArray({

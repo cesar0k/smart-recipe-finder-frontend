@@ -59,7 +59,7 @@ export function RecipeHeaderInfo({
         </Badge>
       )}
 
-      <h1 className="text-2xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 tracking-tight leading-[1.1] break-words">
+      <h1 className="text-2xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 tracking-tight leading-[1.1] [overflow-wrap:anywhere]">
         {recipe.title}
       </h1>
 
@@ -131,7 +131,7 @@ export function RecipeHeaderInfo({
 
       {/* Description */}
       {recipe.description && (
-        <p className="text-base text-gray-500 leading-relaxed">
+        <p className="text-base text-gray-500 leading-relaxed [overflow-wrap:anywhere]">
           {recipe.description}
         </p>
       )}
