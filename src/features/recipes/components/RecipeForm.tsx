@@ -54,6 +54,13 @@ interface RecipeFormProps {
    * instead of as a generic toast. New refs reset previous errors.
    */
   serverErrors?: RecipeFormServerErrors;
+  /**
+   * When the parent modal/sheet closes, clear any displayed validation
+   * errors so they don't flash during the exit animation if the user
+   * happened to touch a required field (the title input auto-focuses on
+   * open, so a quick close was enough to trigger this).
+   */
+  isOpen?: boolean;
 }
 
 export function RecipeForm({
@@ -61,6 +68,7 @@ export function RecipeForm({
   onSubmit,
   isSubmitting,
   serverErrors,
+  isOpen,
 }: RecipeFormProps) {
   const { t } = useTranslation();
 
@@ -112,6 +120,7 @@ export function RecipeForm({
     }
   }, [serverErrors, form]);
 
+
   const {
     imageFiles,
     existingUrls,
@@ -141,7 +150,14 @@ export function RecipeForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 pt-0">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className={
+          isOpen === false
+            ? "space-y-5 pt-0 opacity-0 pointer-events-none [&_[aria-invalid=true]]:!border-gray-300 [&_[aria-invalid=true]]:!ring-0 [&_[role=alert]]:!hidden"
+            : "space-y-5 pt-0"
+        }
+      >
         <FormField
           control={form.control}
           name="title"
