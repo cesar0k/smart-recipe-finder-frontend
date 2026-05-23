@@ -1,10 +1,11 @@
+import { useState } from "react";
 import {
   Dialog,
   DialogScrollContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { RecipeForm } from "./RecipeForm";
+import { RecipeForm, type RecipeFormServerErrors } from "./RecipeForm";
 import { useRecipeMutations } from "../hooks/useRecipeMutations";
 import { type RecipeFormValues } from "../types/schema";
 import { type Recipe } from "@/api/model";
@@ -32,18 +33,38 @@ export function EditRecipeSheet({
   resubmitMode = false,
 }: EditRecipeSheetProps) {
   const { t } = useTranslation();
-  const handleOpenChange = useHistoryBack(open, onOpenChange);
+  // When the backend returns 422 we re-open the sheet with the user's last
+  // submitted values and surface inline field errors. These get cleared on
+  // success and when the user closes the sheet manually.
+  const [lastValues, setLastValues] = useState<Partial<RecipeFormValues> | undefined>(undefined);
+  const [serverErrors, setServerErrors] = useState<RecipeFormServerErrors | undefined>(undefined);
+  const handleOpenChange = useHistoryBack(open, (next) => {
+    onOpenChange(next);
+    if (!next) setServerErrors(undefined);
+  });
 
-  const { updateRecipe } = useRecipeMutations(() => {
-    handleOpenChange(false);
-    // Defer invalidations / refetches until after Radix's exit animation
-    // so the sheet doesn't briefly re-flash on slow devices.
-    setTimeout(onSuccess, 200);
+  const { updateRecipe } = useRecipeMutations({
+    onSuccess: () => {
+      handleOpenChange(false);
+      setLastValues(undefined);
+      setServerErrors(undefined);
+      // Defer invalidations / refetches until after Radix's exit animation
+      // so the sheet doesn't briefly re-flash on slow devices.
+      setTimeout(onSuccess, 200);
+    },
+    onFieldErrors: (errors, data) => {
+      setLastValues(data);
+      setServerErrors(errors);
+      onOpenChange(true);
+    },
   });
 
   const { mutateAsync: resubmit } = useResubmitRecipe();
 
   const onSubmit = (data: RecipeFormValues) => {
+    // Clear stale server errors so they don't briefly persist between submits.
+    setServerErrors(undefined);
+
     if (resubmitMode) {
       // Close immediately, run resubmit in background with loading toast
       handleOpenChange(false);
@@ -73,7 +94,9 @@ export function EditRecipeSheet({
     }
   };
 
-  const defaultValues = getRecipeFormDefaultValues(recipe);
+  // When the modal is re-opened with 422 errors, lastValues is set — use it
+  // instead of the recipe's original values to preserve the user's edits.
+  const defaultValues = lastValues ?? getRecipeFormDefaultValues(recipe);
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -89,6 +112,7 @@ export function EditRecipeSheet({
 
         <RecipeForm
           defaultValues={defaultValues}
+          serverErrors={serverErrors}
           onSubmit={onSubmit}
         />
       </DialogScrollContent>

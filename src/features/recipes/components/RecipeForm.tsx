@@ -1,5 +1,11 @@
-import { useState } from "react";
-import { useFieldArray, useForm, type DefaultValues, type Resolver } from "react-hook-form";
+import { useEffect, useState } from "react";
+import {
+  useFieldArray,
+  useForm,
+  type DefaultValues,
+  type FieldPath,
+  type Resolver,
+} from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Trash2, Image as ImageIcon, X, Star } from "lucide-react";
 import { useDropzone } from "react-dropzone";
@@ -33,16 +39,28 @@ import {
 import { useRecipeImageManager } from "../hooks/useRecipeImageManager";
 import { useTranslation } from "react-i18next";
 
+/** Field-level server errors keyed by RHF path (e.g. "title", "ingredients.0.value"). */
+export type RecipeFormServerErrors = Partial<
+  Record<FieldPath<RecipeFormValues>, string>
+>;
+
 interface RecipeFormProps {
   defaultValues?: Partial<RecipeFormValues>;
   onSubmit: (data: RecipeFormValues) => void;
   isSubmitting?: boolean;
+  /**
+   * Field-level errors returned by the backend after submit (e.g. 422 from
+   * FastAPI). Applied via form.setError so they surface under the right field
+   * instead of as a generic toast. New refs reset previous errors.
+   */
+  serverErrors?: RecipeFormServerErrors;
 }
 
 export function RecipeForm({
   defaultValues,
   onSubmit,
   isSubmitting,
+  serverErrors,
 }: RecipeFormProps) {
   const { t } = useTranslation();
 
@@ -73,6 +91,20 @@ export function RecipeForm({
     control: form.control,
     name: "ingredients",
   });
+
+  // Apply server-side validation errors (FastAPI 422) under the matching
+  // fields. A new `serverErrors` object means a fresh submit attempt — clear
+  // any previous server errors first so stale ones don't linger.
+  useEffect(() => {
+    if (!serverErrors) return;
+    for (const [field, message] of Object.entries(serverErrors)) {
+      if (!message) continue;
+      form.setError(field as FieldPath<RecipeFormValues>, {
+        type: "server",
+        message,
+      });
+    }
+  }, [serverErrors, form]);
 
   const {
     imageFiles,

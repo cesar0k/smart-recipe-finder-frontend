@@ -313,13 +313,13 @@ export function RecipePage() {
               <h3 className="font-bold text-xl text-gray-900 flex items-center gap-3">
                 {t("ingredients")}
               </h3>
-              <ul className="space-y-3">
+              <ul className="list-none space-y-3">
                 {recipe.ingredients?.map((ingredient, index) => (
                   <li
                     key={index}
-                    className="flex items-start gap-3 text-gray-700"
+                    className="flex items-center gap-3 text-gray-700"
                   >
-                    <div className="mt-2 w-1.5 h-1.5 rounded-full bg-black shrink-0" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-black shrink-0" />
                     <span className="leading-relaxed text-lg font-medium break-words min-w-0">
                       {typeof ingredient === "string"
                         ? ingredient

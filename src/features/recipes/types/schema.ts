@@ -15,12 +15,20 @@ export const createRecipeFormSchema = (t: TFunction) => {
       .string()
       .min(2, t("validation_title_min"))
       .max(255, t("validation_title_max")),
-    description: z.string().optional(),
+    // Mirror backend limit (RecipeBase.description max_length=2000) so the
+    // user sees the error in the field, not as a toast after submit.
+    description: z
+      .string()
+      .max(2000, t("validation_description_max"))
+      .optional(),
     cooking_time_in_minutes: z.coerce
       .number()
       .min(1, t("validation_time_min")),
     difficulty: z.enum(DIFFICULTY_OPTIONS),
-    cuisine: z.string().optional(),
+    cuisine: z
+      .string()
+      .max(50, t("validation_cuisine_max"))
+      .optional(),
     instructions: z
       .string()
       .min(10, t("validation_instructions_min"))
@@ -28,7 +36,11 @@ export const createRecipeFormSchema = (t: TFunction) => {
     ingredients: z
       .array(
         z.object({
-          value: z.string().min(1, t("validation_ingredient_empty")),
+          // Backend allows up to 255 chars per ingredient string.
+          value: z
+            .string()
+            .min(1, t("validation_ingredient_empty"))
+            .max(255, t("validation_ingredient_max")),
         })
       )
       .min(1, t("validation_ingredients_min"))

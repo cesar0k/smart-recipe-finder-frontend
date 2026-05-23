@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from "react";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ChefHat } from "lucide-react";
 import axios from "axios";
@@ -51,10 +51,6 @@ export function HomePage() {
     hasNextPage,
   } = useHomeRecipes();
 
-  // Stable callbacks to avoid unnecessary re-renders of HomeSearchBlock
-  const stableHandleSearch = useCallback(handleSearch, [handleSearch]);
-  const stableHandleClear = useCallback(handleClear, [handleClear]);
-
   // Tear down the splash once the first batch of recipes is rendered.
   useEffect(() => {
     if (!isLoading) dismissSplash();
@@ -100,8 +96,8 @@ export function HomePage() {
           hasComments={hasComments}
           isFetching={isFetching}
           applyAllFilters={applyAllFilters}
-          onSearch={stableHandleSearch}
-          onClear={stableHandleClear}
+          onSearch={handleSearch}
+          onClear={handleClear}
         />
 
         

@@ -41,6 +41,8 @@ function UserSearchInput({ autoFocus = false, fullWidth = false }, ref) {
   // (don't open on debouncedQuery change — wait for data)
   useEffect(() => {
     if (debouncedQuery.length === 0) {
+      // Syncing dropdown visibility with the debounced query is the actual
+      // purpose of this effect — setState here is intentional.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsOpen(false);
     }
@@ -76,6 +78,7 @@ function UserSearchInput({ autoFocus = false, fullWidth = false }, ref) {
 
   useEffect(() => {
     if (hasContent) {
+      // Same as above — opening the dropdown when data arrives IS the effect.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsOpen(true);
     }
@@ -97,8 +100,10 @@ function UserSearchInput({ autoFocus = false, fullWidth = false }, ref) {
     }
   };
 
-  // Memoized mobile check — computed once on mount, stable until resize
-  const isMobile = useRef(typeof window !== "undefined" && window.innerWidth < 768).current;
+  // Mobile check — computed once on mount, stable until resize.
+  // Using lazy useState (not useRef.current) so ESLint's react-hooks/refs
+  // rule is happy: refs aren't supposed to drive render output.
+  const [isMobile] = useState(() => typeof window !== "undefined" && window.innerWidth < 768);
   const collapsedW = isMobile ? 96 : 160;
   const expandedW = isMobile ? 140 : 224;
 
