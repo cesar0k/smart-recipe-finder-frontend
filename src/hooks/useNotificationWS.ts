@@ -33,14 +33,22 @@ function showNotificationToast(notif: WSNotification): void {
   const heading = t(`notif_type_${notif.type}`, { defaultValue: "" });
   if (!heading) return; // Unknown notification type — skip toast
 
-  // Map notification type → i18n body key (with recipe name interpolation)
+  // Map notification type → i18n body key. `notif.message` is overloaded
+  // depending on the type: for recipe-status events it's the moderator's
+  // reason; for `user_followed` it's the actor's username. Pass it under both
+  // i18n placeholders — keys only consume the one they reference.
   let body: string;
   const reason = notif.message || "";
+  const username = notif.message || "";
 
   if (reason && i18next.exists(`notif_body_${notif.type}_reason`)) {
-    body = t(`notif_body_${notif.type}_reason`, { title: recipeName, reason });
+    body = t(`notif_body_${notif.type}_reason`, { title: recipeName, reason, username });
   } else {
-    body = t(`notif_body_${notif.type}`, { defaultValue: "", title: recipeName });
+    body = t(`notif_body_${notif.type}`, {
+      defaultValue: "",
+      title: recipeName,
+      username,
+    });
   }
 
   // Pick toast variant based on notification type
