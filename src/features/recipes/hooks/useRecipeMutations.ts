@@ -10,16 +10,92 @@ import {
   getReadRecipeByIdQueryKey,
 } from "@/api/recipes/recipes";
 import { type RecipeFormValues } from "../types/schema";
+import { type RecipeFormServerErrors } from "../components/RecipeForm";
 import { useTranslation } from "react-i18next";
+import { type FieldPath } from "react-hook-form";
 
 interface FastAPIError {
   detail: string | { loc: (string | number)[]; msg: string; type: string }[];
 }
 
-export function useRecipeMutations(onSuccess?: () => void) {
+/**
+ * Map a FastAPI 422 `loc` array to the corresponding RHF field path.
+ * Examples:
+ *   ["body", "title"]                 → "title"
+ *   ["body", "ingredients", 0]        → "ingredients.0.value"
+ *   ["body", "ingredients", 2, "..."] → "ingredients.2.value"
+ *
+ * Returns null if the path can't be mapped to a form field (e.g. the error
+ * concerns a server-only field). Caller falls back to a toast.
+ */
+function locToFieldPath(
+  loc: (string | number)[]
+): FieldPath<RecipeFormValues> | null {
+  // Skip the leading "body" segment if present.
+  const segments = loc[0] === "body" ? loc.slice(1) : loc.slice();
+  if (segments.length === 0) return null;
+
+  const head = segments[0];
+  if (head === "ingredients") {
+    const idx = segments[1];
+    if (typeof idx === "number") {
+      return `ingredients.${idx}.value` as FieldPath<RecipeFormValues>;
+    }
+    return "ingredients" as FieldPath<RecipeFormValues>;
+  }
+
+  if (typeof head === "string") {
+    return head as FieldPath<RecipeFormValues>;
+  }
+  return null;
+}
+
+/**
+ * Parse a FastAPI 422 response into a map of field path → message that
+ * RecipeForm can apply via form.setError. Returns null if the error wasn't a
+ * structured 422 (caller should fall back to a toast).
+ */
+function parseFieldErrors(
+  error: unknown
+): RecipeFormServerErrors | null {
+  if (!(error instanceof AxiosError)) return null;
+  if (error.response?.status !== 422) return null;
+  const data = error.response.data as FastAPIError | undefined;
+  if (!data || !Array.isArray(data.detail)) return null;
+
+  const result: RecipeFormServerErrors = {};
+  for (const entry of data.detail) {
+    const path = locToFieldPath(entry.loc);
+    if (!path) continue;
+    // Keep the first error per field; later ones are usually duplicates.
+    if (!result[path]) result[path] = entry.msg;
+  }
+  return Object.keys(result).length > 0 ? result : null;
+}
+
+interface RecipeMutationsOptions {
+  /** Called after a successful create/update so the caller can close the modal. */
+  onSuccess?: () => void;
+  /**
+   * Called when the backend returns 422 with structured field errors. The
+   * caller is expected to re-open the modal with these errors applied and
+   * the user's data restored.
+   */
+  onFieldErrors?: (errors: RecipeFormServerErrors, data: RecipeFormValues) => void;
+}
+
+export function useRecipeMutations(
+  optionsOrOnSuccess?: RecipeMutationsOptions | (() => void)
+) {
+  const options: RecipeMutationsOptions =
+    typeof optionsOrOnSuccess === "function"
+      ? { onSuccess: optionsOrOnSuccess }
+      : optionsOrOnSuccess ?? {};
+  const { onSuccess, onFieldErrors } = options;
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { t } = useTranslation();
+
 
   const { mutateAsync: createMutate, isPending: isCreating } =
     useCreateRecipe();
@@ -28,37 +104,40 @@ export function useRecipeMutations(onSuccess?: () => void) {
   const { mutateAsync: uploadImagesMutate, isPending: isUploading } =
     useUploadRecipeImages();
 
-  const handleError = (error: unknown, defaultMessage: string) => {
+  /**
+   * Returns true if the error was a structured 422 and was surfaced via
+   * `onFieldErrors` — the caller should NOT additionally show a toast in that
+   * case (the user will see inline messages in the re-opened form).
+   */
+  const handleError = (
+    error: unknown,
+    defaultMessage: string,
+    submittedData?: RecipeFormValues
+  ): boolean => {
     console.error(error);
 
-    if (error instanceof AxiosError) {
-      const status = error.response?.status;
-      const data = error.response?.data as FastAPIError;
-
-      if (status === 422 && data) {
-        if (Array.isArray(data.detail)) {
-          const firstError = data.detail[0];
-          if (firstError) {
-            const fieldName = firstError.loc[firstError.loc.length - 1];
-            toast.error(`${fieldName}: ${firstError.msg}`);
-          } else {
-            toast.error(t("toast_error_validation_failed"));
-          }
-        } else if (typeof data.detail === "string") {
-          toast.error(data.detail);
-        } else {
-          toast.error(t("toast_error_validation_failed"));
-        }
-        return;
+    if (submittedData && onFieldErrors) {
+      const fieldErrors = parseFieldErrors(error);
+      if (fieldErrors) {
+        onFieldErrors(fieldErrors, submittedData);
+        return true;
       }
+    }
 
+    if (error instanceof AxiosError) {
+      const data = error.response?.data as FastAPIError | undefined;
       if (data?.detail && typeof data.detail === "string") {
         toast.error(data.detail);
-        return;
+        return false;
+      }
+      if (error.response?.status === 422) {
+        toast.error(t("toast_error_validation_failed"));
+        return false;
       }
     }
 
     toast.error(defaultMessage);
+    return false;
   };
 
   /**
@@ -106,7 +185,7 @@ export function useRecipeMutations(onSuccess?: () => void) {
         }
       } catch (error) {
         toast.dismiss(toastId);
-        handleError(error, t("toast_error_create"));
+        handleError(error, t("toast_error_create"), data);
       }
     })();
   };
@@ -181,7 +260,7 @@ export function useRecipeMutations(onSuccess?: () => void) {
         }, 200);
       } catch (error) {
         toast.dismiss(toastId);
-        handleError(error, t("toast_error_update"));
+        handleError(error, t("toast_error_update"), data);
       }
     })();
   };
