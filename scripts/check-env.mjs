@@ -13,6 +13,9 @@ const ROOT = resolve(__dirname, "..");
 // Required vars and their descriptions
 const REQUIRED = {
   VITE_API_URL: "Backend API URL (e.g. http://localhost:8001)",
+  VITE_WS_URL:
+    "Notifications WebSocket base URL — same origin as the API, ws/wss scheme " +
+    "(e.g. ws://localhost:8001 for dev, wss://your-domain for prod behind a reverse proxy)",
 };
 
 // Parse .env file if it exists

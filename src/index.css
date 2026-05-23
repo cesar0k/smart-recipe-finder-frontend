@@ -175,19 +175,12 @@ input::-webkit-strong-password-auto-fill-button {
     margin-right: 0 !important;
     padding-right: 0 !important;
   }
-  /* Hide BottomNav when any Radix modal is open — fixes Android Chrome z-index bug */
-  body[data-scroll-locked] nav.md\\:hidden {
-    display: none !important;
-  }
 }
 
 /* When a modal is open on mobile: freeze viewport height so Android system
    navigation bar cannot resize the viewport during scroll inside the modal.
    Must be outside @layer base (Tailwind v4 does not allow @media inside @layer). */
 @media (max-width: 767px) {
-  body[data-scroll-locked] nav[data-bottom-nav] {
-    display: none !important;
-  }
   html:has(body[data-scroll-locked]),
   body[data-scroll-locked] {
     height: 100vh !important;

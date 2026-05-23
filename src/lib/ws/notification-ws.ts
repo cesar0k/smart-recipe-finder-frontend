@@ -1,8 +1,15 @@
 type MessageHandler = (data: unknown) => void;
 
-const WS_BASE =
-  (import.meta.env.VITE_WS_URL as string) ||
-  `ws://${window.location.hostname}:8001`;
+// VITE_WS_URL is required (enforced by scripts/check-env.mjs at predev/prebuild).
+// Still force-upgrade ws:// → wss:// when the page is served over HTTPS, to
+// avoid Mixed Content errors if the env value has the wrong scheme.
+const _isSecure = typeof window !== "undefined" && window.location.protocol === "https:";
+const _expectedScheme = _isSecure ? "wss:" : "ws:";
+
+const WS_BASE = (import.meta.env.VITE_WS_URL as string).replace(
+  /^wss?:/,
+  _expectedScheme,
+);
 
 const HEARTBEAT_INTERVAL = 30_000; // 30s
 const RECONNECT_BASE = 1_000; // 1s

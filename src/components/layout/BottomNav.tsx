@@ -22,6 +22,12 @@ export function BottomNav() {
     observer.observe(document.body, { attributes: true, attributeFilter: ["data-scroll-locked"] });
     return () => observer.disconnect();
   }, []);
+  // Radix modal overlay (z-50, opacity 0 → 50% over ~150ms) covers the nav (z-40)
+  // the moment it mounts. With a symmetric 200ms transition on the nav, the
+  // overlay darkens it faster than it can slide away — looks like an abrupt
+  // disappear. Solution: race the overlay on open (100ms slide-out), use the
+  // longer 200ms only on close when there's no overlay to compete with.
+  const transitionDuration = modalOpen ? 100 : 200;
 
   // Must be called unconditionally before any early returns (Rules of Hooks)
   const { data: unreadData } = useGetUnreadCount({
@@ -36,7 +42,17 @@ export function BottomNav() {
 
   if (!isAuthenticated) {
     return (
-      <nav data-bottom-nav className={`md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-md border-t border-gray-300 ${modalOpen ? "pointer-events-none" : ""}`}>
+      <nav
+        data-bottom-nav
+        className={`md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-md border-t border-gray-300 ${
+          modalOpen ? "pointer-events-none" : ""
+        }`}
+        style={{
+          transition: `transform ${transitionDuration}ms ease-out, opacity ${transitionDuration}ms ease-out`,
+          transform: modalOpen ? "translateY(100%)" : "translateY(0)",
+          opacity: modalOpen ? 0 : 1,
+        }}
+      >
         <div className="flex items-center justify-around h-16 px-2">
           <NavItem to="/" icon={<Home className="w-5 h-5" />} label={t("nav_home")} active={isActive("/")} />
           <NavItem to="/login" icon={<LogIn className="w-5 h-5" />} label={t("login_btn")} active={isActive("/login")} />
@@ -46,7 +62,17 @@ export function BottomNav() {
   }
 
   return (
-    <nav data-bottom-nav className={`md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-md border-t border-gray-300 ${modalOpen ? "pointer-events-none" : ""}`}>
+    <nav
+      data-bottom-nav
+      className={`md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-md border-t border-gray-300 ${
+        modalOpen ? "pointer-events-none" : ""
+      }`}
+      style={{
+        transition: "transform 200ms ease-out, opacity 200ms ease-out",
+        transform: modalOpen ? "translateY(100%)" : "translateY(0)",
+        opacity: modalOpen ? 0 : 1,
+      }}
+    >
       <div className="flex items-center justify-around h-16 px-2">
         <NavItem to="/" icon={<Home className="w-5 h-5" />} label={t("nav_home")} active={isActive("/")} />
         <NavItem
