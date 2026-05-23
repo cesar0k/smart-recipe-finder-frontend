@@ -114,6 +114,7 @@ export function EditRecipeSheet({
           defaultValues={defaultValues}
           serverErrors={serverErrors}
           onSubmit={onSubmit}
+          isOpen={open}
         />
       </DialogScrollContent>
     </Dialog>

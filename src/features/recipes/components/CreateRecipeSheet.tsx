@@ -72,6 +72,7 @@ export function CreateRecipeSheet() {
           defaultValues={lastValues}
           serverErrors={serverErrors}
           onSubmit={onSubmit}
+          isOpen={open}
         />
       </DialogScrollContent>
     </Dialog>
