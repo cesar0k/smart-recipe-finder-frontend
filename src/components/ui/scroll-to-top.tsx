@@ -15,25 +15,35 @@ export function ScrollToTop() {
   // We ignore scrollY changes during this window to avoid resetting showReturn early.
   const isScrollingToTopRef = useRef(false);
 
+  // We need showReturn inside the scroll handler — keep a ref synced with it
+  // so the handler doesn't get re-attached on every showReturn change.
+  const showReturnRef = useRef(showReturn);
   useEffect(() => {
-    const onScroll = () => setScrollY(window.scrollY);
+    showReturnRef.current = showReturn;
+  }, [showReturn]);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrollY(y);
+
+      // If user manually scrolled back down while in return-mode (and we're
+      // not programmatically scrolling) — leave return-mode. Doing this in
+      // the same event handler that updates scrollY avoids a cascading
+      // setState inside a downstream useEffect.
+      if (showReturnRef.current && y > SHOW_THRESHOLD && !isScrollingToTopRef.current) {
+        setShowReturn(false);
+        setSavedY(null);
+        clearTimeout(returnTimerRef.current);
+      }
+      // Once we've actually reached the top, clear the "scrolling" guard
+      if (isScrollingToTopRef.current && y === 0) {
+        isScrollingToTopRef.current = false;
+      }
+    };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  // If user manually scrolls back down while in return-mode (and we're not
-  // programmatically scrolling), reset the return mode.
-  useEffect(() => {
-    if (showReturn && scrollY > SHOW_THRESHOLD && !isScrollingToTopRef.current) {
-      setShowReturn(false);
-      setSavedY(null);
-      clearTimeout(returnTimerRef.current);
-    }
-    // Once we've actually reached the top, clear the "scrolling" guard
-    if (isScrollingToTopRef.current && scrollY === 0) {
-      isScrollingToTopRef.current = false;
-    }
-  }, [scrollY, showReturn]);
 
   // Cleanup timer on unmount
   useEffect(() => () => clearTimeout(returnTimerRef.current), []);

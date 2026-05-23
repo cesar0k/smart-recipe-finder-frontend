@@ -90,13 +90,19 @@ export function RecipeFilterSheet({
   // spinner is visible during the 300ms close-delay too, and never blinks for
   // sub-frame fetches.
   const [localPending, setLocalPending] = useState(false);
+  // Hold the latest draft in a ref so handleOpenChange (declared before
+  // draft for hook-ordering reasons) can read it without breaking the
+  // "no access before declaration" rule. The ref is kept in sync via the
+  // assignment a few lines below the draft state.
+  const draftRef = useRef<FilterState | null>(null);
   const handleOpenChange = useHistoryBack(open, (nextOpen) => {
     setOpen(nextOpen);
-    if (!nextOpen && open && filtersDiffer(draft, {
+    const current = draftRef.current;
+    if (!nextOpen && open && current && filtersDiffer(current, {
       include, exclude, minTime, maxTime,
       difficulty: selectedDifficulty, cuisine: selectedCuisine, hasComments,
     })) {
-      const snapshot = draft;
+      const snapshot = current;
       setLocalPending(true);
       setTimeout(() => onApply(snapshot), 300);
     }
@@ -134,23 +140,30 @@ export function RecipeFilterSheet({
     cuisine: selectedCuisine,
     hasComments,
   });
-
-  // Sync draft from props when dialog opens
+  // Mirror draft into a ref so handleOpenChange (declared above) can read it.
   useEffect(() => {
-    if (open) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setDraft({
-        include,
-        exclude,
-        minTime,
-        maxTime,
-        difficulty: selectedDifficulty,
-        cuisine: selectedCuisine,
-        hasComments,
-      });
-      setCuisineSearch("");
-    }
-  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+    draftRef.current = draft;
+  }, [draft]);
+
+  // Sync draft from props on the transition from closed → open. Done during
+  // render with a tracked prevOpen so the dropdown opens with the latest
+  // applied filters (and no cascading-render warning from setState-in-effect).
+  const [prevOpen, setPrevOpen] = useState(open);
+  if (open && !prevOpen) {
+    setPrevOpen(true);
+    setDraft({
+      include,
+      exclude,
+      minTime,
+      maxTime,
+      difficulty: selectedDifficulty,
+      cuisine: selectedCuisine,
+      hasComments,
+    });
+    setCuisineSearch("");
+  } else if (!open && prevOpen) {
+    setPrevOpen(false);
+  }
 
 
   const handleReset = () => {

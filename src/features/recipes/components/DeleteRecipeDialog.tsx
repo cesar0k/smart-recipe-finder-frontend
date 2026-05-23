@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   AlertDialog,
@@ -35,11 +35,13 @@ export function DeleteRecipeDialog({
 }: DeleteRecipeDialogProps) {
   const { t } = useTranslation();
 
-  // Latched copy of recipe — preserved during exit animation.
+  // Latched copy of recipe — preserved during exit animation. We update the
+  // latch during render (on the transition from null → non-null) instead of
+  // in a useEffect, which would log a cascading-render warning.
   const [latched, setLatched] = useState<typeof recipe>(null);
-  useEffect(() => {
-    if (recipe) setLatched(recipe);
-  }, [recipe]);
+  if (recipe && recipe !== latched) {
+    setLatched(recipe);
+  }
 
   const open = !!recipe;
   const displayed = recipe ?? latched;

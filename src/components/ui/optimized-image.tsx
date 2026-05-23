@@ -42,13 +42,16 @@ export function OptimizedImage({
 
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(isEmpty);
-
-  // When `src` changes (e.g. user removed all images from a recipe),
-  // reset internal state so the fallback shows immediately for the new value.
-  useEffect(() => {
+  // Reset internal state when `src` changes (e.g. user removed all images
+  // from a recipe). Doing this during render — instead of from a useEffect —
+  // avoids the cascading-render warning and the brief flash of the stale
+  // image you'd otherwise see for one paint.
+  const [prevSrc, setPrevSrc] = useState(src);
+  if (prevSrc !== src) {
+    setPrevSrc(src);
     setIsLoaded(false);
     setHasError(isEmpty);
-  }, [src, isEmpty]);
+  }
 
   // Progressive loading: thumbnail loaded first, then full replaces it
   const hasThumb = !!thumbnailSrc && thumbnailSrc !== src;

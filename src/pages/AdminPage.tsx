@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Shield, ShieldCheck, Trash2, Ban, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
@@ -66,9 +66,11 @@ export function AdminPage() {
   // animation (Radix unmounts after the animation; deleteTarget is cleared
   // synchronously on close). Same pattern as DeleteRecipeDialog.
   const [latchedDelete, setLatchedDelete] = useState<UserResponse | null>(null);
-  useEffect(() => {
-    if (deleteTarget) setLatchedDelete(deleteTarget);
-  }, [deleteTarget]);
+  // Update the latch during render (on the transition to a non-null target)
+  // instead of from a useEffect — same trick as DeleteRecipeDialog.
+  if (deleteTarget && deleteTarget !== latchedDelete) {
+    setLatchedDelete(deleteTarget);
+  }
   const displayedDelete = deleteTarget ?? latchedDelete;
 
   const handleRoleChange = async (userId: number, newRole: string) => {

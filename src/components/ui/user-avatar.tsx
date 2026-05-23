@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { User } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -38,10 +38,14 @@ export function UserAvatar({
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
 
-  // Reset loaded state when src changes so the skeleton shows for the new image.
-  useEffect(() => {
+  // Reset loaded state when src changes so the skeleton shows for the new
+  // image. Done during render via a tracked previous-src — keeps ESLint's
+  // set-state-in-effect rule happy and avoids an extra paint of stale state.
+  const [prevSrc, setPrevSrc] = useState(src);
+  if (prevSrc !== src) {
+    setPrevSrc(src);
     setLoaded(false);
-  }, [src]);
+  }
 
   if (src && failedSrc !== src) {
     return (

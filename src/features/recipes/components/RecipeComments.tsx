@@ -166,6 +166,10 @@ function CommentItem({
     const utcStr = /[Zz]$|[+-]\d{2}:\d{2}$/.test(raw) ? raw : raw + "Z";
     const ts = new Date(utcStr).getTime();
     if (!isFinite(ts)) return "";
+    // Date.now() during render is intentional — timeAgo is a derived
+    // best-effort string. Re-renders naturally refresh it; we don't want
+    // to set up an interval just to keep it perfectly live.
+    // eslint-disable-next-line react-hooks/purity
     const diffMs = Date.now() - ts;
     const diffSec = Math.floor(diffMs / 1000);
     const rtf = new Intl.RelativeTimeFormat(i18n.language, { numeric: "auto" });
@@ -422,7 +426,9 @@ export function RecipeComments({ recipeId, recipeOwnerId }: RecipeCommentsProps)
     limit: LIMIT,
   });
 
-  // Accumulate pages
+  // Accumulate pages. This is a legitimate sync of external (TanStack Query
+  // cache) state into local state — setState in an effect is the right tool.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!pageData) return;
     if (currentSkip === 0) {
@@ -437,6 +443,7 @@ export function RecipeComments({ recipeId, recipeOwnerId }: RecipeCommentsProps)
     setHasMore(pageData.length === LIMIT);
     setIsFetchingMore(false);
   }, [pageData, currentSkip]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const loadMore = useCallback(() => {
     if (!hasMore || isFetchingMore || isLoading) return;
