@@ -70,7 +70,7 @@ export function Header({ leftContent, rightContent }: HeaderProps) {
   };
 
   return (
-    <header className="border-b border-gray-300 sticky top-0 bg-white/80 backdrop-blur-md z-20">
+    <header className="border-b border-gray-300 sticky top-0 bg-white/80 backdrop-blur-md z-30">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-2">
         {/* On desktop: always show logo. On mobile: logo OR search (animated swap) */}
         <div className="hidden md:block shrink-0">
