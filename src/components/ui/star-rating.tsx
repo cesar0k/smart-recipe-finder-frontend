@@ -25,6 +25,17 @@ export function StarRating({
 }: StarRatingProps) {
   const [hovered, setHovered] = useState(0);
 
+  // Reset hover preview whenever the controlled `value` changes externally
+  // (e.g. user clicks the × button to remove their rating while the cursor
+  // is still over a star — without this, stars stayed filled until the
+  // user moved the mouse away and back). Done during render rather than
+  // from a useEffect to avoid the cascading-render lint rule.
+  const [prevValue, setPrevValue] = useState(value);
+  if (prevValue !== value) {
+    setPrevValue(value);
+    setHovered(0);
+  }
+
   const starSize = size === "sm" ? "w-3.5 h-3.5" : "w-5 h-5";
   const gap = size === "sm" ? "gap-0.5" : "gap-1";
 
