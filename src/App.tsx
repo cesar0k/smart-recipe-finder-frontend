@@ -9,6 +9,7 @@ import {
 import { BottomNav } from "./components/layout/BottomNav";
 import { ScrollToTop } from "./components/ui/scroll-to-top";
 import { AndroidScrollLock } from "./components/ui/android-scroll-lock";
+import { dismissSplash } from "@/lib/splash";
 
 const HomePage = lazy(() =>
   import("./pages/HomePage").then((m) => ({ default: m.HomePage }))
@@ -140,12 +141,28 @@ function ScrollManager() {
   return null;
 }
 
+/**
+ * Tears down the cold-start splash as soon as ANY lazy route chunk has
+ * mounted (i.e. Suspense has unwound). Lives inside Suspense so its mount
+ * is gated on the chunk download; that way a cold direct hit to /recipes
+ * (or any non-home route) dismisses the splash exactly like a cold hit to
+ * /. Previously only HomePage called dismissSplash, so opening any other
+ * URL directly left the splash up forever.
+ */
+function SplashDismisser() {
+  useEffect(() => {
+    dismissSplash();
+  }, []);
+  return null;
+}
+
 function App() {
   return (
     <>
       <ScrollManager />
       <RouteTransitionIndicator />
       <Suspense fallback={<IndicatorSuspenseFallback />}>
+        <SplashDismisser />
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/recipe/:id" element={<RecipePage />} />

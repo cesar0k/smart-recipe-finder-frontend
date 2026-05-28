@@ -1,9 +1,7 @@
-import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ChefHat } from "lucide-react";
 import axios from "axios";
 
-import { dismissSplash } from "@/lib/splash";
 import { Button } from "@/components/ui/button";
 import { RecipeCard } from "@/features/recipes/components/RecipeCard";
 import { FavoriteButton } from "@/features/recipes/components/FavoriteButton";
@@ -49,11 +47,6 @@ export function HomePage() {
     sentinelRef,
     hasNextPage,
   } = useHomeRecipes();
-
-  // Tear down the splash once the first batch of recipes is rendered.
-  useEffect(() => {
-    if (!isLoading) dismissSplash();
-  }, [isLoading]);
 
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans pb-16 md:pb-0 overflow-x-clip">
