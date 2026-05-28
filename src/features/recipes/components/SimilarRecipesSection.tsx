@@ -30,10 +30,24 @@ export function SimilarRecipesSection({ recipeId }: SimilarRecipesSectionProps) 
           {t("similar_recipes_error")}
         </p>
       ) : isLoading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <RecipeCardSkeleton key={i} />
-          ))}
+        // Mirror the real carousel layout so cards don't visibly resize /
+        // re-flow when the skeleton swaps to the real list:
+        //   - same -mx-6 px-6 overflow-x-clip wrapper
+        //   - same -ml-8 + pl-8 spacing (32px gutter between cards)
+        //   - same basis breakpoints (full → 1/2 → 1/4)
+        // basis-* relies on a flex parent; we use plain flex here instead of
+        // Embla so the skeleton stays static.
+        <div className="-mx-6 px-6 overflow-x-clip">
+          <div className="flex -ml-8">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div
+                key={i}
+                className="pl-8 shrink-0 basis-full sm:basis-1/2 lg:basis-1/4"
+              >
+                <RecipeCardSkeleton />
+              </div>
+            ))}
+          </div>
         </div>
       ) : (
         // Same shadow-bleed wrapper setup as CategoryShelf — see that file

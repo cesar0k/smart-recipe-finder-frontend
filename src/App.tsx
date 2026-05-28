@@ -9,6 +9,7 @@ import {
 import { BottomNav } from "./components/layout/BottomNav";
 import { ScrollToTop } from "./components/ui/scroll-to-top";
 import { AndroidScrollLock } from "./components/ui/android-scroll-lock";
+import { dismissSplash } from "@/lib/splash";
 
 const HomePage = lazy(() =>
   import("./pages/HomePage").then((m) => ({ default: m.HomePage }))
@@ -66,10 +67,13 @@ const HOME_SCROLL_KEY = "home_scroll_y";
 
 /**
  * Scroll behaviour:
- * - On "/" without meal_type: continuously saves scroll to sessionStorage
- * - Navigating TO a non-home page  → scroll to top
- * - Navigating BACK to "/"         → restore saved scroll after content loads
- * - Adding meal_type to "/" URL    → scroll to top (new category view)
+ * - On "/" (the home feed): continuously saves scroll to sessionStorage.
+ * - Navigating TO any non-home page (incl. /recipes and /recipes?meal_type=…)
+ *   → scroll to top.
+ * - Navigating BACK to "/" → restore saved scroll after content loads.
+ *
+ * Categories now live at /recipes?meal_type=…, so we no longer need to look
+ * inside the search string to tell the home feed apart from a category view.
  */
 function ScrollManager() {
   const { pathname, search } = useLocation();
@@ -79,10 +83,7 @@ function ScrollManager() {
 
   // Continuously track scroll position while on the home feed
   useEffect(() => {
-    const isHomeFeed =
-      pathname === "/" && !new URLSearchParams(search).has("meal_type");
-
-    if (!isHomeFeed) return;
+    if (pathname !== "/") return;
 
     const onScroll = () => {
       sessionStorage.setItem(HOME_SCROLL_KEY, String(window.scrollY));
@@ -90,24 +91,20 @@ function ScrollManager() {
 
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [pathname, search]);
+  }, [pathname]);
 
   // Handle navigation transitions
   useEffect(() => {
     const prev = prevPathname.current;
     const prevS = prevSearch.current;
+    const enteringHome = pathname === "/" && prev !== "/";
+    const leavingHome = pathname !== "/" && prev !== pathname;
+    // Switching categories inside /recipes (e.g. ?meal_type=breakfast →
+    // ?meal_type=lunch, or /recipes → /recipes?meal_type=…) should also
+    // scroll to top — same path, different query.
+    const sameRouteSearchChanged = pathname === prev && search !== prevS;
 
-    const enteringHomeFeed =
-      pathname === "/" &&
-      !new URLSearchParams(search).has("meal_type") &&
-      (prev !== "/" || new URLSearchParams(prevS).has("meal_type"));
-
-    const mealTypeAdded =
-      pathname === "/" &&
-      new URLSearchParams(search).has("meal_type") &&
-      !new URLSearchParams(prevS).has("meal_type");
-
-    if (enteringHomeFeed && prev !== "/") {
+    if (enteringHome) {
       // Coming back from another page — restore saved position.
       // Poll until the page has enough content to actually scroll.
       const saved = Number(sessionStorage.getItem(HOME_SCROLL_KEY) ?? 0);
@@ -123,9 +120,13 @@ function ScrollManager() {
         };
         restoreTimer.current = setTimeout(() => requestAnimationFrame(tryRestore), 50);
       }
-    } else if (mealTypeAdded || (pathname !== "/" && prev !== pathname)) {
-      // New category view or any non-home navigation → top
+    } else if (leavingHome) {
+      // Any non-home navigation → top
       if (restoreTimer.current) clearTimeout(restoreTimer.current);
+      window.scrollTo(0, 0);
+    } else if (sameRouteSearchChanged && pathname === "/recipes") {
+      // Category switch inside /recipes — scroll to top so the user sees
+      // the new heading and the first results.
       window.scrollTo(0, 0);
     }
 
@@ -140,12 +141,28 @@ function ScrollManager() {
   return null;
 }
 
+/**
+ * Tears down the cold-start splash as soon as ANY lazy route chunk has
+ * mounted (i.e. Suspense has unwound). Lives inside Suspense so its mount
+ * is gated on the chunk download; that way a cold direct hit to /recipes
+ * (or any non-home route) dismisses the splash exactly like a cold hit to
+ * /. Previously only HomePage called dismissSplash, so opening any other
+ * URL directly left the splash up forever.
+ */
+function SplashDismisser() {
+  useEffect(() => {
+    dismissSplash();
+  }, []);
+  return null;
+}
+
 function App() {
   return (
     <>
       <ScrollManager />
       <RouteTransitionIndicator />
       <Suspense fallback={<IndicatorSuspenseFallback />}>
+        <SplashDismisser />
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/recipe/:id" element={<RecipePage />} />
