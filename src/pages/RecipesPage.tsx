@@ -52,13 +52,19 @@ export function RecipesPage() {
     <div className="min-h-screen bg-white flex flex-col font-sans pb-16 md:pb-0">
       <Header />
 
-      {/* Mobile: no bottom padding on main — the symmetric breathing
-          room under the last row already comes from the infinite-scroll
-          sentinel's py-8 + the root's pb-16 (which clears the BottomNav).
-          Adding pb on top of that produced an asymmetric gap between the
-          sentinel and the BottomNav. Desktop keeps pb-12 so content does
-          not abut the footer. */}
-      <main className="flex-1 container mx-auto px-4 pt-8 md:pt-12 md:pb-12">
+      {/* Vertical rhythm is built around the infinite-scroll sentinel
+          (py-8 → 32px above + 32px below the spinner). To match the
+          top breathing room (pt-8 mobile / pt-12 desktop), main needs
+          minimal pb so the *visible* gap below the spinner equals the
+          one above the first card:
+            mobile  → 32 (top half of sentinel)              vs 32 above (pt-8)
+                      32 (bottom half of sentinel) + 0      vs 32 (matched)
+            desktop → 32 + 16 (md:pb-4)                       vs 48 above (md:pt-12)
+          The root's pb-16 (mobile) clears the BottomNav separately. On
+          desktop md:pb-4 keeps the last row from butting up against
+          the footer border without re-introducing the old oversized
+          gap. */}
+      <main className="flex-1 container mx-auto px-4 pt-8 md:pt-12 md:pb-4">
         {/* Page header */}
         <div className="flex items-center justify-between mb-6 gap-4">
           <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">
