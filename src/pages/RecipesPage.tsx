@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { ChefHat } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,7 @@ import { useTranslation } from "react-i18next";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 export function RecipesPage() {
   const { t } = useTranslation();
-  useDocumentTitle(t("page_title_recipes"));
+  const [searchParams] = useSearchParams();
   const {
     recipes,
     isLoading,
@@ -39,6 +39,14 @@ export function RecipesPage() {
     sentinelRef,
     hasNextPage,
   } = useHomeRecipes();
+  // Show the category name in the H1 / document title when a category is
+  // selected (e.g. /recipes?meal_type=breakfast&category_label=Завтрак);
+  // otherwise fall back to the generic "All recipes" copy. We read the URL
+  // directly instead of using `heading` from useHomeRecipes — that helper is
+  // tuned for the home feed and returns hero_title on a bare list view.
+  const categoryLabel = searchParams.get("category_label");
+  const pageTitle = categoryLabel || t("all_recipes");
+  useDocumentTitle(pageTitle);
 
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans pb-16 md:pb-0">
@@ -54,7 +62,7 @@ export function RecipesPage() {
         {/* Page header */}
         <div className="flex items-center justify-between mb-6 gap-4">
           <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">
-            {t("all_recipes")}
+            {pageTitle}
           </h1>
 
           {/* Filter + Sort */}

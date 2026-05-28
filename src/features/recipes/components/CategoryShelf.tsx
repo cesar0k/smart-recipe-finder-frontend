@@ -145,7 +145,7 @@ export function CategoryShelves() {
 const ShowAllLink = memo(function ShowAllLink({ mealType, label }: { mealType: string; label: string }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const href = `/?meal_type=${encodeURIComponent(mealType)}&category_label=${encodeURIComponent(label)}`;
+  const href = `/recipes?meal_type=${encodeURIComponent(mealType)}&category_label=${encodeURIComponent(label)}`;
 
   return (
     <button
@@ -162,7 +162,7 @@ const ShowAllLink = memo(function ShowAllLink({ mealType, label }: { mealType: s
 const ShowAllCard = memo(function ShowAllCard({ mealType, label }: { mealType: string; label: string }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const href = `/?meal_type=${encodeURIComponent(mealType)}&category_label=${encodeURIComponent(label)}`;
+  const href = `/recipes?meal_type=${encodeURIComponent(mealType)}&category_label=${encodeURIComponent(label)}`;
 
   return (
     <button
