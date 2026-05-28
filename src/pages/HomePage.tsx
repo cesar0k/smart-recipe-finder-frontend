@@ -47,7 +47,6 @@ export function HomePage() {
     sort,
     setSort,
     sentinelRef,
-    isFetchingNextPage,
     hasNextPage,
   } = useHomeRecipes();
 
@@ -237,9 +236,11 @@ export function HomePage() {
                 </Link>
               ))}
             </div>
+            {/* Spinner is unconditional so it shows immediately when
+                the sentinel mounts — see RecipesPage for the rationale. */}
             {hasNextPage && (
               <div ref={sentinelRef} className="flex justify-center py-8">
-                {isFetchingNextPage && <Spinner size="md" />}
+                <Spinner size="md" />
               </div>
             )}
           </>

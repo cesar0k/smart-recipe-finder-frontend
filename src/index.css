@@ -142,7 +142,10 @@ input::-webkit-strong-password-auto-fill-button {
   }
   html {
     scrollbar-gutter: stable;
-    overscroll-behavior: none;
+    /* `overscroll-behavior: none` would disable Safari's native rubber-band
+       bounce at the top/bottom of the page — keep it `auto` so the iOS/macOS
+       Safari overscroll feel works as expected. */
+    overscroll-behavior: auto;
   }
   body {
     @apply bg-background text-foreground;

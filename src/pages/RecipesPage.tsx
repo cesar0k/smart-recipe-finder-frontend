@@ -37,7 +37,6 @@ export function RecipesPage() {
     sort,
     setSort,
     sentinelRef,
-    isFetchingNextPage,
     hasNextPage,
   } = useHomeRecipes();
 
@@ -45,7 +44,13 @@ export function RecipesPage() {
     <div className="min-h-screen bg-white flex flex-col font-sans pb-16 md:pb-0">
       <Header />
 
-      <main className="flex-1 container mx-auto px-4 pt-8 md:pt-12 pb-8 md:pb-12">
+      {/* Mobile: no bottom padding on main — the symmetric breathing
+          room under the last row already comes from the infinite-scroll
+          sentinel's py-8 + the root's pb-16 (which clears the BottomNav).
+          Adding pb on top of that produced an asymmetric gap between the
+          sentinel and the BottomNav. Desktop keeps pb-12 so content does
+          not abut the footer. */}
+      <main className="flex-1 container mx-auto px-4 pt-8 md:pt-12 md:pb-12">
         {/* Page header */}
         <div className="flex items-center justify-between mb-6 gap-4">
           <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">
@@ -135,10 +140,16 @@ export function RecipesPage() {
               ))}
             </div>
 
-            {/* Infinite scroll sentinel */}
+            {/* Infinite scroll sentinel. The spinner is rendered
+                unconditionally (not gated on `isFetchingNextPage`) so it
+                appears the instant the sentinel mounts, instead of after
+                the IntersectionObserver fires its first entry and the
+                first fetchNextPage round-trip starts. Without this the
+                user saw an empty 32px gap for ~100ms before the spinner
+                showed up. */}
             {hasNextPage && (
-              <div ref={sentinelRef} className="flex justify-center items-center py-8 pb-24 md:pb-8">
-                {isFetchingNextPage && <Spinner size="md" />}
+              <div ref={sentinelRef} className="flex justify-center items-center py-8">
+                <Spinner size="md" />
               </div>
             )}
           </>
