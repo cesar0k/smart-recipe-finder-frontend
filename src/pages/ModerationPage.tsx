@@ -234,11 +234,17 @@ export function ModerationPage() {
           {t("moderation_title")}
         </h1>
 
-        {/* Tabs */}
-        <div className="flex items-center gap-2 mb-6">
+        {/*
+          Tabs. On mobile the four tab pills overflow the viewport; we let the
+          row scroll horizontally INSIDE its own container instead of letting
+          the whole <main> grow wider than the screen. `-mx-4 px-4` lets the
+          scroll surface bleed to the screen edges so the first/last tab can
+          still butt up against the gutter; `scrollbar-hidden` hides the bar.
+        */}
+        <div className="flex items-center gap-2 mb-6 overflow-x-auto scrollbar-hidden -mx-4 px-4 flex-nowrap">
           <button
             type="button"
-            className={`inline-flex items-center h-9 px-4 text-sm font-medium rounded-full border transition-colors ${
+            className={`inline-flex items-center h-9 px-4 text-sm font-medium rounded-full border transition-colors shrink-0 ${
               activeTab === "recipes"
                 ? "bg-black text-white border-black"
                 : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
@@ -260,7 +266,7 @@ export function ModerationPage() {
           </button>
           <button
             type="button"
-            className={`inline-flex items-center h-9 px-4 text-sm font-medium rounded-full border transition-colors ${
+            className={`inline-flex items-center h-9 px-4 text-sm font-medium rounded-full border transition-colors shrink-0 ${
               activeTab === "drafts"
                 ? "bg-black text-white border-black"
                 : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
@@ -282,7 +288,7 @@ export function ModerationPage() {
           </button>
           <button
             type="button"
-            className={`inline-flex items-center h-9 px-4 text-sm font-medium rounded-full border transition-colors ${
+            className={`inline-flex items-center h-9 px-4 text-sm font-medium rounded-full border transition-colors shrink-0 ${
               activeTab === "comments"
                 ? "bg-black text-white border-black"
                 : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
@@ -304,7 +310,7 @@ export function ModerationPage() {
           </button>
           <button
             type="button"
-            className={`inline-flex items-center h-9 px-4 text-sm font-medium rounded-full border transition-colors ${
+            className={`inline-flex items-center h-9 px-4 text-sm font-medium rounded-full border transition-colors shrink-0 ${
               activeTab === "history"
                 ? "bg-black text-white border-black"
                 : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
@@ -610,9 +616,14 @@ export function ModerationPage() {
         {/* History tab */}
         {activeTab === "history" && (
           <>
-            {/* Search */}
-            <div className="flex items-center gap-2 mb-6">
-              <div className="relative flex-1 max-w-xs">
+            {/*
+              History toolbar. Desktop: single row, "Clear all" pushed right
+              with ml-auto. Mobile: search input on its own row (full width),
+              action buttons on a wrapping row below — fixes the horizontal
+              overflow that previously pushed "Очистить всю историю" off-screen.
+            */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-6">
+              <div className="relative flex-1 sm:max-w-xs">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                 <Input
                   placeholder={t("moderation_history_search_placeholder")}
@@ -622,35 +633,37 @@ export function ModerationPage() {
                   className="pl-9 rounded-full h-9 text-sm"
                 />
               </div>
-              <Button
-                size="sm"
-                variant="outline"
-                className="rounded-full h-9"
-                onClick={handleSearch}
-              >
-                {t("moderation_history_search_btn")}
-              </Button>
-              {appliedSearch !== undefined && (
+              <div className="flex items-center gap-2 flex-wrap">
                 <Button
                   size="sm"
-                  variant="ghost"
-                  className="rounded-full h-9 text-gray-500"
-                  onClick={handleClearSearch}
+                  variant="outline"
+                  className="rounded-full h-9"
+                  onClick={handleSearch}
                 >
-                  {t("moderation_history_clear_btn")}
+                  {t("moderation_history_search_btn")}
                 </Button>
-              )}
-              {historyLogs && historyLogs.length > 0 && (
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="rounded-full h-9 text-red-500 hover:text-red-600 hover:bg-red-50 ml-auto"
-                  onClick={handleDeleteAllHistory}
-                >
-                  <Trash2 className="w-3.5 h-3.5 mr-1" />
-                  {t("moderation_history_clear_all")}
-                </Button>
-              )}
+                {appliedSearch !== undefined && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="rounded-full h-9 text-gray-500"
+                    onClick={handleClearSearch}
+                  >
+                    {t("moderation_history_clear_btn")}
+                  </Button>
+                )}
+                {historyLogs && historyLogs.length > 0 && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="rounded-full h-9 text-red-500 hover:text-red-600 hover:bg-red-50 sm:ml-auto"
+                    onClick={handleDeleteAllHistory}
+                  >
+                    <Trash2 className="w-3.5 h-3.5 mr-1" />
+                    {t("moderation_history_clear_all")}
+                  </Button>
+                )}
+              </div>
             </div>
 
             {historyLoading && (
