@@ -7,9 +7,25 @@ import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 function DropdownMenu({
+  modal = false,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
-  return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />
+  // Radix defaults DropdownMenu.Root to `modal={true}`, which engages
+  // react-remove-scroll → sets `body[data-scroll-locked]` while the menu
+  // is open. On mobile that triggers our AndroidScrollLock (position:fixed
+  // on #root), and on iOS Safari it makes the page visually jump to the
+  // top + lets the address bar re-pop on close — both very obvious for
+  // a non-modal site menu (header avatar, sort, language switch).
+  // Use modal={false} by default so the page stays scrollable behind
+  // the menu and no scroll-lock is needed. Individual callers can still
+  // pass `modal={true}` for the rare case that needs it.
+  return (
+    <DropdownMenuPrimitive.Root
+      data-slot="dropdown-menu"
+      modal={modal}
+      {...props}
+    />
+  )
 }
 
 function DropdownMenuPortal({
