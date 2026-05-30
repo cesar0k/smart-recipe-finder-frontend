@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   useFieldArray,
   useForm,
@@ -54,13 +55,6 @@ interface RecipeFormProps {
    * instead of as a generic toast. New refs reset previous errors.
    */
   serverErrors?: RecipeFormServerErrors;
-  /**
-   * When the parent modal/sheet closes, clear any displayed validation
-   * errors so they don't flash during the exit animation if the user
-   * happened to touch a required field (the title input auto-focuses on
-   * open, so a quick close was enough to trigger this).
-   */
-  isOpen?: boolean;
 }
 
 export function RecipeForm({
@@ -68,7 +62,6 @@ export function RecipeForm({
   onSubmit,
   isSubmitting,
   serverErrors,
-  isOpen,
 }: RecipeFormProps) {
   const { t } = useTranslation();
 
@@ -93,11 +86,16 @@ export function RecipeForm({
     // zodResolver type mismatch due to z.coerce.number() in Zod v4
     resolver: zodResolver(recipeFormSchema) as Resolver<RecipeFormValues>,
     defaultValues: initialValues,
-    // Validate after first blur so the user sees client-side errors
-    // immediately (instead of only after pressing "Save" and waiting for
-    // a 422 round-trip). Re-validate on every change once a field has been
-    // touched so the message clears as soon as the input becomes valid.
-    mode: "onTouched",
+    // Validate only when the user presses Save the first time. This avoids
+    // two bad UX moments: (1) a "field cannot be empty" message flashing
+    // under an ingredient row for the duration of its exit animation when
+    // the user removes it, and (2) the title's required-error popping up
+    // during the sheet's exit animation when the user opens and closes the
+    // sheet without filling anything in. Once a failed submit has surfaced
+    // errors, `reValidateMode: "onChange"` clears them in real time as the
+    // user fixes the offending fields, so they get immediate feedback when
+    // it's actually relevant.
+    mode: "onSubmit",
     reValidateMode: "onChange",
   });
 
@@ -152,11 +150,7 @@ export function RecipeForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className={
-          isOpen === false
-            ? "space-y-5 pt-0 opacity-0 pointer-events-none [&_[aria-invalid=true]]:!border-gray-300 [&_[aria-invalid=true]]:!ring-0 [&_[role=alert]]:!hidden"
-            : "space-y-5 pt-0"
-        }
+        className="space-y-5 pt-0"
       >
         <FormField
           control={form.control}
@@ -431,36 +425,51 @@ export function RecipeForm({
           <FormLabel className="text-gray-700">
             {t("form_ingredients_label")}
           </FormLabel>
-          {fields.map((field, index) => (
-            <div key={field.id} className="flex gap-2">
-              <FormField
-                control={form.control}
-                name={`ingredients.${index}.value`}
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormControl>
-                      <Input
-                        placeholder={t("form_ingredient_placeholder")}
-                        {...field}
-                        className="rounded-full px-4 border-gray-300 bg-white"
-                      />
-                    </FormControl>
-                    <FormMessage className="ml-4" />
-                  </FormItem>
-                )}
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={() => remove(index)}
-                disabled={fields.length === 1}
-                className="rounded-full hover:bg-red-50 text-gray-400 hover:text-red-500"
+          <AnimatePresence initial={false}>
+            {fields.map((field, index) => (
+              // Animate ENTER only. Exit is instant because react-hook-form
+              // re-runs validation the moment `remove(index)` clears the
+              // value, which would otherwise flash a "cannot be empty"
+              // error under the row for the duration of the exit animation.
+              // Siblings still slide up smoothly via `layout` once the row
+              // unmounts.
+              <motion.div
+                key={field.id}
+                layout
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.18, ease: "easeOut" }}
+                className="flex gap-2"
               >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            </div>
-          ))}
+                <FormField
+                  control={form.control}
+                  name={`ingredients.${index}.value`}
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormControl>
+                        <Input
+                          placeholder={t("form_ingredient_placeholder")}
+                          {...field}
+                          className="rounded-full px-4 border-gray-300 bg-white"
+                        />
+                      </FormControl>
+                      <FormMessage className="ml-4" />
+                    </FormItem>
+                  )}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => remove(index)}
+                  disabled={fields.length === 1}
+                  className="rounded-full hover:bg-red-50 text-gray-400 hover:text-red-500"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </motion.div>
+            ))}
+          </AnimatePresence>
           <Button
             type="button"
             variant="outline"
