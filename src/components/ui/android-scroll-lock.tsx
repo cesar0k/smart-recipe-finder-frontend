@@ -24,6 +24,19 @@ export function AndroidScrollLock() {
     // Only needed on narrow (mobile) viewports
     if (window.innerWidth >= 768) return;
 
+    // react-remove-scroll (used internally by Radix Dialog/Sheet/AlertDialog)
+    // already applies the equivalent `position: fixed; top: -scrollY` trick
+    // on iOS Safari. If we ALSO do it on #root we end up with two competing
+    // fixed-position layers — body and #root — and the page visibly jumps to
+    // the top when the modal opens (and the iOS address bar pops back in).
+    // Skip iOS entirely; this hook is here purely to fill the Android-Chrome
+    // gap that react-remove-scroll explicitly opts out of.
+    const isIOS =
+      /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      // iPadOS 13+ reports itself as Mac with touch — distinguish from desktop.
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    if (isIOS) return;
+
     const root = document.getElementById("root");
     if (!root) return;
 
