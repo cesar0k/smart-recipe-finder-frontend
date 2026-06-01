@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { SlidersHorizontal, X as XIcon, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +20,14 @@ import { useHistoryBack } from "@/hooks/useHistoryBack";
 
 const MAX_TIME_SLIDER = 180;
 const DIFFICULTIES = ["easy", "medium", "hard"] as const;
+
+// Shared layout-animation curve for sibling sections inside the filter
+// modal. Slow + ease-out-expo so reflow reads as a glide rather than a
+// snap; matches the per-badge `layout` transition we already use for
+// cuisine chips and ingredient tags.
+const SECTION_LAYOUT_TRANSITION = {
+  layout: { duration: 0.36, ease: [0.32, 0.72, 0, 1] as const },
+} as const;
 
 interface FilterState {
   include: string[];
@@ -230,27 +239,74 @@ export function RecipeFilterSheet({
         </Button>
       </DialogTrigger>
 
-      <DialogScrollContent>
+      {/* Suppress Radix's default "focus the first tabbable element on
+          open" behaviour — otherwise the min-time number input grabs focus
+          (and its focus ring) the instant the modal appears, which looks
+          like an accidental selection. Filters have no single primary
+          field, so opening with nothing focused is the right default. */}
+      <DialogScrollContent onOpenAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader className="px-0 py-0">
-          <div className="flex items-center justify-between gap-2">
+          {/* `min-h-7` reserves the height of the Reset button (h-7 = 28px)
+              even when the button is absent, so the rest of the modal
+              doesn't shift up/down as it mounts and unmounts with the
+              filter count. */}
+          <div className="flex items-center justify-between gap-2 min-h-7">
             <DialogTitle>{t("filter_title")}</DialogTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleReset}
-              className={`text-xs text-gray-500 hover:text-gray-900 rounded-full h-7 px-3 mr-8 transition-opacity ${countFilters(draft) > 0 ? "opacity-100" : "opacity-0 pointer-events-none"}`}
-            >
-              {t("filter_reset")}
-            </Button>
+            {/* Reset button is conditionally rendered (not opacity-toggled)
+                so it leaves the DOM the moment all filters are cleared.
+                Previously the button stayed mounted with
+                `opacity-0 pointer-events-none` — a long-standing footgun
+                where intermediate paints during a layout shift could leave
+                it stuck at partial opacity (visible, not clickable). */}
+            <AnimatePresence initial={false}>
+              {countFilters(draft) > 0 && (
+                <motion.div
+                  key="reset"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15, ease: "easeOut" }}
+                >
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleReset}
+                    className="text-xs text-gray-500 hover:text-gray-900 rounded-full h-7 px-3 mr-8"
+                  >
+                    {t("filter_reset")}
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </DialogHeader>
         <VisuallyHidden>
           <p>{t("filter_title")}</p>
         </VisuallyHidden>
 
+        {/* Note: do NOT wrap this in `<motion.div layout>` to animate the
+            modal's overall height. DialogContent is positioned with
+            `translate(-50%, -50%)` to stay centred, and framer's layout
+            animation measures the wrapper's bounding rect every frame and
+            sets a transform that fights with that centring transform —
+            producing a visible jump of the whole modal on every height
+            change. Per-tag scale-in animations + DialogContent's natural
+            `h-auto` are enough; the modal grows smoothly as long as we
+            don't impose a layout animation on top of the centring. */}
+        {/* Every section below is a motion.div with `layout`. When any one
+            of them changes size (e.g. cuisine grows by a row), the sections
+            BELOW it slide down smoothly instead of jumping. DialogContent
+            itself still snaps to its new h-auto in one frame — there's no
+            good way to animate that without breaking its translate-based
+            centering — so the modal's outer shell may visibly bump by a
+            few pixels, but the content inside reads as continuous. */}
         <div className="space-y-5 pb-5">
           {/* Cooking time range */}
-          <div className="space-y-3">
+          <motion.div
+            layout
+            transition={SECTION_LAYOUT_TRANSITION}
+            className="space-y-3"
+          >
             <h3 className="text-sm font-medium text-gray-900">
               {t("filter_cooking_time")}
             </h3>
@@ -289,12 +345,16 @@ export function RecipeFilterSheet({
                 <p className="text-xs text-gray-400 text-center mt-1">{t("max_time_label")}</p>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           <div className="h-px bg-gray-200" />
 
           {/* Difficulty */}
-          <div className="space-y-3">
+          <motion.div
+            layout
+            transition={SECTION_LAYOUT_TRANSITION}
+            className="space-y-3"
+          >
             <h3 className="text-sm font-medium text-gray-900">
               {t("filter_difficulty")}
             </h3>
@@ -339,49 +399,126 @@ export function RecipeFilterSheet({
                 );
               })}
             </div>
-          </div>
+          </motion.div>
 
           <div className="h-px bg-gray-200" />
 
-          {/* Cuisine */}
-          <div className="space-y-3">
+          {/* Cuisine. `layout="position"` (NOT full `layout`): this section
+              changes its OWN height when a cuisine row wraps, and full
+              layout would counter-scale its children (the h3 heading, the
+              rows) on every height change — that's the sub-pixel jitter /
+              ghosting. position-only animates just the section's Y as it's
+              pushed around by siblings, and leaves size changes instant,
+              so the heading stays crisp. The rows inside handle their own
+              height animation via their own `layout`. */}
+          <motion.div
+            layout="position"
+            transition={SECTION_LAYOUT_TRANSITION}
+            className="space-y-3"
+          >
+            {/* Plain h3 (no `motion.layout`) — see the include section
+                below for why we accept counter-scale on these short
+                headings rather than the 1 px jitter motion.layout
+                introduced. */}
             <h3 className="text-sm font-medium text-gray-900">
               {t("filter_cuisine")}
             </h3>
 
-            {draft.cuisine.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
+            {/* Selected cuisine badges live in a `motion.div layout` so the
+                row animates its OWN height when collapsing to zero (the
+                last badge is removed) or growing to a new row. Without
+                this, the row used to snap from 28 px to 0 in one frame.
+                AnimatePresence + `initial={false}` keeps the first mount
+                silent so opening the modal doesn't cascade-fade in already-
+                applied badges. */}
+            <motion.div
+              layout
+              transition={SECTION_LAYOUT_TRANSITION}
+              // `relative` anchors the popLayout exit: when a tag is
+              // removed, framer detaches it (position: absolute) for the
+              // duration of its fade-out. Without an explicit positioned
+              // ancestor it gets pinned to whichever ancestor *is*
+              // positioned (Dialog overlay), producing a ghost in a
+              // surprising spot — the "Швейцарская" tag that briefly
+              // appears below the search input on the screenshot.
+              className="relative flex flex-wrap gap-1.5"
+            >
+              <AnimatePresence initial={false} mode="popLayout">
                 {draft.cuisine.map((c) => (
-                  <Badge
+                  <motion.div
                     key={c}
-                    variant="secondary"
-                    className="gap-1 cursor-pointer hover:bg-gray-200 pr-1.5"
-                    onClick={() =>
-                      setDraft((prev) => ({
-                        ...prev,
-                        cuisine: prev.cuisine.filter((x) => x !== c),
-                      }))
-                    }
+                    layout
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{
+                      // Opacity / y animate fast (matches every other
+                      // entrance animation in this modal).
+                      duration: 0.18,
+                      ease: "easeOut",
+                      // The layout shift after a badge is removed feels
+                      // snappy/hard at the same 180 ms — siblings span more
+                      // distance than the fading badge, so they cover more
+                      // pixels in the same time. Slow the layout reflow
+                      // separately so it reads as a glide.
+                      layout: { duration: 0.36, ease: [0.32, 0.72, 0, 1] },
+                    }}
                   >
-                    {c}
-                    <XIcon className="w-3 h-3" />
-                  </Badge>
+                    <Badge
+                      variant="secondary"
+                      className="gap-1 cursor-pointer hover:bg-gray-200 pr-1.5"
+                      onClick={() =>
+                        setDraft((prev) => ({
+                          ...prev,
+                          cuisine: prev.cuisine.filter((x) => x !== c),
+                        }))
+                      }
+                    >
+                      {c}
+                      <XIcon className="w-3 h-3" />
+                    </Badge>
+                  </motion.div>
                 ))}
-              </div>
-            )}
+              </AnimatePresence>
+            </motion.div>
 
-            <Input
-              placeholder={t("filter_search_cuisine")}
-              value={cuisineSearch}
-              onChange={(e) => setCuisineSearch(e.target.value)}
-              className="rounded-full h-9 px-4 text-sm"
-            />
-            {filteredCuisines.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
+            {/* The search input gets its own `layout` so it slides into
+                its new Y cleanly instead of getting framer's default
+                counter-scale "ghost" treatment that other static children
+                of a layout-animated parent suffer from. */}
+            <motion.div layout transition={SECTION_LAYOUT_TRANSITION}>
+              <Input
+                placeholder={t("filter_search_cuisine")}
+                value={cuisineSearch}
+                onChange={(e) => setCuisineSearch(e.target.value)}
+                className="rounded-full h-9 px-4 text-sm"
+              />
+            </motion.div>
+            {/* Available cuisines: same layout-row pattern as the
+                selected list above. Stays mounted (even when filtered to
+                zero) so a cuisine removed from the selected list above
+                can animate back IN here, and vice versa. `relative` is
+                here for the same reason as on the selected-list row —
+                see comment above. */}
+            <motion.div
+              layout
+              transition={SECTION_LAYOUT_TRANSITION}
+              className="relative flex flex-wrap gap-1.5"
+            >
+              <AnimatePresence initial={false} mode="popLayout">
                 {filteredCuisines.map((c) => (
-                  <button
+                  <motion.button
                     key={c}
+                    layout
                     type="button"
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{
+                      duration: 0.18,
+                      ease: "easeOut",
+                      layout: { duration: 0.36, ease: [0.32, 0.72, 0, 1] },
+                    }}
                     onClick={() => {
                       setDraft((prev) => ({
                         ...prev,
@@ -392,19 +529,28 @@ export function RecipeFilterSheet({
                     className="px-3 py-1 rounded-full text-xs font-medium bg-gray-50 text-gray-600 hover:bg-gray-100 transition-colors border border-gray-200"
                   >
                     {c}
-                  </button>
+                  </motion.button>
                 ))}
-              </div>
-            )}
+              </AnimatePresence>
+            </motion.div>
             {filteredCuisines.length === 0 && cuisineSearch && (
               <p className="text-xs text-gray-400">{t("filter_no_cuisines")}</p>
             )}
-          </div>
+          </motion.div>
 
           <div className="h-px bg-gray-200" />
 
-          {/* Include ingredients */}
-          <div className="space-y-3">
+          {/* Include ingredients. `layout="position"` so the section only
+              animates its Y as it gets pushed by siblings — it does NOT
+              counter-scale its children when IngredientTagInput grows a
+              new tag row. That counter-scale was the source of the jitter
+              on the heading + description above the input. Plain HTML
+              heading/description; the tag list animates its own height. */}
+          <motion.div
+            layout="position"
+            transition={SECTION_LAYOUT_TRANSITION}
+            className="space-y-3"
+          >
             <h3 className="text-sm font-medium text-gray-900">
               {t("filter_include_title")}
             </h3>
@@ -417,12 +563,16 @@ export function RecipeFilterSheet({
               placeholder={t("filter_include_placeholder")}
               variant="default"
             />
-          </div>
+          </motion.div>
 
           <div className="h-px bg-gray-200" />
 
-          {/* Exclude ingredients */}
-          <div className="space-y-3">
+          {/* Exclude ingredients — same position-only rationale as Include. */}
+          <motion.div
+            layout="position"
+            transition={SECTION_LAYOUT_TRANSITION}
+            className="space-y-3"
+          >
             <h3 className="text-sm font-medium text-gray-900">
               {t("filter_exclude_title")}
             </h3>
@@ -435,22 +585,27 @@ export function RecipeFilterSheet({
               placeholder={t("filter_exclude_placeholder")}
               variant="destructive"
             />
-          </div>
+          </motion.div>
 
           <div className="h-px bg-gray-200" />
 
-          {/* Has comments filter */}
-          <label className="flex items-center gap-3 cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={draft.hasComments}
-              onChange={(e) =>
-                setDraft((d) => ({ ...d, hasComments: e.target.checked }))
-              }
-              className="w-4 h-4 rounded accent-gray-900 cursor-pointer"
-            />
-            <span className="text-sm text-gray-700">{t("filter_has_comments")}</span>
-          </label>
+          {/* Has comments filter. The motion.div is a wrapper so the
+              <label> stays a literal <label> for static a11y lints — they
+              don't follow the JSX-as-component indirection and would
+              otherwise flag the checkbox as unlabelled. */}
+          <motion.div layout transition={SECTION_LAYOUT_TRANSITION}>
+            <label className="flex items-center gap-3 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={draft.hasComments}
+                onChange={(e) =>
+                  setDraft((d) => ({ ...d, hasComments: e.target.checked }))
+                }
+                className="w-4 h-4 rounded accent-gray-900 cursor-pointer"
+              />
+              <span className="text-sm text-gray-700">{t("filter_has_comments")}</span>
+            </label>
+          </motion.div>
         </div>
       </DialogScrollContent>
     </Dialog>
