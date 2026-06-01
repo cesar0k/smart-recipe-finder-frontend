@@ -390,24 +390,32 @@ export function RecipeForm({
                 </motion.div>
               );
             })}
-            </AnimatePresence>
 
-            {/* Upload tile in its OWN `mode="popLayout"` presence. popLayout
-                detaches the tile (position: absolute) the instant the 5th
-                photo is added, so that photo immediately claims the tile's
-                grid cell instead of appearing in cell 6 and sliding into
-                place after the tile leaves (the "position dance"). The tile
-                then fades out quickly on top — by the time it's noticeable
-                the photo is already home. `layout="position"` still lets it
-                glide between cells as in-between photos are added. */}
-            <AnimatePresence mode="popLayout">
+            {/* Upload tile lives in the SAME AnimatePresence as the photos
+                (not a separate one). Keeping it in the same presence +
+                LayoutGroup is what lets it animate to its new cell when the
+                LAST photo is removed — with a separate presence the photo
+                grid emptied out and framer had no surviving layout sibling
+                in that presence to trigger the tile's reflow, so the tile
+                teleported. `layout="position"` glides it between cells on
+                add/remove; it never itself exits except when the 5th photo
+                is added (handled by the `totalImages < 5` guard). */}
             {totalImages < 5 && (
               <motion.div
                 key="upload-tile"
                 layout="position"
                 initial={{ opacity: 0, scale: 0.85 }}
                 animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0 }}
+                // On exit (5th photo added) detach the tile from the grid
+                // flow immediately via position:absolute so the new photo
+                // claims its cell at once instead of appearing one cell over
+                // and sliding in. This gives the "photo takes the tile's
+                // place" effect that popLayout used to provide — but without
+                // a separate AnimatePresence, so removing the LAST photo
+                // still animates the tile's reflow through the shared
+                // LayoutGroup. `position: "absolute"` is applied as a
+                // discrete (non-interpolated) style the moment exit begins.
+                exit={{ opacity: 0, position: "absolute" }}
                 transition={{
                   opacity: { duration: 0.12, ease: "easeOut" },
                   scale: { duration: 0.2, ease: "easeOut" },
