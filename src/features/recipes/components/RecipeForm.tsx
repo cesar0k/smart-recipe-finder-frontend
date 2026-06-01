@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import {
   useFieldArray,
   useForm,
@@ -144,7 +144,7 @@ export function RecipeForm({
   // Lightbox for previewing photos already added to the form.
   // All images are merged into one array, with `existingUrls` first then `newPreviews`.
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-  const lightboxImages = [...existingUrls, ...newPreviews];
+  const lightboxImages = [...existingUrls, ...newPreviews.map((p) => p.url)];
 
   return (
     <Form {...form}>
@@ -152,6 +152,19 @@ export function RecipeForm({
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-5 pt-0"
       >
+        {/* Everything above the ingredient list, wrapped in one
+            `layout="position"` node. When a row is removed while the modal
+            is scrolled to the bottom, the ingredient section collapses and
+            this whole upper block has to move up; position-mode animates
+            that Y move smoothly WITHOUT counter-scaling its children (so
+            the Photos grid and the Radix difficulty Select inside don't get
+            distorted — full `layout` would do that). It keeps its own
+            space-y-5 so the inner field spacing is unchanged. */}
+        <motion.div
+          layout="position"
+          transition={{ layout: { duration: 0.32, ease: [0.32, 0.72, 0, 1] } }}
+          className="space-y-5"
+        >
         <FormField
           control={form.control}
           name="title"
@@ -211,12 +224,47 @@ export function RecipeForm({
             {/* Hidden dropzone input (react-dropzone requires it) */}
             <input {...getInputProps()} />
 
+            {/* LayoutGroup coordinates layout animations ACROSS the two
+                separate AnimatePresence contexts below (photos + the
+                upload tile). Without it, removing a photo (in the photos'
+                presence) didn't trigger the tile's `layout` animation —
+                the tile teleported to its new cell because its layout
+                snapshot lives in a different presence context. With the
+                shared group, the tile glides into the freed cell, matching
+                the smooth slide it already had on photo ADD. */}
+            <LayoutGroup>
+            {/* Default AnimatePresence (NOT popLayout). popLayout detaches
+                the exiting photo to position:absolute, which left it
+                hovering over the section below as it scaled out (the
+                "overlap" + apparent slide-down). In the default mode the
+                exiting photo stays in its own grid cell and simply scales
+                down in place — the mirror image of the scale-up entrance —
+                so it can't overflow into the next section. The `layout`
+                on each cell still glides the survivors into their new
+                grid positions once it unmounts. */}
+            <AnimatePresence initial={false}>
             {/* Old photos */}
             {existingUrls.map((url, index) => {
               const isCover = isExistingCover(url, index);
               return (
-                <div
+                <motion.div
                   key={url}
+                  // `layout="position"` (not full layout): the photo cells
+                  // are fixed aspect-square, so we only want them to glide
+                  // to new grid positions — never have their size animated.
+                  // Full `layout` competed with the scale-out `exit` and
+                  // sometimes won, dragging the removed photo toward its
+                  // would-be new slot (the "slides down" glitch) instead of
+                  // letting it scale away in place.
+                  layout="position"
+                  initial={{ opacity: 0, scale: 0.85 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.85 }}
+                  transition={{
+                    opacity: { duration: 0.14, ease: "easeOut" },
+                    scale: { duration: 0.18, ease: "easeOut" },
+                    layout: { duration: 0.32, ease: [0.32, 0.72, 0, 1] },
+                  }}
                   className="relative aspect-square rounded-2xl overflow-hidden border border-gray-200 bg-gray-50 group"
                 >
                   <button
@@ -237,7 +285,7 @@ export function RecipeForm({
                   <button
                     type="button"
                     onClick={() => setAsCoverExisting(url)}
-                    className={`absolute top-1 left-1 p-1.5 rounded-full shadow-sm transition-all z-[1] 
+                    className={`absolute top-1 left-1 h-7 w-7 flex items-center justify-center rounded-full shadow-sm transition-all z-[1]
                       ${
                         isCover
                           ? "bg-yellow-400 text-white opacity-100"
@@ -249,9 +297,18 @@ export function RecipeForm({
                         : t("form_set_as_cover_label")
                     }
                   >
-                    <Star
-                      className={`w-3.5 h-3.5 ${isCover ? "fill-current" : ""}`}
-                    />
+                    <motion.span
+                      // Pulse the star when this photo becomes the cover.
+                      // `animate` keyframes run whenever isCover flips to
+                      // true; staying false holds it at rest scale.
+                      animate={isCover ? { scale: [1, 1.35, 1] } : { scale: 1 }}
+                      transition={{ duration: 0.3, ease: "easeOut" }}
+                      className="flex"
+                    >
+                      <Star
+                        className={`w-3.5 h-3.5 ${isCover ? "fill-current" : ""}`}
+                      />
+                    </motion.span>
                   </button>
 
                   <button
@@ -262,17 +319,26 @@ export function RecipeForm({
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
-                </div>
+                </motion.div>
               );
             })}
 
             {/* New photos */}
-            {newPreviews.map((url, index) => {
+            {newPreviews.map(({ url, key }, index) => {
               const isCover = isNewFileCover(index);
 
               return (
-                <div
-                  key={index}
+                <motion.div
+                  key={key}
+                  layout="position"
+                  initial={{ opacity: 0, scale: 0.85 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.85 }}
+                  transition={{
+                    opacity: { duration: 0.14, ease: "easeOut" },
+                    scale: { duration: 0.18, ease: "easeOut" },
+                    layout: { duration: 0.32, ease: [0.32, 0.72, 0, 1] },
+                  }}
                   className="relative aspect-square rounded-2xl overflow-hidden border border-gray-200 group"
                 >
                   <button
@@ -287,7 +353,7 @@ export function RecipeForm({
                   <button
                     type="button"
                     onClick={() => setNewFileAsCover(index)}
-                    className={`absolute top-1 left-1 p-1.5 rounded-full shadow-sm transition-all z-[1]
+                    className={`absolute top-1 left-1 h-7 w-7 flex items-center justify-center rounded-full shadow-sm transition-all z-[1]
                       ${
                         isCover
                           ? "bg-yellow-400 text-white opacity-100"
@@ -299,9 +365,18 @@ export function RecipeForm({
                         : t("form_set_as_cover_label")
                     }
                   >
-                    <Star
-                      className={`w-3.5 h-3.5 ${isCover ? "fill-current" : ""}`}
-                    />
+                    <motion.span
+                      // Pulse the star when this photo becomes the cover.
+                      // `animate` keyframes run whenever isCover flips to
+                      // true; staying false holds it at rest scale.
+                      animate={isCover ? { scale: [1, 1.35, 1] } : { scale: 1 }}
+                      transition={{ duration: 0.3, ease: "easeOut" }}
+                      className="flex"
+                    >
+                      <Star
+                        className={`w-3.5 h-3.5 ${isCover ? "fill-current" : ""}`}
+                      />
+                    </motion.span>
                   </button>
 
                   <button
@@ -312,13 +387,34 @@ export function RecipeForm({
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
-                </div>
+                </motion.div>
               );
             })}
+            </AnimatePresence>
 
-            {/* Upload image button */}
+            {/* Upload tile in its OWN `mode="popLayout"` presence. popLayout
+                detaches the tile (position: absolute) the instant the 5th
+                photo is added, so that photo immediately claims the tile's
+                grid cell instead of appearing in cell 6 and sliding into
+                place after the tile leaves (the "position dance"). The tile
+                then fades out quickly on top — by the time it's noticeable
+                the photo is already home. `layout="position"` still lets it
+                glide between cells as in-between photos are added. */}
+            <AnimatePresence mode="popLayout">
             {totalImages < 5 && (
-              <div className="aspect-square">
+              <motion.div
+                key="upload-tile"
+                layout="position"
+                initial={{ opacity: 0, scale: 0.85 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{
+                  opacity: { duration: 0.12, ease: "easeOut" },
+                  scale: { duration: 0.2, ease: "easeOut" },
+                  layout: { duration: 0.32, ease: [0.32, 0.72, 0, 1] },
+                }}
+                className="aspect-square"
+              >
                 <input
                   type="file"
                   id="file-upload"
@@ -340,8 +436,10 @@ export function RecipeForm({
                     {isDragActive ? t("form_drop_photo") : t("form_add_photo")}
                   </span>
                 </label>
-              </div>
+              </motion.div>
             )}
+            </AnimatePresence>
+            </LayoutGroup>
           </div>
         </div>
 
@@ -420,86 +518,130 @@ export function RecipeForm({
             )}
           />
         </div>
+        </motion.div>
 
-        <div className="space-y-2">
+        {/* Ingredients section uses `layout="position"`, NOT full `layout`.
+            Full layout counter-scales the section's children when its
+            height changes — that's what made the "Ingredients" heading
+            jitter a couple of px on every add/remove (the exact bug we
+            fixed in the filter modal). position-mode animates only the
+            section's own Y as it's pushed by siblings and leaves its height
+            change instant + un-counter-scaled, so the heading stays still.
+            The row list inside owns the height animation via the rows'
+            own `layout` + popLayout. */}
+        <motion.div
+          layout="position"
+          transition={{ layout: { duration: 0.32, ease: [0.32, 0.72, 0, 1] } }}
+          className="space-y-2"
+        >
           <FormLabel className="text-gray-700">
             {t("form_ingredients_label")}
           </FormLabel>
-          <AnimatePresence initial={false}>
-            {fields.map((field, index) => (
-              // Animate ENTER only. Exit is instant because react-hook-form
-              // re-runs validation the moment `remove(index)` clears the
-              // value, which would otherwise flash a "cannot be empty"
-              // error under the row for the duration of the exit animation.
-              // Siblings still slide up smoothly via `layout` once the row
-              // unmounts.
-              <motion.div
-                key={field.id}
-                layout
-                initial={{ opacity: 0, y: -6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.18, ease: "easeOut" }}
-                className="flex gap-2"
-              >
-                <FormField
-                  control={form.control}
-                  name={`ingredients.${index}.value`}
-                  render={({ field }) => (
-                    <FormItem className="flex-1">
-                      <FormControl>
-                        <Input
-                          placeholder={t("form_ingredient_placeholder")}
-                          {...field}
-                          className="rounded-full px-4 border-gray-300 bg-white"
-                        />
-                      </FormControl>
-                      <FormMessage className="ml-4" />
-                    </FormItem>
-                  )}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => remove(index)}
-                  disabled={fields.length === 1}
-                  className="rounded-full hover:bg-red-50 text-gray-400 hover:text-red-500"
+          {/* Exactly the pattern that works flawlessly for the filter
+              modal's ingredient tags: a `relative` container + popLayout +
+              `layout` on each row. No manual height tween. On remove,
+              popLayout detaches the exiting row (position: absolute, so it
+              no longer takes space) and fades it; every remaining row plus
+              the "Add" button (all `layout`) glides into the freed space on
+              ONE shared curve. `relative` anchors the absolute exit inside
+              this list so it can't drift toward the dialog. */}
+          <div className="relative space-y-2">
+            <AnimatePresence initial={false} mode="popLayout">
+              {fields.map((field, index) => (
+                <motion.div
+                  key={field.id}
+                  layout
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{
+                    // Enter opacity is gentle (0.18). Exit opacity is FAST
+                    // (0.1) so the popLayout'd row — which stays at its old
+                    // absolute Y while fading — becomes invisible before the
+                    // row gliding up beneath it (via `layout`, 0.32) reaches
+                    // its spot. Without the fast fade the two full-width rows
+                    // visibly overlap mid-animation.
+                    opacity: { duration: 0.1, ease: "easeOut" },
+                    y: { duration: 0.18, ease: "easeOut" },
+                    layout: { duration: 0.32, ease: [0.32, 0.72, 0, 1] },
+                  }}
+                  className="flex gap-2"
                 >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="mt-1 rounded-full border-dashed border-gray-300 text-gray-600 hover:text-black hover:border-gray-400"
-            onClick={() => append({ value: "" })}
+                  <FormField
+                    control={form.control}
+                    name={`ingredients.${index}.value`}
+                    render={({ field }) => (
+                      <FormItem className="flex-1">
+                        <FormControl>
+                          <Input
+                            placeholder={t("form_ingredient_placeholder")}
+                            {...field}
+                            className="rounded-full px-4 border-gray-300 bg-white"
+                          />
+                        </FormControl>
+                        <FormMessage className="ml-4" />
+                      </FormItem>
+                    )}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => remove(index)}
+                    disabled={fields.length === 1}
+                    className="rounded-full hover:bg-red-50 text-gray-400 hover:text-red-500"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+          {/* `layout` so the Add button glides up/down on the same curve as
+              the rows when one is added/removed (otherwise it snaps to its
+              new Y the frame a row unmounts). */}
+          <motion.div
+            layout
+            transition={{ layout: { duration: 0.32, ease: [0.32, 0.72, 0, 1] } }}
           >
-            {t("form_add_ingredient")}
-          </Button>
-        </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="mt-1 rounded-full border-dashed border-gray-300 text-gray-600 hover:text-black hover:border-gray-400"
+              onClick={() => append({ value: "" })}
+            >
+              {t("form_add_ingredient")}
+            </Button>
+          </motion.div>
+        </motion.div>
 
-        <FormField
-          control={form.control}
-          name="instructions"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-gray-700">
-                {t("form_instructions_label")}
-              </FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder={t("form_instructions_placeholder")}
-                  className="min-h-[150px] rounded-[1.5rem] p-4 px-5 border-gray-300 bg-white resize-none"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage className="ml-4" />
-            </FormItem>
-          )}
-        />
+        {/* `layout` so the whole Instructions block glides up/down on the
+            same curve as the ingredient rows when one is added/removed —
+            instead of snapping to its new Y the instant a row unmounts
+            (which also caused the exiting row to visually overlap it when
+            the modal was scrolled to the bottom). */}
+        <motion.div layout transition={{ layout: { duration: 0.32, ease: [0.32, 0.72, 0, 1] } }}>
+          <FormField
+            control={form.control}
+            name="instructions"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-gray-700">
+                  {t("form_instructions_label")}
+                </FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder={t("form_instructions_placeholder")}
+                    className="min-h-[150px] rounded-[1.5rem] p-4 px-5 border-gray-300 bg-white resize-none"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage className="ml-4" />
+              </FormItem>
+            )}
+          />
+        </motion.div>
 
         <div className="sticky bottom-0 pt-4" style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}>
           <Button

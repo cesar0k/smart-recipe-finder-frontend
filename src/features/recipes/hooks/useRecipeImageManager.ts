@@ -1,8 +1,26 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { type UseFormReturn } from "react-hook-form";
 import { type RecipeFormValues } from "../types/schema";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+
+// One object-URL per File, keyed by the File object itself. A module-level
+// WeakMap (not a component ref) means: reading it during render is fine
+// (it isn't React state), the SAME File always maps to the SAME URL across
+// re-renders — so removing one photo never re-mints URLs for the survivors,
+// which is what caused their <img> to reload and flash white — and entries
+// are garbage-collected automatically once a File is no longer referenced,
+// so there's nothing to revoke manually.
+const fileUrlCache = new WeakMap<File, string>();
+
+function urlForFile(file: File): string {
+  let url = fileUrlCache.get(file);
+  if (!url) {
+    url = URL.createObjectURL(file);
+    fileUrlCache.set(file, url);
+  }
+  return url;
+}
 
 export function useRecipeImageManager(form: UseFormReturn<RecipeFormValues>) {
   const { getValues, setValue, watch } = form;
@@ -13,18 +31,18 @@ export function useRecipeImageManager(form: UseFormReturn<RecipeFormValues>) {
   const newCoverIndex = watch("newCoverIndex");
   const coverExistingUrl = watch("coverExistingUrl");
 
+  // Each preview carries a stable `key` derived from the File's identity
+  // (name + size + lastModified), not its array index — AnimatePresence /
+  // framer `layout` need a key that survives reordering so a removed photo
+  // animates out and its neighbours animate into place. The url comes from
+  // the per-File cache above, so survivors keep a byte-stable src.
   const newPreviews = useMemo(() => {
-    if (!imageFiles) {
-      return [];
-    }
-    return imageFiles.map((file) => URL.createObjectURL(file));
+    if (!imageFiles) return [];
+    return imageFiles.map((file) => ({
+      url: urlForFile(file),
+      key: `${file.name}-${file.size}-${file.lastModified}`,
+    }));
   }, [imageFiles]);
-
-  useEffect(() => {
-    return () => {
-      newPreviews.forEach((url) => URL.revokeObjectURL(url));
-    };
-  }, [newPreviews]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
