@@ -76,7 +76,15 @@ export function RecipeCard({
         <OptimizedImage
           src={thumbnail || image}
           alt={title}
-          className="absolute inset-0 w-full h-full !object-cover !object-center"
+          className="absolute inset-0 w-full h-full"
+          // Round the <img> itself (not just the overflow-hidden wrapper).
+          // On Chrome/macOS the image is promoted to its own compositing
+          // layer when it fades in, and for one frame the parent's
+          // border-radius clip isn't applied to that layer — so the photo
+          // flashed with square top corners before snapping to rounded.
+          // Putting the radius on the image element keeps its corners
+          // rounded regardless of layer promotion.
+          imgClassName="w-full h-full object-cover object-center rounded-t-[24px]"
         />
         {statusKey && (
           <span

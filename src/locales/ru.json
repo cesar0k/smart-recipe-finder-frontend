@@ -104,6 +104,7 @@
   "recipe_photo_alt": "{{title}} - фото {{index}}",
   "image_gallery_title": "Галерея изображений",
   "close_image_label": "Закрыть изображение",
+  "download_image_label": "Скачать изображение",
   "fullscreen_image_alt": "Полноэкранное изображение {{index}}",
   "close_btn": "Закрыть",
   "searching_for": "Поиск по запросу \"{{query}}\"...",

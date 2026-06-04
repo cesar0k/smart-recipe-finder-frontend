@@ -104,6 +104,7 @@
   "recipe_photo_alt": "{{title}} - photo {{index}}",
   "image_gallery_title": "Image Gallery",
   "close_image_label": "Close image",
+  "download_image_label": "Download image",
   "fullscreen_image_alt": "Fullscreen image {{index}}",
   "close_btn": "Close",
   "searching_for": "Searching for \"{{query}}\"...",
