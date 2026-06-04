@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { X } from "lucide-react";
+import { Download, Loader2, X } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import {
   Carousel,
@@ -32,6 +32,41 @@ export function RecipeLightbox({
   const [api, setApi] = useState<CarouselApi>();
   const { current, count } = useCarouselCounter(api);
   const { t } = useTranslation();
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownload = useCallback(async () => {
+    // `current` is 1-based (from useCarouselCounter).
+    const url = images[current - 1];
+    if (!url || downloading) return;
+    setDownloading(true);
+    try {
+      // The image lives on the S3/MinIO origin, so a plain
+      // `<a download>` would be ignored cross-origin and just open the
+      // image in a new tab. Fetch the bytes and download a blob instead —
+      // the same GET the <img> already performs, so CORS is satisfied.
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
+
+      // Derive a sensible filename from the URL path, fall back to a default.
+      const pathname = new URL(url, window.location.href).pathname;
+      const name = pathname.split("/").pop() || "recipe-image";
+
+      const a = document.createElement("a");
+      a.href = objectUrl;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(objectUrl);
+    } catch {
+      // Fallback: open in a new tab so the user can save manually.
+      window.open(url, "_blank", "noopener,noreferrer");
+    } finally {
+      setDownloading(false);
+    }
+  }, [images, current, downloading]);
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
@@ -62,13 +97,31 @@ export function RecipeLightbox({
         </VisuallyHidden>
 
         <div className="contents">
-          <button
-            onClick={() => onOpenChange(false)}
-            className="absolute top-4 right-4 text-white/70 hover:text-white z-[120] p-2 bg-black/20 rounded-full hover:bg-white/10 transition-colors cursor-pointer"
-            aria-label={t("close_image_label")}
-          >
-            <X className="w-8 h-8" />
-          </button>
+          {/* Top-right controls: download + close */}
+          <div className="absolute top-4 right-4 z-[120] flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleDownload}
+              disabled={downloading}
+              className="text-white/70 hover:text-white p-2 bg-black/20 rounded-full hover:bg-white/10 transition-colors cursor-pointer disabled:cursor-default disabled:opacity-60"
+              aria-label={t("download_image_label")}
+              title={t("download_image_label")}
+            >
+              {downloading ? (
+                <Loader2 className="w-8 h-8 animate-spin" />
+              ) : (
+                <Download className="w-8 h-8" />
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={() => onOpenChange(false)}
+              className="text-white/70 hover:text-white p-2 bg-black/20 rounded-full hover:bg-white/10 transition-colors cursor-pointer"
+              aria-label={t("close_image_label")}
+            >
+              <X className="w-8 h-8" />
+            </button>
+          </div>
 
           <Carousel
             setApi={setApi}
