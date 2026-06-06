@@ -63,30 +63,41 @@ export function AndroidScrollLock() {
       window.scrollTo({ top: savedScrollY, behavior: "instant" });
     };
 
-    const observer = new MutationObserver(() => {
-      if (document.body.hasAttribute("data-scroll-locked")) {
+    // Only lock for ACTUAL modal overlays — not for Radix Select /
+    // DropdownMenu, which also set body[data-scroll-locked] but whose short
+    // popup doesn't need (and is broken by) a #root position:fixed freeze.
+    const hasModalOverlay = () =>
+      !!document.querySelector(
+        '[data-slot="dialog-overlay"],[data-slot="sheet-overlay"],[data-slot="alert-dialog-overlay"]'
+      );
+
+    let locked = false;
+    const sync = () => {
+      const shouldLock = document.body.hasAttribute("data-scroll-locked") && hasModalOverlay();
+      if (shouldLock && !locked) {
+        locked = true;
         lock();
-      } else {
+      } else if (!shouldLock && locked) {
+        locked = false;
         unlock();
       }
-    });
+    };
 
+    // Watch both the body attribute AND added/removed overlay nodes, since the
+    // overlay may mount a frame after the attribute flips.
+    const observer = new MutationObserver(sync);
     observer.observe(document.body, {
       attributes: true,
       attributeFilter: ["data-scroll-locked"],
+      childList: true,
+      subtree: true,
     });
 
-    // Handle the case where the attribute is already set when we mount
-    if (document.body.hasAttribute("data-scroll-locked")) {
-      lock();
-    }
+    sync();
 
     return () => {
       observer.disconnect();
-      // Clean up if unmounted while modal is open
-      if (document.body.hasAttribute("data-scroll-locked")) {
-        unlock();
-      }
+      if (locked) unlock();
     };
   }, []);
 

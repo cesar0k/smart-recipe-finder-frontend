@@ -182,17 +182,36 @@ input::-webkit-strong-password-auto-fill-button {
 
 /* When a modal is open on mobile: freeze viewport height so Android system
    navigation bar cannot resize the viewport during scroll inside the modal.
-   Must be outside @layer base (Tailwind v4 does not allow @media inside @layer). */
+   Must be outside @layer base (Tailwind v4 does not allow @media inside @layer).
+
+   IMPORTANT: scoped to actual MODAL overlays (dialog/sheet/alertdialog), NOT
+   to `body[data-scroll-locked]` alone. Radix Select/DropdownMenu also set
+   `data-scroll-locked` while their popup is open, and on iOS Safari the
+   `height: 100vh; overflow: hidden` freeze below collapsed the scroll context
+   so the page jumped to the top and the saved scroll was lost on close
+   (the "opening the role picker scrolls to top, can't change role" bug).
+   A Select has no overlay element, so gating on the overlay's presence
+   leaves Select scrolling untouched while still freezing for real modals. */
 @media (max-width: 767px) {
-  html:has(body[data-scroll-locked]),
-  body[data-scroll-locked] {
+  html:has([data-slot="dialog-overlay"]),
+  html:has([data-slot="sheet-overlay"]),
+  html:has([data-slot="alert-dialog-overlay"]) {
+    height: 100vh !important;
+    max-height: 100vh !important;
+    overflow: hidden !important;
+  }
+  body:has([data-slot="dialog-overlay"]),
+  body:has([data-slot="sheet-overlay"]),
+  body:has([data-slot="alert-dialog-overlay"]) {
     height: 100vh !important;
     max-height: 100vh !important;
     overflow: hidden !important;
   }
   /* JS (AndroidScrollLock) sets top: -scrollY; position: fixed on #root.
      The CSS here just ensures overflow is clipped so nothing bleeds. */
-  body[data-scroll-locked] #root {
+  body:has([data-slot="dialog-overlay"]) #root,
+  body:has([data-slot="sheet-overlay"]) #root,
+  body:has([data-slot="alert-dialog-overlay"]) #root {
     overflow: hidden !important;
     width: 100% !important;
   }
