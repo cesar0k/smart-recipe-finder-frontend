@@ -22,6 +22,12 @@ function urlForFile(file: File): string {
   return url;
 }
 
+// Mirror the backend's MAX_FILE_SIZE_MB (10MB). Validating up-front means a
+// too-large phone photo is rejected in the form with a clear message, instead
+// of silently failing the separate image-upload request AFTER the recipe was
+// already created (which surfaced as a confusing "Failed to create recipe").
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
+
 export function useRecipeImageManager(form: UseFormReturn<RecipeFormValues>) {
   const { getValues, setValue, watch } = form;
   const { t } = useTranslation();
@@ -44,18 +50,29 @@ export function useRecipeImageManager(form: UseFormReturn<RecipeFormValues>) {
     }));
   }, [imageFiles]);
 
+  // Drop files larger than the backend limit and warn once. Returns the
+  // accepted subset.
+  const filterBySize = (files: File[]): File[] => {
+    const accepted = files.filter((f) => f.size <= MAX_FILE_SIZE_BYTES);
+    if (accepted.length < files.length) {
+      toast.error(t("toast_error_image_too_large"));
+    }
+    return accepted;
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
       const currentFiles = getValues("imageFiles") || [];
+      const incoming = filterBySize(Array.from(files));
       const totalCount =
-        existingUrls.length + currentFiles.length + files.length;
+        existingUrls.length + currentFiles.length + incoming.length;
 
       if (totalCount > 5) {
         toast.error(t("toast_error_too_many_images"));
       }
 
-      const newFiles = [...currentFiles, ...Array.from(files)].slice(
+      const newFiles = [...currentFiles, ...incoming].slice(
         0,
         5 - existingUrls.length
       );
@@ -108,7 +125,8 @@ export function useRecipeImageManager(form: UseFormReturn<RecipeFormValues>) {
       toast.error(t("toast_error_too_many_images"));
       return;
     }
-    const newFiles = [...currentFiles, ...acceptedFiles.slice(0, remaining)];
+    const sized = filterBySize(acceptedFiles);
+    const newFiles = [...currentFiles, ...sized.slice(0, remaining)];
     setValue("imageFiles", newFiles, { shouldValidate: true });
   };
 

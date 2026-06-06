@@ -152,8 +152,9 @@ export function useRecipeMutations(
     const toastId = toast.loading(t("toast_creating"));
 
     void (async () => {
+      let newRecipe: Awaited<ReturnType<typeof createMutate>> | undefined;
       try {
-        const newRecipe = await createMutate({
+        newRecipe = await createMutate({
           data: {
             title: data.title,
             description: data.description || undefined,
@@ -164,28 +165,45 @@ export function useRecipeMutations(
             ingredients: data.ingredients.map((i) => i.value),
           },
         });
+      } catch (error) {
+        // The recipe itself failed to create — this is the real failure.
+        toast.dismiss(toastId);
+        handleError(error, t("toast_error_create"), data);
+        return;
+      }
 
-        if (data.imageFiles && data.imageFiles.length > 0 && newRecipe.id) {
+      const invalidate = () =>
+        queryClient.invalidateQueries({ queryKey: getReadRecipesQueryKey() });
+
+      // The recipe exists now. Photo upload is a SEPARATE request — if it
+      // fails (e.g. a >10MB / >8192px phone photo the backend rejects), the
+      // recipe was still created, so we must NOT say "Failed to create
+      // recipe". Surface a distinct "created, but photos didn't upload"
+      // message and still navigate/invalidate as on success.
+      if (data.imageFiles && data.imageFiles.length > 0 && newRecipe.id) {
+        try {
           await uploadImagesMutate({
             recipeId: newRecipe.id,
             data: { files: data.imageFiles },
           });
-        }
-
-        const invalidate = () =>
-          queryClient.invalidateQueries({ queryKey: getReadRecipesQueryKey() });
-
-        if (newRecipe.status === "pending") {
-          toast.success(t("toast_created_pending"), { id: toastId });
+        } catch (error) {
+          console.error(error);
+          toast.warning(t("toast_created_photos_failed"), { id: toastId });
           setTimeout(invalidate, 200);
-        } else {
-          toast.success(t("toast_created"), { id: toastId });
-          setTimeout(invalidate, 200);
-          if (newRecipe?.id) navigate(`/recipe/${newRecipe.id}`);
+          if (newRecipe.status !== "pending" && newRecipe.id) {
+            navigate(`/recipe/${newRecipe.id}`);
+          }
+          return;
         }
-      } catch (error) {
-        toast.dismiss(toastId);
-        handleError(error, t("toast_error_create"), data);
+      }
+
+      if (newRecipe.status === "pending") {
+        toast.success(t("toast_created_pending"), { id: toastId });
+        setTimeout(invalidate, 200);
+      } else {
+        toast.success(t("toast_created"), { id: toastId });
+        setTimeout(invalidate, 200);
+        if (newRecipe?.id) navigate(`/recipe/${newRecipe.id}`);
       }
     })();
   };
