@@ -130,9 +130,13 @@ export function CategoryShelves() {
               </CarouselItem>
             </CarouselContent>
 
-            {/* Navigation arrows — positioned relative to the carousel container */}
-            <CarouselPrevious className="-left-4 shadow-md bg-white border-gray-200 hover:bg-gray-50" />
-            <CarouselNext className="-right-4 shadow-md bg-white border-gray-200 hover:bg-gray-50" />
+            {/* Navigation arrows — this layout has no outside gutter, so the
+                arrows sit INSIDE the carousel edge as an overlay on the edge
+                cards. At -left-4/-right-4 they poked past the card and touched
+                the screen edge ("вылазили за пределы"); left-1/right-1 keeps
+                them within the carousel box on every viewport. */}
+            <CarouselPrevious className="left-1 shadow-md bg-white/90 backdrop-blur-sm border-gray-200 hover:bg-white" />
+            <CarouselNext className="right-1 shadow-md bg-white/90 backdrop-blur-sm border-gray-200 hover:bg-white" />
           </Carousel>
           </div>
         </section>
