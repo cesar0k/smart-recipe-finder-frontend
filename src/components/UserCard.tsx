@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { User, Shield, ShieldCheck } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { FollowButton } from "@/features/users/components/FollowButton";
 import type { PublicUserResponse } from "@/api/model";
@@ -22,6 +23,7 @@ const ROLE_BADGE: Record<string, { icon: React.ReactNode; label: string; cls: st
 };
 
 export function UserCard({ user }: UserCardProps) {
+  const { t } = useTranslation();
   const roleBadge = ROLE_BADGE[user.role ?? ""];
 
   return (
@@ -57,7 +59,7 @@ export function UserCard({ user }: UserCardProps) {
         </div>
         {typeof user.followers_count === "number" && user.followers_count > 0 && (
           <p className="text-xs text-gray-400 mt-0.5">
-            {user.followers_count} подписчиков
+            {t("followers_count", { count: user.followers_count })}
           </p>
         )}
       </Link>

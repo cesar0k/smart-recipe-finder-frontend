@@ -22,6 +22,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth/auth-context";
 import { NotificationPanel } from "@/components/NotificationPanel";
 import { useGetPendingCount } from "@/api/moderation/moderation";
@@ -39,6 +40,7 @@ export function Header({ leftContent, rightContent }: HeaderProps) {
   const { t } = useTranslation();
   const { user, isAuthenticated, logout, hasRole } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const mobileSearchRef = useRef<UserSearchInputHandle>(null);
 
@@ -66,7 +68,11 @@ export function Header({ leftContent, rightContent }: HeaderProps) {
 
   const handleLogout = async () => {
     await logout();
-    window.location.href = "/";
+    // SPA logout instead of a full-page reload: clear React Query's cache so
+    // no other user's data lingers, then navigate home. logout() already
+    // cleared tokens + set user to null, so the UI re-renders as logged-out.
+    queryClient.clear();
+    navigate("/");
   };
 
   return (
@@ -133,10 +139,14 @@ export function Header({ leftContent, rightContent }: HeaderProps) {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-52 rounded-2xl">
-                  <div className="px-3 py-2">
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/user/${user?.id}`)}
+                    className="w-full text-left px-3 py-2 rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
+                  >
                     <p className="text-sm font-medium text-gray-900 truncate">{user?.username}</p>
                     <p className="text-xs text-gray-500 truncate">{user?.email}</p>
-                  </div>
+                  </button>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem className="rounded-full" onClick={() => navigate("/profile")}>
                     <Settings className="w-4 h-4 mr-2" />{t("profile_settings_link")}
@@ -208,10 +218,14 @@ export function Header({ leftContent, rightContent }: HeaderProps) {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-52 rounded-2xl">
-                  <div className="px-3 py-2">
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/user/${user?.id}`)}
+                    className="w-full text-left px-3 py-2 rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
+                  >
                     <p className="text-sm font-medium text-gray-900 truncate">{user?.username}</p>
                     <p className="text-xs text-gray-500 truncate">{user?.email}</p>
-                  </div>
+                  </button>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem className="rounded-full" onClick={() => navigate(`/user/${user?.id}`)}>
                     <User className="w-4 h-4 mr-2" />{t("profile_my_link")}

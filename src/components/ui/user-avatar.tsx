@@ -2,6 +2,7 @@ import { useState } from "react";
 import { User } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { imageCache } from "@/lib/image-cache";
 
 interface UserAvatarProps {
   src?: string | null;
@@ -27,6 +28,15 @@ const ICON_SIZE = {
  *   - fallback to a generic user icon on load failure / when src is empty
  *   - shimmer skeleton while the image is loading (replaces the raw browser
  *     "broken image" placeholder)
+ *
+ * The header avatar mounts on every route (the Header is rendered per-page,
+ * not in a persistent layout), so a freshly-mounted <img> used to start at
+ * opacity-0 + shimmer and only fade in after onLoad fired — even when the
+ * image was already in the browser cache. That produced a visible flicker on
+ * every navigation. We now seed `loaded` synchronously from the shared
+ * `imageCache` (a session-wide Set of already-loaded URLs, also used by
+ * OptimizedImage), so a remount of an already-seen avatar paints instantly
+ * with no skeleton and no fade.
  */
 export function UserAvatar({
   src,
@@ -36,16 +46,23 @@ export function UserAvatar({
 }: UserAvatarProps) {
   const base = cn("rounded-full shrink-0", CONTAINER_SIZE[size], className);
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
-  const [loaded, setLoaded] = useState(false);
+  // Seed from the cache: if this src loaded earlier this session, show it
+  // immediately (no skeleton, no opacity fade) to avoid the navigation flicker.
+  const [loaded, setLoaded] = useState(() => !!src && imageCache.has(src));
 
-  // Reset loaded state when src changes so the skeleton shows for the new
-  // image. Done during render via a tracked previous-src — keeps ESLint's
+  // Reset loaded state when src changes so the skeleton shows for a genuinely
+  // new image. Done during render via a tracked previous-src — keeps ESLint's
   // set-state-in-effect rule happy and avoids an extra paint of stale state.
   const [prevSrc, setPrevSrc] = useState(src);
   if (prevSrc !== src) {
     setPrevSrc(src);
-    setLoaded(false);
+    setLoaded(!!src && imageCache.has(src));
   }
+
+  const markLoaded = () => {
+    if (src) imageCache.add(src);
+    setLoaded(true);
+  };
 
   if (src && failedSrc !== src) {
     return (
@@ -62,7 +79,7 @@ export function UserAvatar({
           src={src}
           alt={username ?? ""}
           referrerPolicy="no-referrer"
-          onLoad={() => setLoaded(true)}
+          onLoad={markLoaded}
           onError={() => setFailedSrc(src)}
           className={cn(
             "w-full h-full object-cover rounded-full border border-gray-100 transition-opacity duration-150",

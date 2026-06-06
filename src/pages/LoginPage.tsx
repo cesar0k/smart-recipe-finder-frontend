@@ -84,6 +84,12 @@ export function LoginPage() {
       }
     } finally {
       setIsSubmitting(false);
+      // Turnstile tokens are single-use. Reset the widget so the NEXT submit
+      // (e.g. after a wrong-password 401, or a retry) gets a fresh token
+      // instead of re-sending the spent one — which the backend rejects as
+      // an invalid captcha, surfacing "could not verify" with no visible
+      // challenge ever shown.
+      captchaRef.current?.reset();
     }
   };
 
@@ -108,11 +114,13 @@ export function LoginPage() {
     pendingCredsRef.current = null;
     setIsSubmitting(false);
     setError(t("captcha_error"));
+    captchaRef.current?.reset();
   };
 
   const handleCaptchaCancel = () => {
     pendingCredsRef.current = null;
     setIsSubmitting(false);
+    captchaRef.current?.reset();
   };
 
   const googleLogin = useGoogleLogin({
@@ -143,7 +151,7 @@ export function LoginPage() {
       onCancel={handleCaptchaCancel}
       action="login"
     />
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-8">
       <div className="w-full max-w-sm">
         {/* Card */}
         <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">

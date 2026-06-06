@@ -44,6 +44,9 @@ export function ForgotPasswordPage() {
           // For any other error still show "sent" to prevent enumeration
           setSent(true);
         },
+        // Single-use Turnstile token: reset the widget after every attempt so
+        // a retry gets a fresh token instead of replaying the spent one.
+        onSettled: () => captchaRef.current?.reset(),
       }
     );
   };
@@ -56,7 +59,7 @@ export function ForgotPasswordPage() {
 
   if (sent) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-8">
         <div className="w-full max-w-sm text-center space-y-4">
           <MailCheck className="w-14 h-14 text-green-500 mx-auto" />
           <h2 className="text-xl font-bold text-gray-900">{t("forgot_password_sent_title")}</h2>
@@ -79,7 +82,7 @@ export function ForgotPasswordPage() {
       onError={() => setError(t("captcha_error"))}
       action="forgot_password"
     />
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-8">
       <div className="w-full max-w-sm">
         <div className="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
           {/* Logo header */}

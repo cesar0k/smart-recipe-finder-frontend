@@ -128,7 +128,22 @@ export function RecipeLightbox({
             className="w-full h-full"
             opts={{ loop: true, startIndex: initialIndex }}
           >
-            <CarouselContent className="h-full -ml-0">
+            {/*
+              Force BOTH axes hidden + contain overscroll. The default carousel
+              content is `overflow-x-hidden overflow-y-visible`, but per CSS spec
+              a non-visible value on one axis coerces the paired `visible` axis
+              to `auto`, turning the Embla container into a scroll port. On iOS
+              that scroll port let the image be panned horizontally even when it
+              fit the screen (the reported "horizontal scroll in the lightbox"
+              bug). A fullscreen black lightbox has no hover-shadow bleed to
+              preserve, so we clip both axes and stop overscroll chaining.
+              `touch-pan-y` lets vertical native gestures through while leaving
+              horizontal swipes to Embla's own pointer-based handling.
+            */}
+            <CarouselContent
+              className="h-full -ml-0"
+              outerClassName="overflow-hidden overscroll-contain touch-pan-y"
+            >
               {images.map((url, index) => (
                 <CarouselItem
                   key={index}
