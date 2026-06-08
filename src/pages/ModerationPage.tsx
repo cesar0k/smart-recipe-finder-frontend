@@ -19,7 +19,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Header } from "@/components/layout/Header";
 import { BackButton } from "@/components/BackButton";
 import { Spinner } from "@/components/ui/spinner";
 
@@ -44,6 +43,7 @@ import type { Recipe, RecipeDraftResponse, ModerationLogResponse, ReportedCommen
 import { useTranslation } from "react-i18next";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
+import { useHeaderSlots } from "@/hooks/useHeaderSlots";
 
 type Tab = "recipes" | "drafts" | "comments" | "history";
 
@@ -51,6 +51,7 @@ export function ModerationPage() {
   useDismissSplash();
   const { t } = useTranslation();
   useDocumentTitle(t("page_title_moderation"));
+  useHeaderSlots({ left: <BackButton /> }, []);
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
   const initialTab = (searchParams.get("tab") as Tab | null) ?? "recipes";
@@ -227,8 +228,6 @@ export function ModerationPage() {
 
   return (
     <div className="min-h-screen bg-white font-sans pb-16 md:pb-0">
-      <Header leftContent={<BackButton />} />
-
       <main className="container mx-auto px-4 py-8 md:py-12 max-w-3xl">
         <h1 className="text-2xl font-bold text-gray-900 mb-6">
           {t("moderation_title")}

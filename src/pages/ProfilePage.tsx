@@ -17,7 +17,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Header } from "@/components/layout/Header";
 import { EmailVerificationBanner } from "@/features/profile/components/EmailVerificationBanner";
 
 import {
@@ -30,6 +29,7 @@ import {
 import { useAuth } from "@/lib/auth/auth-context";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
+import { useHeaderSlots } from "@/hooks/useHeaderSlots";
 
 const PREF_DEBOUNCE_MS = 400;
 
@@ -87,6 +87,7 @@ export function ProfilePage() {
   useDismissSplash();
   const { t, i18n } = useTranslation();
   useDocumentTitle(t("page_title_profile"));
+  useHeaderSlots({}, []);
   const { user, refetchUser } = useAuth();
 
   const [email, setEmail] = useState(user?.email ?? "");
@@ -170,8 +171,6 @@ export function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-white font-sans pb-16 md:pb-0">
-      <Header />
-
       <main className="container mx-auto px-4 pt-6 pb-24 md:pb-10 max-w-md flex flex-col items-center">
         <div className="w-full">
           <h1 className="text-2xl font-bold text-gray-900 mb-6 text-center">

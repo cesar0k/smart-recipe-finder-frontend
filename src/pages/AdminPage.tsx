@@ -23,7 +23,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Header } from "@/components/layout/Header";
 import { BackButton } from "@/components/BackButton";
 import { Spinner } from "@/components/ui/spinner";
 
@@ -38,6 +37,7 @@ import { useAuth } from "@/lib/auth/auth-context";
 import { useTranslation } from "react-i18next";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
+import { useHeaderSlots } from "@/hooks/useHeaderSlots";
 
 const ROLE_BADGE_COLORS: Record<string, string> = {
   admin: "bg-red-100 text-red-700 border-red-200",
@@ -54,6 +54,7 @@ export function AdminPage() {
   useDismissSplash();
   const { t } = useTranslation();
   useDocumentTitle(t("page_title_admin"));
+  useHeaderSlots({ left: <BackButton /> }, []);
   const { user: currentUser } = useAuth();
   const queryClient = useQueryClient();
 
@@ -118,8 +119,6 @@ export function AdminPage() {
 
   return (
     <div className="min-h-screen bg-white font-sans pb-16 md:pb-0">
-      <Header leftContent={<BackButton />} />
-
       <main className="container mx-auto px-4 py-8 md:py-12 max-w-4xl">
         <h1 className="text-2xl font-bold text-gray-900 mb-6">
           {t("admin_title")}

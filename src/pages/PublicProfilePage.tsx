@@ -14,7 +14,6 @@ import { useTranslation } from "react-i18next";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { Header } from "@/components/layout/Header";
 import { RecipeCard } from "@/features/recipes/components/RecipeCard";
 import { FavoriteButton } from "@/features/recipes/components/FavoriteButton";
 import { RecipeCardSkeleton } from "@/components/skeletons/RecipeCardSkeleton";
@@ -39,6 +38,7 @@ import type { Recipe } from "@/api/model";
 import { FollowButton } from "@/features/users/components/FollowButton";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
+import { useHeaderSlots } from "@/hooks/useHeaderSlots";
 
 const PAGE_SIZE = 12;
 
@@ -77,6 +77,11 @@ export function PublicProfilePage() {
   });
 
   useDocumentTitle(profile?.username ? t("page_title_user", { username: profile.username }) : null);
+
+  useHeaderSlots(
+    { right: isOwnProfile ? <CreateRecipeSheet /> : undefined },
+    [isOwnProfile]
+  );
 
   // Own profile uses /my/ (sees pending/rejected/drafts), others use /user/:id (approved only).
   const {
@@ -164,10 +169,6 @@ export function PublicProfilePage() {
 
   return (
     <div className="min-h-screen bg-white font-sans pb-16 md:pb-0">
-      <Header
-        rightContent={isOwnProfile ? <CreateRecipeSheet /> : undefined}
-      />
-
       <main className="container mx-auto px-4 pt-6 pb-24 md:pb-7">
         {isLoading && (
           <>

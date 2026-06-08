@@ -4,8 +4,8 @@ import { useTranslation } from "react-i18next";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { Header } from "@/components/layout/Header";
 import { BackButton } from "@/components/BackButton";
+import { useHeaderSlots } from "@/hooks/useHeaderSlots";
 import { RecipeCard } from "@/features/recipes/components/RecipeCard";
 import { RecipeCardSkeleton } from "@/components/skeletons/RecipeCardSkeleton";
 import { Spinner } from "@/components/ui/spinner";
@@ -25,6 +25,10 @@ const PAGE_SIZE = 12;
 export function MyRecipesPage() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  useHeaderSlots(
+    { left: <BackButton />, right: <CreateRecipeSheet /> },
+    []
+  );
 
   const {
     data: infiniteData,
@@ -86,11 +90,6 @@ export function MyRecipesPage() {
 
   return (
     <div className="min-h-screen bg-white font-sans pb-16 md:pb-0">
-      <Header
-        leftContent={<BackButton />}
-        rightContent={<CreateRecipeSheet />}
-      />
-
       <main className="container mx-auto px-4 py-8 md:py-12">
         <h1 className="text-2xl font-bold text-gray-900 mb-6">
           {t("my_recipes_title")}
