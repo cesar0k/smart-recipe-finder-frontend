@@ -197,6 +197,8 @@
   "admin_link": "Админка",
   "admin_title": "Управление пользователями",
   "admin_no_users": "Пользователи не найдены",
+  "admin_search_placeholder": "Поиск по имени, email, ID или роли",
+  "admin_no_search_results": "Нет пользователей по запросу «{{query}}»",
   "admin_joined": "Зарегистрирован",
   "admin_you": "Вы",
   "admin_inactive": "Неактивен",

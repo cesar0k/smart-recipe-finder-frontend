@@ -197,6 +197,8 @@
   "admin_link": "Admin Panel",
   "admin_title": "User Management",
   "admin_no_users": "No users found",
+  "admin_search_placeholder": "Search by name, email, ID or role",
+  "admin_no_search_results": "No users match \"{{query}}\"",
   "admin_joined": "Joined",
   "admin_you": "You",
   "admin_inactive": "Inactive",

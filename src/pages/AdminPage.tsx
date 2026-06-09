@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Shield, ShieldCheck, Trash2, Ban, CheckCircle } from "lucide-react";
+import { Shield, ShieldCheck, Trash2, Ban, CheckCircle, Search, X } from "lucide-react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -60,6 +61,26 @@ export function AdminPage() {
 
   const { data: users, isLoading } = useListUsers();
   const { mutateAsync: updateUser, isPending: isUpdating } = useUpdateUser();
+
+  // Client-side search across name, email, ID, role and display name.
+  const [search, setSearch] = useState("");
+  const filteredUsers = useMemo(() => {
+    if (!users) return users;
+    const q = search.trim().toLowerCase();
+    if (!q) return users;
+    return users.filter((u: UserResponse) =>
+      [
+        u.username,
+        u.email,
+        u.display_name ?? "",
+        u.role,
+        String(u.id),
+      ]
+        .join(" ")
+        .toLowerCase()
+        .includes(q),
+    );
+  }, [users, search]);
   const { mutateAsync: deleteUser, isPending: isDeleting } = useDeleteUser();
 
   const [deleteTarget, setDeleteTarget] = useState<UserResponse | null>(null);
@@ -124,6 +145,29 @@ export function AdminPage() {
           {t("admin_title")}
         </h1>
 
+        {/* Search */}
+        {!isLoading && users && users.length > 0 && (
+          <div className="relative mb-6 max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={t("admin_search_placeholder")}
+              className="pl-9 pr-9 rounded-full h-9 text-sm"
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                aria-label={t("cancel_btn")}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        )}
+
         {isLoading && (
           <div className="flex justify-center py-10">
             <Spinner size="lg" className="text-gray-300" />
@@ -136,9 +180,20 @@ export function AdminPage() {
           </p>
         )}
 
-        {users && users.length > 0 && (
+        {/* No results for the current search query */}
+        {!isLoading &&
+          users &&
+          users.length > 0 &&
+          filteredUsers &&
+          filteredUsers.length === 0 && (
+            <p className="text-gray-500 text-center py-10">
+              {t("admin_no_search_results", { query: search.trim() })}
+            </p>
+          )}
+
+        {filteredUsers && filteredUsers.length > 0 && (
           <div className="space-y-3">
-            {users.map((u: UserResponse) => {
+            {filteredUsers.map((u: UserResponse) => {
               const isSelf = u.id === currentUser?.id;
 
               return (
