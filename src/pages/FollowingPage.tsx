@@ -1,17 +1,18 @@
 import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useGetFollowing } from "@/api/follows/follows";
-import { Header } from "@/components/layout/Header";
 import { BackButton } from "@/components/BackButton";
 import { UserCard } from "@/components/UserCard";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
+import { useHeaderSlots } from "@/hooks/useHeaderSlots";
 import { Button } from "@/components/ui/button";
 
 export function FollowingPage() {
   useDismissSplash();
   const { t } = useTranslation();
   useDocumentTitle(t("page_title_following"));
+  useHeaderSlots({ left: <BackButton /> }, []);
   const { userId } = useParams<{ userId: string }>();
   const uid = parseInt(userId || "0", 10);
 
@@ -19,8 +20,6 @@ export function FollowingPage() {
 
   return (
     <div className="min-h-screen bg-white font-sans pb-16 md:pb-0">
-      <Header leftContent={<BackButton />} />
-
       <main className="container mx-auto px-4 pt-8 pb-24 md:pb-8 max-w-lg">
         <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight mb-6">
           {t("following_page_title")}

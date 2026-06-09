@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
 
-import { Header } from "@/components/layout/Header";
 import { RecipeCard } from "@/features/recipes/components/RecipeCard";
 import { RecipeCardSkeleton } from "@/components/skeletons/RecipeCardSkeleton";
 import { Spinner } from "@/components/ui/spinner";
@@ -11,11 +10,13 @@ import { FavoriteButton } from "@/features/recipes/components/FavoriteButton";
 import { useMyFavorites } from "@/features/recipes/hooks/useMyFavorites";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
+import { useHeaderSlots } from "@/hooks/useHeaderSlots";
 
 export function MyFavoritesPage() {
   useDismissSplash();
   const { t } = useTranslation();
   useDocumentTitle(t("page_title_favorites"));
+  useHeaderSlots({}, []);
   const {
     recipes,
     isLoading,
@@ -29,8 +30,6 @@ export function MyFavoritesPage() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans">
-      <Header />
-
       <main className="flex-1 container mx-auto px-4 pt-8 pb-24 md:py-12">
         <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight mb-6">
           {t("favorites_title")}

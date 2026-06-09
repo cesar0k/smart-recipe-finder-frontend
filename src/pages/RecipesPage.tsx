@@ -10,10 +10,10 @@ import { RecipeSortMenu } from "@/features/recipes/components/RecipeSortMenu";
 import { RecipeCardSkeleton } from "@/components/skeletons/RecipeCardSkeleton";
 import { AnimatedWidth } from "@/components/ui/animated-width";
 import { Footer } from "@/components/layout/Footer";
-import { Header } from "@/components/layout/Header";
 import { Spinner } from "@/components/ui/spinner";
 import { useTranslation } from "react-i18next";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
+import { useHeaderSlots } from "@/hooks/useHeaderSlots";
 export function RecipesPage() {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
@@ -47,11 +47,10 @@ export function RecipesPage() {
   const categoryLabel = searchParams.get("category_label");
   const pageTitle = categoryLabel || t("all_recipes");
   useDocumentTitle(pageTitle);
+  useHeaderSlots({}, []);
 
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans pb-16 md:pb-0">
-      <Header />
-
       {/* Vertical rhythm is built around the infinite-scroll sentinel
           (py-8 → 32px above + 32px below the spinner). To match the
           top breathing room (pt-8 mobile / pt-12 desktop), main needs

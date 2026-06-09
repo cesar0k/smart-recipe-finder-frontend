@@ -11,11 +11,11 @@ import { HomeSearchBlock } from "@/features/recipes/components/HomeSearchBlock";
 import { RecipeCardSkeleton } from "@/components/skeletons/RecipeCardSkeleton";
 import { CategoryShelves, CategoryShelfSkeleton } from "@/features/recipes/components/CategoryShelf";
 import { Footer } from "@/components/layout/Footer";
-import { Header } from "@/components/layout/Header";
 import { Spinner } from "@/components/ui/spinner";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/lib/auth/auth-context";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
+import { useHeaderSlots } from "@/hooks/useHeaderSlots";
 
 export function HomePage() {
   const { t } = useTranslation();
@@ -48,27 +48,31 @@ export function HomePage() {
     hasNextPage,
   } = useHomeRecipes();
 
+  useHeaderSlots(
+    {
+      left: (
+        <Link
+          to="/"
+          onClick={handleClear}
+          className="group flex items-center gap-2 cursor-pointer shrink-0"
+        >
+          <div className="w-9 h-9 md:w-7 md:h-7 transition-transform duration-300 group-hover:scale-110">
+            <div className="w-9 h-9 md:w-7 md:h-7 bg-black rounded-xl md:rounded-lg flex items-center justify-center">
+              <ChefHat className="w-5 h-5 md:w-3.5 md:h-3.5 text-white" />
+            </div>
+          </div>
+          <span className="hidden md:inline font-bold text-xl tracking-tighter text-gray-900">
+            {t("app_name")}
+          </span>
+        </Link>
+      ),
+      right: isAuthenticated ? <CreateRecipeSheet /> : undefined,
+    },
+    [isAuthenticated, handleClear, t]
+  );
+
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans pb-16 md:pb-0 overflow-x-clip">
-      <Header
-        leftContent={
-          <Link
-            to="/"
-            onClick={handleClear}
-            className="group flex items-center gap-2 cursor-pointer shrink-0"
-          >
-            <div className="w-9 h-9 md:w-7 md:h-7 transition-transform duration-300 group-hover:scale-110">
-              <div className="w-9 h-9 md:w-7 md:h-7 bg-black rounded-xl md:rounded-lg flex items-center justify-center">
-                <ChefHat className="w-5 h-5 md:w-3.5 md:h-3.5 text-white" />
-              </div>
-            </div>
-            <span className="hidden md:inline font-bold text-xl tracking-tighter text-gray-900">
-              {t("app_name")}
-            </span>
-          </Link>
-        }
-        rightContent={isAuthenticated ? <CreateRecipeSheet /> : undefined}
-      />
 
       
       <main className="flex-1 container mx-auto px-4 pt-8 md:pt-12 pb-5">

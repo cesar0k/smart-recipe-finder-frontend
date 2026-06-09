@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { EditRecipeSheet } from "@/features/recipes/components/EditRecipeSheet";
 import { DeleteRecipeDialog } from "@/features/recipes/components/DeleteRecipeDialog";
-import { Header } from "@/components/layout/Header";
 import { BackButton } from "@/components/BackButton";
 import { RecipePageSkeleton } from "@/components/skeletons/RecipePageSkeleton";
 
@@ -27,6 +26,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/lib/auth/auth-context";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
+import { useHeaderSlots } from "@/hooks/useHeaderSlots";
 
 // ── Bottom tabs: Similar | Comments ──────────────────────────────────────────
 
@@ -226,10 +226,45 @@ export function RecipePage() {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
+  // One call covers every branch (skeleton / error / loaded) since the header
+  // now lives in the layout, not in the returned JSX. left is constant; right
+  // (the Edit/Delete menu) appears once ownership resolves — republish on the
+  // primitive `canModify`, never on the JSX node.
+  useHeaderSlots(
+    {
+      left: <BackButton />,
+      right: canModify ? (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="rounded-full">
+              <MoreVertical className="w-5 h-5 text-gray-600" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48 rounded-2xl">
+            <DropdownMenuItem
+              className="rounded-full"
+              onClick={() => setIsEditOpen(true)}
+            >
+              <Pencil className="w-4 h-4 mr-2" />
+              {t("edit_recipe")}
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="text-red-600 focus:text-red-600 focus:bg-red-50 rounded-full"
+              onClick={() => setIsDeleteDialogOpen(true)}
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              {t("delete_recipe")}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : undefined,
+    },
+    [canModify, t]
+  );
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white font-sans pb-16 md:pb-0">
-        <Header leftContent={<BackButton />} />
         <main className="container mx-auto px-4 py-8 md:py-12">
           <RecipePageSkeleton />
         </main>
@@ -253,37 +288,6 @@ export function RecipePage() {
 
   return (
     <div className="min-h-screen bg-white font-sans pb-16 md:pb-0">
-      <Header
-        leftContent={<BackButton />}
-        rightContent={
-          canModify ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full">
-                  <MoreVertical className="w-5 h-5 text-gray-600" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 rounded-2xl">
-                <DropdownMenuItem
-                  className="rounded-full"
-                  onClick={() => setIsEditOpen(true)}
-                >
-                  <Pencil className="w-4 h-4 mr-2" />
-                  {t("edit_recipe")}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-red-600 focus:text-red-600 focus:bg-red-50 rounded-full"
-                  onClick={() => setIsDeleteDialogOpen(true)}
-                >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  {t("delete_recipe")}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : undefined
-        }
-      />
-
       <main className="container mx-auto px-4 py-8 md:py-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-10 lg:gap-16">
           {/* Left side */}

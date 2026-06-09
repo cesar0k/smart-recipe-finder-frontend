@@ -9,6 +9,8 @@ import {
 import { BottomNav } from "./components/layout/BottomNav";
 import { ScrollToTop } from "./components/ui/scroll-to-top";
 import { AndroidScrollLock } from "./components/ui/android-scroll-lock";
+import { Header } from "./components/layout/Header";
+import { HeaderSlotsProvider } from "./components/layout/HeaderSlotsContext";
 import { dismissSplash } from "@/lib/splash";
 
 const HomePage = lazy(() =>
@@ -158,11 +160,15 @@ function SplashDismisser() {
 
 function App() {
   return (
-    <>
+    <HeaderSlotsProvider>
       <ScrollManager />
       <RouteTransitionIndicator />
       <Suspense fallback={<IndicatorSuspenseFallback />}>
         <SplashDismisser />
+        {/* Static header: a sibling rendered once at layout level (not inside
+            each page), so it doesn't re-mount on navigation. Renders null until
+            a page opts in via useHeaderSlots. */}
+        <Header />
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/recipe/:id" element={<RecipePage />} />
@@ -222,7 +228,7 @@ function App() {
       <ScrollToTop />
       <AndroidScrollLock />
       <Toaster />
-    </>
+    </HeaderSlotsProvider>
   );
 }
 

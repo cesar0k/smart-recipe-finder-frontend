@@ -28,6 +28,7 @@ import { NotificationPanel } from "@/components/NotificationPanel";
 import { useGetPendingCount } from "@/api/moderation/moderation";
 import { useNotificationWS } from "@/hooks/useNotificationWS";
 import { UserSearchInput, type UserSearchInputHandle } from "@/components/UserSearchInput";
+import { useHeaderSlotsValue } from "@/components/layout/HeaderSlotsContext";
 import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 
@@ -36,7 +37,21 @@ interface HeaderProps {
   rightContent?: ReactNode;
 }
 
-export function Header({ leftContent, rightContent }: HeaderProps) {
+/**
+ * The single static header instance rendered by the layout (App.tsx), above the
+ * animated page subtree. Reads its slots from HeaderSlotsContext (pages publish
+ * them via useHeaderSlots) and hides itself entirely when no page has opted in.
+ * Living outside the PageTransition motion wrapper keeps it from sliding/fading
+ * with the page — and excludes its heavy DOM (search, notifications, websocket)
+ * from the animated subtree, which removes most of the Safari transition lag.
+ */
+export function Header() {
+  const { visible, leftContent, rightContent } = useHeaderSlotsValue();
+  if (!visible) return null;
+  return <HeaderBase leftContent={leftContent} rightContent={rightContent} />;
+}
+
+function HeaderBase({ leftContent, rightContent }: HeaderProps) {
   const { t } = useTranslation();
   const { user, isAuthenticated, logout, hasRole } = useAuth();
   const navigate = useNavigate();

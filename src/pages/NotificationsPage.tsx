@@ -4,7 +4,6 @@ import { useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { Check, Trash2, X, CheckCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Header } from "@/components/layout/Header";
 import {
   useGetUnreadCount,
   getGetUnreadCountQueryKey,
@@ -19,6 +18,7 @@ import type { NotificationResponse } from "@/api/model";
 import { useAuth } from "@/lib/auth/auth-context";
 import { useDismissSplash } from "@/hooks/useDismissSplash";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
+import { useHeaderSlots } from "@/hooks/useHeaderSlots";
 import { useRelativeTime } from "@/hooks/useRelativeTime";
 
 const PAGE_SIZE = 20;
@@ -74,6 +74,7 @@ export function NotificationsPage() {
   useDismissSplash();
   const { t } = useTranslation();
   useDocumentTitle(t("page_title_notifications"));
+  useHeaderSlots({}, []);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const getNotifText = useNotificationText();
@@ -161,7 +162,6 @@ export function NotificationsPage() {
 
   return (
     <div className="min-h-screen bg-white font-sans pb-16 md:pb-0">
-      <Header />
       <main className="container mx-auto px-4 pt-8 pb-24 md:pb-8 max-w-2xl">
         {/* Page header */}
         <div className="flex items-center justify-between mb-6 gap-2">
