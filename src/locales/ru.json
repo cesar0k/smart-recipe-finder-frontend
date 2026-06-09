@@ -298,6 +298,8 @@
   "profile_saving_btn": "Сохранение...",
   "profile_saved": "Профиль обновлён",
   "profile_error": "Ошибка обновления профиля",
+  "profile_error_email_required": "Укажите email",
+  "profile_error_email_invalid": "Введите корректный email",
   "profile_change_password": "Сменить пароль",
   "profile_old_password": "Текущий пароль",
   "profile_new_password": "Новый пароль",

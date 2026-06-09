@@ -297,6 +297,8 @@
   "profile_saving_btn": "Saving...",
   "profile_saved": "Profile updated",
   "profile_error": "Failed to update profile",
+  "profile_error_email_required": "Email is required",
+  "profile_error_email_invalid": "Please enter a valid email address",
   "profile_change_password": "Change Password",
   "profile_old_password": "Current password",
   "profile_new_password": "New password",

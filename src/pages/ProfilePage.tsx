@@ -33,6 +33,10 @@ import { useHeaderSlots } from "@/hooks/useHeaderSlots";
 
 const PREF_DEBOUNCE_MS = 400;
 
+// Pragmatic email regex — requires a local part, "@", a domain with a dot,
+// and a TLD of at least 2 chars. Matches typical backend validation.
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
 /**
  * Returns a toggle function that:
  * 1. Updates the TanStack Query cache optimistically on every click.
@@ -91,6 +95,7 @@ export function ProfilePage() {
   const { user, refetchUser } = useAuth();
 
   const [email, setEmail] = useState(user?.email ?? "");
+  const [emailError, setEmailError] = useState<string | null>(null);
   // Prefer saved user preference; fall back to detected browser language
   const detectedLang = i18n.language?.startsWith("ru") ? "ru" : "en";
   const [language, setLanguage] = useState<"ru" | "en">(
@@ -114,17 +119,49 @@ export function ProfilePage() {
     getGetEmailPreferencesQueryKey(),
   );
 
+  const validateEmail = (value: string): string | null => {
+    const trimmed = value.trim();
+    if (!trimmed) return t("profile_error_email_required");
+    if (!EMAIL_REGEX.test(trimmed)) return t("profile_error_email_invalid");
+    return null;
+  };
+
   const handleSaveProfile = async () => {
+    const emailChanged = email !== user?.email;
+
+    // Client-side email validation (only when the email field changed)
+    if (emailChanged) {
+      const err = validateEmail(email);
+      if (err) {
+        setEmailError(err);
+        return;
+      }
+    }
+    setEmailError(null);
+
     try {
       await updateProfile({
         data: {
-          email: email !== user?.email ? email : undefined,
+          email: emailChanged ? email.trim() : undefined,
           language: language !== user?.language ? language : undefined,
         },
       });
       toast.success(t("profile_saved"));
       await refetchUser();
-    } catch {
+    } catch (err) {
+      // Surface backend validation (422) inline on the email field
+      if (axios.isAxiosError(err) && err.response?.status === 422) {
+        const detail = err.response.data?.detail;
+        const isEmailError =
+          Array.isArray(detail) &&
+          detail.some((d: { loc?: unknown[] }) =>
+            Array.isArray(d.loc) && d.loc.includes("email"),
+          );
+        if (isEmailError) {
+          setEmailError(t("profile_error_email_invalid"));
+          return;
+        }
+      }
       toast.error(t("profile_error"));
     }
   };
@@ -202,12 +239,26 @@ export function ProfilePage() {
               <Input
                 id="email"
                 type="email"
+                inputMode="email"
                 autoCapitalize="none"
+                autoCorrect="off"
+                aria-invalid={emailError ? true : undefined}
+                aria-describedby={emailError ? "email-error" : undefined}
                 placeholder={t("profile_email_placeholder")}
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="rounded-full h-9 px-4 text-sm"
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (emailError) setEmailError(null);
+                }}
+                className={`rounded-full h-9 px-4 text-sm ${
+                  emailError ? "border-red-500 focus-visible:ring-red-500" : ""
+                }`}
               />
+              {emailError && (
+                <p id="email-error" className="text-sm text-red-500">
+                  {emailError}
+                </p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label className="text-sm">{t("profile_language_label")}</Label>
