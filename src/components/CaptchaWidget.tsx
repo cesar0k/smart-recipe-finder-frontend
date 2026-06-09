@@ -1,5 +1,6 @@
 import {
   forwardRef,
+  useEffect,
   useImperativeHandle,
   useRef,
   useState,
@@ -50,6 +51,25 @@ export const CaptchaWidget = forwardRef<CaptchaWidgetHandle, CaptchaWidgetProps>
     const widgetRef = useRef<TurnstileInstance | null>(null);
     const siteKey = import.meta.env.VITE_CAPTCHA_SITE_KEY || "";
     const [interactive, setInteractive] = useState(false);
+    // `mounted` lags `interactive` so the overlay can play its exit animation
+    // before it's removed from layout. We keep the Turnstile widget itself
+    // mounted at all times (off-screen) — only the visible overlay chrome is
+    // mounted/unmounted — so the challenge never remounts or flashes.
+    const [mounted, setMounted] = useState(false);
+
+    // Mount synchronously during render when a challenge appears (no effect —
+    // same trick as deriving state during render). The effect below only
+    // handles the *delayed* unmount so the exit animation can play.
+    if (interactive && !mounted) {
+      setMounted(true);
+    }
+
+    useEffect(() => {
+      if (interactive || !mounted) return;
+      // Keep the overlay around for the exit animation, then unmount it.
+      const id = setTimeout(() => setMounted(false), 200);
+      return () => clearTimeout(id);
+    }, [interactive, mounted]);
 
     useImperativeHandle(ref, () => ({
       execute: () => {
@@ -75,20 +95,30 @@ export const CaptchaWidget = forwardRef<CaptchaWidgetHandle, CaptchaWidgetProps>
     return (
       <div
         className={
-          interactive
-            ? "fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4"
+          mounted
+            ? [
+                "fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 duration-200",
+                interactive
+                  ? "animate-in fade-in-0"
+                  : "animate-out fade-out-0",
+              ].join(" ")
             : "fixed -left-[10000px] top-0"
         }
-        aria-hidden={!interactive}
+        aria-hidden={interactive ? undefined : true}
       >
         <div
           className={
-            interactive
-              ? "bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full space-y-4"
+            mounted
+              ? [
+                  "bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full space-y-4 duration-200",
+                  interactive
+                    ? "animate-in zoom-in-95 fade-in-0"
+                    : "animate-out zoom-out-95 fade-out-0",
+                ].join(" ")
               : ""
           }
         >
-          {interactive && (
+          {mounted && (
             <div className="space-y-1 text-center">
               <h2 className="text-lg font-semibold text-gray-900">
                 {t("captcha_title")}
@@ -99,7 +129,7 @@ export const CaptchaWidget = forwardRef<CaptchaWidgetHandle, CaptchaWidgetProps>
 
           <div
             className={
-              interactive ? "flex justify-center min-h-[70px]" : ""
+              mounted ? "flex justify-center min-h-[70px]" : ""
             }
           >
             <Turnstile
@@ -125,7 +155,7 @@ export const CaptchaWidget = forwardRef<CaptchaWidgetHandle, CaptchaWidgetProps>
             />
           </div>
 
-          {interactive && (
+          {mounted && (
             <div className="flex justify-end">
               <Button
                 type="button"
