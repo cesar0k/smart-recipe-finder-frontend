@@ -180,11 +180,20 @@ export function FavoriteButton({
           borderColor: isFavorited ? ROSE_500_BORDER : "rgb(229, 231, 235)",
           color: isFavorited ? "#ffffff" : "rgb(17, 24, 39)",
         }}
+        // Hover via whileHover (not Tailwind hover:) because the bg/border are
+        // motion inline styles, which would override CSS hover. Unfavorited:
+        // same subtle shift as the comments-count tag (border-gray-300 +
+        // bg-gray-50). Favorited: deepen to rose-600.
+        whileHover={
+          isPending
+            ? undefined
+            : isFavorited
+              ? { backgroundColor: "#e11d48", borderColor: "#e11d48" }
+              : { backgroundColor: "rgb(249, 250, 251)", borderColor: "rgb(209, 213, 219)" }
+        }
         transition={{ duration: 0.2, ease: "easeOut" }}
         className={cn(
-          "inline-flex items-center justify-center whitespace-nowrap text-sm font-medium h-9 px-4 py-2 rounded-full border gap-2 outline-none disabled:opacity-100 disabled:pointer-events-none focus-visible:ring-ring/50 focus-visible:ring-[3px] [&_svg]:pointer-events-none [&_svg]:shrink-0 shadow-xs",
-          isFavorited && "hover:bg-rose-600",
-          !isFavorited && "hover:bg-accent",
+          "inline-flex items-center justify-center whitespace-nowrap text-sm font-medium h-9 px-4 py-2 rounded-full border gap-2 outline-none disabled:opacity-100 disabled:pointer-events-none focus-visible:ring-ring/50 focus-visible:ring-[3px] [&_svg]:pointer-events-none [&_svg]:shrink-0 shadow-xs transition-colors",
           className
         )}
       >

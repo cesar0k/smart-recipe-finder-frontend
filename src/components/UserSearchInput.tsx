@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback, useImperativeHandle, forwardRef } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback, useImperativeHandle, forwardRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, ChefHat, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -100,12 +100,49 @@ function UserSearchInput({ autoFocus = false, fullWidth = false }, ref) {
     }
   };
 
-  // Mobile check — computed once on mount, stable until resize.
-  // Using lazy useState (not useRef.current) so ESLint's react-hooks/refs
-  // rule is happy: refs aren't supposed to drive render output.
-  const [isMobile] = useState(() => typeof window !== "undefined" && window.innerWidth < 768);
-  const collapsedW = isMobile ? 96 : 160;
-  const expandedW = isMobile ? 140 : 224;
+  // Compact sizing kicks in below 900px (not just true mobile <768): in the
+  // 768–900px range the desktop header is crowded, and a wide search box would
+  // collide with the notifications / language / avatar cluster. There we keep
+  // the box narrow (placeholder may sit closer to the edges but won't push the
+  // header into overflow). Recomputed on resize so rotating / resizing updates
+  // it. Lazy initial value so SSR / first paint is correct.
+  const [compact, setCompact] = useState(
+    () => typeof window !== "undefined" && window.innerWidth < 900,
+  );
+  useEffect(() => {
+    const onResize = () => setCompact(window.innerWidth < 900);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  // Resting width must fit the placeholder so it never truncates with an ugly
+  // "…". We measure the actual placeholder text (language-proof: RU "Поиск
+  // людей..." is wider than EN "Find user...") with a canvas and add room for
+  // the search icon (left) + clear-button gutter (right) ≈ 60px. Clamped so a
+  // very long translation can't blow out the header. In compact mode we cap it
+  // tighter. Pure computation (no side effects) → useMemo, not an effect.
+  const placeholder = t("user_search_placeholder");
+  const collapsedW = useMemo(() => {
+    const fallback = compact ? 160 : 200;
+    if (typeof document === "undefined") return fallback;
+    const ctx = document.createElement("canvas").getContext("2d");
+    if (!ctx) return fallback;
+    // Match the rendered input font. The base Input is `text-base md:text-sm`,
+    // so the box is 16px on mobile and 14px on desktop (our `text-xs` is
+    // overridden by `md:text-sm` at the md breakpoint). Measure with the larger
+    // of the two for the active mode so the box never under-sizes.
+    ctx.font = `${compact ? 16 : 14}px ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif`;
+    // +72 = left icon gutter (~32) + right clear-button gutter (~28) + ~12 slack.
+    const needed = Math.ceil(ctx.measureText(placeholder).width) + 72;
+    const min = compact ? 150 : 190;
+    const max = compact ? 210 : 280;
+    return Math.min(max, Math.max(min, needed));
+  }, [placeholder, compact]);
+  // Focused state gives a bit more room to type; never narrower than rest.
+  const expandedW = Math.max(
+    collapsedW + (compact ? 28 : 44),
+    compact ? 168 : 224,
+  );
 
   return (
     <div ref={containerRef} className={fullWidth ? "relative w-full" : "relative"}>
@@ -129,7 +166,7 @@ function UserSearchInput({ autoFocus = false, fullWidth = false }, ref) {
           onBlur={() => setIsFocused(false)}
           onKeyDown={handleKeyDown}
           autoFocus={autoFocus}
-          className="w-full h-8 pl-8 pr-7 text-xs rounded-full border-gray-300 bg-white transition-colors"
+          className="w-full h-8 pl-8 pr-7 text-xs rounded-full border-gray-200 bg-white transition-colors hover:border-gray-300 hover:bg-gray-50 focus:bg-white"
         />
         {query.length > 0 && (
           <button

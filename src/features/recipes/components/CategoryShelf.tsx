@@ -10,46 +10,13 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-  useCarousel,
 } from "@/components/ui/carousel";
-import { cn } from "@/lib/utils";
 import { useRecipeCategories } from "@/api/recipes/useRecipeCategories";
 import { useCheckFavorites } from "@/api/favorites/favorites";
 import { useAuth } from "@/lib/auth/auth-context";
 import { useTranslation } from "react-i18next";
 
 const LIMIT_PER = 8; // fetch more so the carousel feels full
-
-/**
- * Soft white fade on each scrollable edge of the carousel — a passive "there's
- * more this way" hint so it's obvious the row scrolls. Each edge only shows
- * when that direction can actually scroll (canScrollPrev / canScrollNext), so
- * it disappears in sync with the arrow at the ends. pointer-events-none keeps
- * swipe/click passing through; z-10 sits under the z-20 arrows.
- */
-function CarouselFadeEdges() {
-  const { canScrollPrev, canScrollNext } = useCarousel();
-  return (
-    <>
-      <div
-        aria-hidden
-        className={cn(
-          "pointer-events-none absolute inset-y-0 left-0 w-12 z-10",
-          "bg-gradient-to-r from-white to-transparent transition-opacity duration-200",
-          canScrollPrev ? "opacity-100" : "opacity-0"
-        )}
-      />
-      <div
-        aria-hidden
-        className={cn(
-          "pointer-events-none absolute inset-y-0 right-0 w-12 z-10",
-          "bg-gradient-to-l from-white to-transparent transition-opacity duration-200",
-          canScrollNext ? "opacity-100" : "opacity-0"
-        )}
-      />
-    </>
-  );
-}
 
 export function CategoryShelves() {
   const { t } = useTranslation();
@@ -163,19 +130,14 @@ export function CategoryShelves() {
               </CarouselItem>
             </CarouselContent>
 
-            {/* Gradient fade hint on the scrollable edges. */}
-            <CarouselFadeEdges />
-
-            {/* Navigation arrows — always visible (not hover-only) so it's
-                obvious the row can be clicked through, not just swiped. They
-                sit just inside the edge over the gradient fade; size-9 white
-                circles with a clear shadow, gently emphasised on hover. Hidden
-                on mobile (swipe + the gradient hint are enough there, and the
-                arrows would crowd the card / heart overlay). The base
-                canScroll gating still collapses them at the ends, in sync with
-                the gradients. z-20 keeps them above the z-10 fade. */}
-            <CarouselPrevious className="hidden sm:flex z-20 left-2 size-9 bg-white shadow-lg border-gray-200 hover:bg-white hover:scale-105 hover:shadow-xl" />
-            <CarouselNext className="hidden sm:flex z-20 right-2 size-9 bg-white shadow-lg border-gray-200 hover:bg-white hover:scale-105 hover:shadow-xl" />
+            {/* Navigation arrows — same style as the "similar recipes" row:
+                they straddle the carousel edge at -left-4/-right-4, sitting in
+                the 24px clip gutter from the -mx-6/px-6 wrapper rather than
+                being sunk into the card. Shown on mobile too. Hover lifts the
+                arrow (scale + stronger shadow). The base canScroll gating still
+                collapses each arrow at its end. */}
+            <CarouselPrevious className="-left-4 shadow-md bg-white border-gray-200 hover:bg-white hover:scale-105 hover:shadow-xl" />
+            <CarouselNext className="-right-4 shadow-md bg-white border-gray-200 hover:bg-white hover:scale-105 hover:shadow-xl" />
           </Carousel>
           </div>
         </section>
