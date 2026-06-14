@@ -42,6 +42,16 @@ export function OptimizedImage({
 
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(isEmpty);
+
+  // Progressive loading: thumbnail loaded first, then full replaces it.
+  // Declared before the prevSrc reset block so the setters are in scope there.
+  const hasThumb = !!thumbnailSrc && thumbnailSrc !== src;
+  const thumbCached = hasThumb && imageCache.has(thumbnailSrc!);
+  // Initialise from cache so components that re-mount (e.g. Embla carousel
+  // slides) never flash a spinner for images the browser already has decoded.
+  const [thumbLoaded, setThumbLoaded] = useState(() => thumbCached);
+  const [fullLoaded, setFullLoaded] = useState(() => cached);
+
   // Reset internal state when `src` changes (e.g. user removed all images
   // from a recipe). Doing this during render — instead of from a useEffect —
   // avoids the cascading-render warning and the brief flash of the stale
@@ -51,13 +61,11 @@ export function OptimizedImage({
     setPrevSrc(src);
     setIsLoaded(false);
     setHasError(isEmpty);
+    // Re-derive progressive state for the new src so a revisited image is
+    // treated as loaded immediately and a brand-new one starts from scratch.
+    setThumbLoaded(thumbCached);
+    setFullLoaded(cached);
   }
-
-  // Progressive loading: thumbnail loaded first, then full replaces it
-  const hasThumb = !!thumbnailSrc && thumbnailSrc !== src;
-  const thumbCached = hasThumb && imageCache.has(thumbnailSrc);
-  const [thumbLoaded, setThumbLoaded] = useState(false);
-  const [fullLoaded, setFullLoaded] = useState(false);
 
   // Preload full image in background when we have a thumbnail
   useEffect(() => {
@@ -160,7 +168,10 @@ export function OptimizedImage({
         )}
 
         {/* Thumbnail layer — visible until full loads. In lightbox mode we
-            blur it so the low-res image doesn't look pixelated full-screen. */}
+            blur it so the low-res image doesn't look pixelated full-screen.
+            In lightbox mode the thumbnail must use w-full/h-full + object-contain
+            (not the imgClassName intended for the full image, which has w-auto/h-auto
+            and would render the tiny thumbnail at its natural size in the top-left). */}
         <img
           src={thumbnailSrc}
           alt={alt}
@@ -173,7 +184,9 @@ export function OptimizedImage({
           onError={() => setHasError(true)}
           className={cn(
             "absolute inset-0 transition-opacity duration-300",
-            baseImgClass,
+            lightbox
+              ? "w-full h-full object-contain object-center"
+              : baseImgClass,
             lightbox && !showFull && "blur-xl scale-110",
             thumbLoaded && !showFull ? "opacity-100" : !showFull ? "opacity-0" : "opacity-0",
             hasError && "hidden",
