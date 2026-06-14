@@ -160,7 +160,10 @@ export function OptimizedImage({
         )}
 
         {/* Thumbnail layer — visible until full loads. In lightbox mode we
-            blur it so the low-res image doesn't look pixelated full-screen. */}
+            blur it so the low-res image doesn't look pixelated full-screen.
+            In lightbox mode the thumbnail must use w-full/h-full + object-contain
+            (not the imgClassName intended for the full image, which has w-auto/h-auto
+            and would render the tiny thumbnail at its natural size in the top-left). */}
         <img
           src={thumbnailSrc}
           alt={alt}
@@ -173,7 +176,9 @@ export function OptimizedImage({
           onError={() => setHasError(true)}
           className={cn(
             "absolute inset-0 transition-opacity duration-300",
-            baseImgClass,
+            lightbox
+              ? "w-full h-full object-contain object-center"
+              : baseImgClass,
             lightbox && !showFull && "blur-xl scale-110",
             thumbLoaded && !showFull ? "opacity-100" : !showFull ? "opacity-0" : "opacity-0",
             hasError && "hidden",
