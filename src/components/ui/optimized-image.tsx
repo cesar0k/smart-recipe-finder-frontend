@@ -40,7 +40,7 @@ export function OptimizedImage({
   const isEmpty = !src || !src.trim();
   const cached = !isEmpty && imageCache.has(src);
 
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(() => cached);
   const [hasError, setHasError] = useState(isEmpty);
 
   // Progressive loading: thumbnail loaded first, then full replaces it.
@@ -50,7 +50,6 @@ export function OptimizedImage({
   // Initialise from cache so components that re-mount (e.g. Embla carousel
   // slides) never flash a spinner for images the browser already has decoded.
   const [thumbLoaded, setThumbLoaded] = useState(() => thumbCached);
-  const [fullLoaded, setFullLoaded] = useState(() => cached);
 
   // Reset internal state when `src` changes (e.g. user removed all images
   // from a recipe). Doing this during render — instead of from a useEffect —
@@ -59,12 +58,11 @@ export function OptimizedImage({
   const [prevSrc, setPrevSrc] = useState(src);
   if (prevSrc !== src) {
     setPrevSrc(src);
-    setIsLoaded(false);
+    setIsLoaded(cached);
     setHasError(isEmpty);
     // Re-derive progressive state for the new src so a revisited image is
     // treated as loaded immediately and a brand-new one starts from scratch.
     setThumbLoaded(thumbCached);
-    setFullLoaded(cached);
   }
 
   // Preload full image in background when we have a thumbnail
@@ -75,14 +73,11 @@ export function OptimizedImage({
     img.src = src;
 
     if (img.complete && img.naturalWidth > 0) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setFullLoaded(true);
       imageCache.add(src);
       return;
     }
 
     img.onload = () => {
-      setFullLoaded(true);
       imageCache.add(src);
     };
 
@@ -151,7 +146,7 @@ export function OptimizedImage({
 
   // Progressive mode: show thumbnail first, then crossfade to full
   if (hasThumb && !cached) {
-    const showFull = fullLoaded || isLoaded;
+    const showFull = isLoaded;
 
     return (
       <div className={wrapperClass}>
