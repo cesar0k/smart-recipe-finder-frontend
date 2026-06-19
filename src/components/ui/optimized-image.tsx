@@ -134,8 +134,8 @@ export function OptimizedImage({
   };
 
   const wrapperClass = cn(
-    "relative overflow-hidden",
-    className ? className : "w-full h-full bg-gray-100"
+    "relative overflow-hidden bg-gray-50",
+    className ? className : "w-full h-full"
   );
 
   const baseImgClass = cn(
@@ -199,7 +199,7 @@ export function OptimizedImage({
           onLoad={handleLoad}
           onError={() => setHasError(true)}
           className={cn(
-            "absolute inset-0 transition-opacity duration-[400ms]",
+            "absolute inset-0 transition-opacity duration-300",
             baseImgClass,
             showFull ? "opacity-100" : "opacity-0",
             hasError && "hidden",
@@ -243,7 +243,7 @@ export function OptimizedImage({
         onError={() => setHasError(true)}
         className={cn(
           "transition-opacity",
-          cached ? "duration-150" : "duration-[400ms]",
+          cached ? "duration-150" : "duration-300",
           baseImgClass,
           isLoaded ? "opacity-100" : "opacity-0",
           hasError && "hidden",
